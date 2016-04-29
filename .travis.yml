@@ -1,0 +1,11 @@
+sudo: false
+language: perl
+perl:
+    - "5.22"
+    - "5.20"
+    - "5.18"
+    - "5.16"
+install:
+    - ./bin/bootstrap
+before_script:
+    - eval $(perl -Ilocal/lib/perl5 -Mlocal::lib="local")
