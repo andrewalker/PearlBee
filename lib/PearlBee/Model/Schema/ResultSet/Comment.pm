@@ -7,6 +7,7 @@ use base 'DBIx::Class::ResultSet';
 
 use Gravatar::URL;
 use DateTime;
+use PearlBee ();
 
 use HTML::Strip;
 my $hs = HTML::Strip->new();
@@ -28,6 +29,8 @@ sub can_create {
     # Set the proper timezone
     my $dt  = DateTime->now;
     my $dtf = $schema->storage->datetime_parser;
+    # XXX: using PearlBee::config here is quite a hack, but it simplifies
+    # things for now.
     $dt->set_time_zone( PearlBee::config->{timezone} );
 
     # Filter the input data (avoid js injection)
