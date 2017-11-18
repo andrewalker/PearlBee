@@ -36,18 +36,9 @@ requires 'CGI::Deurl::XS';
 requires 'HTTP::Parser::XS';
 requires 'Math::Random::ISAAC::XS';
 
-# install using cpanm --with-feature=captcha --installdeps .
-feature 'captcha', 'Use captcha for comments and user registrations' => sub {
-    requires 'Authen::Captcha';
-    requires 'GD';
-};
-
-# install using cpanm --with-feature=wp_import --installdeps .
-feature 'wp_import', 'Import posts from WordPress' => sub {
-    requires 'LWP::UserAgent';
-    requires 'LWP::Simple';
-    requires 'File::Path';
-};
+# for the captcha
+requires 'Authen::Captcha';
+requires 'GD';
 
 on 'develop' => sub {
     requires 'Code::TidyAll';
