@@ -25,7 +25,7 @@ hook before => sub {
         var user => resultset('User')->from_session($id);
     }
 
-    if ( request->dispatch_path =~ /^(.*)\.html$/ ) { forward $1; }
+    if ( request->path =~ /^(.*)\.html$/ ) { forward $1; }
 };
 
 # main page
