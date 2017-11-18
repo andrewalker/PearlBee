@@ -1,11 +1,14 @@
 sudo: false
+env:
+    - PEARLBEE_DATABASE_CONFIG: "TRAVIS_DATABASE"
+services:
+    - postgresql
 language: perl
 perl:
+    - "5.24"
     - "5.22"
     - "5.20"
-    - "5.18"
-    - "5.16"
-install:
-    - ./bin/bootstrap
 before_script:
-    - eval $(perl -Ilocal/lib/perl5 -Mlocal::lib="local")
+    - psql -c 'CREATE DATABASE pearlbee; CREATE SCHEMA pearlbee;' -U postgres
+    - perl ./bin/deploy-schema TRAVIS_DATABASE
+    - perl ./bin/load-initial-data TRAVIS_DATABASE
