@@ -9,6 +9,7 @@ perl:
     - "5.22"
     - "5.20"
 before_script:
-    - psql -c 'CREATE DATABASE pearlbee; CREATE SCHEMA pearlbee;' -U postgres
+    - psql -c 'CREATE DATABASE pearlbee' -U postgres
+    - psql -c 'CREATE SCHEMA pearlbee' -U postgres pearlbee
     - perl ./bin/deploy-schema TRAVIS_DATABASE
     - perl ./bin/load-initial-data TRAVIS_DATABASE
