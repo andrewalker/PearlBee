@@ -33,9 +33,8 @@ sub app { PearlBee::app() }
 sub logs { app->logger_engine->trapper->read }
 
 sub schema {
-    my $config = PearlBee::config->{plugins}{DBIC}{default};
-    return PearlBee::Model::Schema->connect( $config->{dsn}, $config->{user},
-        $config->{password} );
+    return PearlBee::Model::Schema->connect( $ENV{PEARLBEE_DATABASE_CONFIG}
+            // 'DEVEL_DATABASE' );
 }
 
 1;

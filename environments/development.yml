@@ -23,6 +23,5 @@ startup_info: 1
 plugins:
   DBIC:
     default:
-      dsn: dbi:SQLite:db.sqlite
-      options:
-        sqlite_unicode: 1
+      dsn: DEVEL_DATABASE
+      schema_class: 'PearlBee::Model::Schema'

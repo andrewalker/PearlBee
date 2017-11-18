@@ -39,14 +39,7 @@ engines:
 plugins:
     DBIC:
         default:
-            dsn: dbi:mysql:PearlBee
-            schema_class: PearlBee::Model::Schema
-            user: root
-            password: mysqlpassword
-            options:
-            RaiseError: 1
-            PrintError: 1
-            mysql_enable_utf8: 1
+            dsn: DEVEL_DATABASE
     Auth::PearlBee:
         permissions:
             author:
