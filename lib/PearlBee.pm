@@ -4,15 +4,7 @@ package PearlBee;
 use Dancer2 0.163000;
 use Dancer2::Plugin::DBIC;
 
-# configuration has to be set at compile-time
-# because the module that uses it (D2::P::Auth::PearlBee)
-# is also loaded at compile-time right after
-# this will be fixed in a future version of Dancer2
-# (the new plugin system and all that)
 BEGIN {
-    use RBAC::Tiny;
-    set rbac => RBAC::Tiny->new( roles => config()->{'permissions'} || {} );
-
     our $is_static = config->{static} || '';
 }
 
