@@ -17,3 +17,5 @@ before_script:
     - psql -c 'CREATE SCHEMA pearlbee' -U postgres pearlbee
     - perl ./bin/deploy-schema TRAVIS_DATABASE
     - perl ./bin/load-initial-data TRAVIS_DATABASE
+script:
+    - prove -rvl t
