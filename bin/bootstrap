@@ -48,8 +48,7 @@ function install_dependencies() {
 
 function install_database() {
     echo 'installing database'
-    dbicadmin -Ilib --deploy --connect-info dsn="dbi:SQLite:dbname=$project_dir/db.sqlite"\
-        --schema-class PearlBee::Model::Schema --sql-type SQLite
+    perl $script_dir/deploy-schema "dbi:SQLite:dbname=$project_dir/db.sqlite"
     perl $script_dir/load-initial-data "dbi:SQLite:dbname=$project_dir/db.sqlite"
 }
 

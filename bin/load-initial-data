@@ -13,11 +13,10 @@ my $admin = $schema->resultset('User')->create({
     first_name     => 'Default',
     last_name      => 'Admin',
     username       => 'admin',
-    password       => 'ddd8f33fbc8fd3ff70ea1d3768e7c5c151292d3a8c0972',
+    password       => 'password',
     email          => 'admin@admin.com',
     role           => 'admin',
     activation_key => 'activated',
-    salt           => 'IQbmVFR+SEgTju9y+UzhwA==',
 });
 
 $admin->create_related(

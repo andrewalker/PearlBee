@@ -37,16 +37,20 @@ engines:
       session_dir: "/tmp/pearlbee"
 
 plugins:
-      DBIC:
+    DBIC:
         default:
-          dsn: dbi:mysql:PearlBee
-          schema_class: PearlBee::Model::Schema
-          user: root
-          password: mysqlpassword
-          options:
+            dsn: dbi:mysql:PearlBee
+            schema_class: PearlBee::Model::Schema
+            user: root
+            password: mysqlpassword
+            options:
             RaiseError: 1
             PrintError: 1
             mysql_enable_utf8: 1
+    Auth::PearlBee:
+        rbac:
+            error_message: "You are not authorized"
+
 
 permissions:
     author:

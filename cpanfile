@@ -34,19 +34,6 @@ requires 'CGI::Deurl::XS';
 requires 'HTTP::Parser::XS';
 requires 'Math::Random::ISAAC::XS';
 
-# From DBIx::Class 'admin_script' group of requirements (that is, in order to
-# run dbicadmin script).
-# This could also be a feature, but since I suppose most people will want this,
-# I'll just leave it like htis.
-requires 'Getopt::Long::Descriptive'    => 0.081;
-requires 'JSON::Any'                    => 1.23;
-requires 'Moose'                        => 0.98;
-requires 'MooseX::Types'                => 0.21;
-requires 'MooseX::Types::JSON'          => 0.02;
-requires 'MooseX::Types::LoadableClass' => 0.011;
-requires 'MooseX::Types::Path::Class'   => 0.05;
-requires 'Text::CSV'                    => 1.16;
-
 # install using cpanm --with-feature=captcha --installdeps .
 feature 'captcha', 'Use captcha for comments and user registrations' => sub {
     requires 'Authen::Captcha';

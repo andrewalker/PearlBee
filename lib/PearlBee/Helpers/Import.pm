@@ -1,6 +1,6 @@
 package PearlBee::Helpers::Import;
 
-use Moose;
+use Moo;
 
 use Dancer2;
 use Dancer2::Plugin::DBIC;
@@ -8,6 +8,7 @@ use Dancer2::Plugin::DBIC;
 use LWP::UserAgent;
 use LWP::Simple qw(getstore);
 use File::Path qw( make_path );
+use Types::Standard qw( Maybe HashRef );
 
 use PearlBee::Helpers::Util qw(string_to_slug);
 
@@ -31,7 +32,7 @@ SubMan::Helpers::Import Helpers for PearlBee import functionality
 
 has args => (
     is       => 'rw',
-    isa      => 'Maybe[HashRef]',
+    isa      => Maybe [HashRef],
     required => 1
 );
 
@@ -177,6 +178,5 @@ sub _update_wp_posts_on_import {
     }
 }
 
-__PACKAGE__->meta->make_immutable;
-
+no Moo;
 1;

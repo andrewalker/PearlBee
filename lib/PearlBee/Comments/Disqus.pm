@@ -10,12 +10,12 @@ has shortname => (
 );
 
 has '+post_comment_count_template' =>
-    ( default => sub {'comments/disqus/post_comment_count'}, );
+    ( default => sub {'comments/disqus/post_comment_count.tt'}, );
 
 has '+list_comments_template' =>
-    ( default => sub {'comments/disqus/list_comments'}, );
+    ( default => sub {'comments/disqus/list_comments.tt'}, );
 
-has '+scripts_template' => ( default => sub {'comments/disqus/scripts'}, );
+has '+scripts_template' => ( default => sub {'comments/disqus/scripts.tt'}, );
 
 has '+comments_dashboard_link' =>
     ( default => sub { 'https://' . $_[0]->shortname . '.disqus.com/admin/' },
