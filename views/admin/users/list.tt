@@ -19,12 +19,8 @@
 	        	<a href="/dashboard/users"> 	All </a>([% all %]) | 
 	        	<a href="/dashboard/users?status=deactivated"> Deactivated </a>([% deactivated %]) | 
 	        	<a href="/dashboard/users?status=activated"> Activated </a>([% activated %]) |
-				[% IF session.multiuser %]
 				  <a href="/dashboard/users?status=suspended"> Suspended </a>([% suspended %]) |
 				  <a href="/dashboard/users?status=pending"> Pending </a>([% pending %])
-				[% ELSE %]
-				  <a href="/dashboard/users?status=suspended"> Suspended </a>([% suspended %])
-				[% END %]
 
 				<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="example">
 					<thead>

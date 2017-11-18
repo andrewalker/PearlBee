@@ -26,10 +26,9 @@ sub can_create {
     my $gravatar = gravatar_url( email => $email );
 
     # Set the proper timezone
-    my $dt       = DateTime->now;
-    my $settings = $schema->resultset('Setting')->first;
-    my $dtf      = $schema->storage->datetime_parser;
-    $dt->set_time_zone( $settings->timezone );
+    my $dt  = DateTime->now;
+    my $dtf = $schema->storage->datetime_parser;
+    $dt->set_time_zone( PearlBee::config->{timezone} );
 
     # Filter the input data (avoid js injection)
     map { $_ = $hs->parse($_); $hs->eof; }

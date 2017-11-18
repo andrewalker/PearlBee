@@ -51,8 +51,7 @@ post '/sign-up' => sub {
 
         # Set the proper timezone
         my $dt       = DateTime->now;
-        my $settings = resultset('Setting')->first;
-        $dt->set_time_zone( $settings->timezone );
+        $dt->set_time_zone( config->{timezone} );
 
         my $password = random_string('Ccc!cCn');
 

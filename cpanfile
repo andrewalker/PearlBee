@@ -6,6 +6,8 @@ requires 'Dancer2::Plugin::REST';
 requires 'Dancer2::Plugin::Auth::Tiny';
 requires 'RBAC::Tiny' => 0.003;
 requires 'DBIx::Class';
+requires 'DBIx::Class::Schema::Config';
+requires 'DBD::Pg';
 requires 'HTML::Strip';
 requires 'Template::Plugin::HTML::Strip';
 requires 'Module::Runtime';
@@ -50,4 +52,8 @@ feature 'wp_import', 'Import posts from WordPress' => sub {
 on 'develop' => sub {
     requires 'Code::TidyAll';
     requires 'Text::Diff' => 1.44;
+};
+
+on 'test' => sub {
+    requires 'Test::WWW::Mechanize::PSGI';
 };

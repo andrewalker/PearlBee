@@ -25,10 +25,3 @@ $admin->create_related(
         slug => 'uncategorized',
     }
 );
-
-$schema->resultset('Setting')->create({
-    timezone     => 'Europe/Bucharest',
-    theme_folder => '/',
-    blog_name    => 'PearlBee',
-    id           => 0, # wat
-});

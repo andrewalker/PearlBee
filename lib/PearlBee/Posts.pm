@@ -55,7 +55,6 @@ prefix '/posts' => sub {
     get '/:slug' => sub {
         my $slug       = route_parameters->{'slug'};
         my $post       = resultset('Post')->find( { slug => $slug } );
-        my $settings   = resultset('Setting')->first;
         my @tags       = resultset('View::PublishedTags')->all();
         my @categories = resultset('View::PublishedCategories')
             ->search( { name => { '!=' => 'Uncategorized' } } );
@@ -71,7 +70,6 @@ prefix '/posts' => sub {
             recent     => \@recent,
             popular    => \@popular,
             categories => \@categories,
-            setting    => $settings,
             tags       => \@tags,
         };
     };

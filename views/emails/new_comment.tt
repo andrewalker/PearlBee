@@ -31,7 +31,7 @@
 	          <div class="col-md-3 col-sm-3">
 	            <!-- Logo -->
 	            <div class="logo">
-	               <h1><a href="[% url %]">[% session.blog_name %]</a></h1>
+	               <h1><a href="[% url %]">[% settings.blog_name %]</a></h1>
 	            </div>
 	          </div>
 	          <div class="col-md-9 col-sm-9">

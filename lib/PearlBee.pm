@@ -29,11 +29,6 @@ use if !$PearlBee::is_static, 'PearlBee::Dashboard';
 use PearlBee::Comments;
 
 hook before => sub {
-    my $settings = resultset('Setting')->first;
-    set multiuser => $settings->multiuser;
-    set blog_name => $settings->blog_name;
-    set app_url   => config->{'app_url'}; # FIXME why oh why?
-
     if ( my $id = session->read('user_id') ) {
         var user => resultset('User')->from_session($id);
     }

@@ -169,10 +169,8 @@ prefix '/dashboard/users' => sub {
 
     post '/add' => sub {
         eval {
-            # Set the proper timezone
-            my $dt       = DateTime->now;
-            my $settings = resultset('Setting')->first;
-            $dt->set_time_zone( $settings->timezone );
+            my $dt = DateTime->now;
+            $dt->set_time_zone( config->{timezone} );
 
             my $password   = random_string('Ccc!cCn');
             my $params     = body_parameters;

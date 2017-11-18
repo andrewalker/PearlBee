@@ -11,8 +11,8 @@
                  </a>
                  <!-- Sub menu -->
                  <ul>
-                    <li><a href="[% session.app_url %]/dashboard/posts">All</a></li>
-                    <li><a href="[% session.app_url %]/dashboard/posts/new">Create post</a></li>
+                    <li><a href="[% settings.app_url %]/dashboard/posts">All</a></li>
+                    <li><a href="[% settings.app_url %]/dashboard/posts/new">Create post</a></li>
                 </ul>
             </li>
 
@@ -20,9 +20,9 @@
 
             [% IF (vars.user.is_admin) %]
 
-                <li><a href="[% session.app_url %]/dashboard/categories"><i class="icon-list"></i> Categories</a></li>
+                <li><a href="[% settings.app_url %]/dashboard/categories"><i class="icon-list"></i> Categories</a></li>
             
-                <li><a href="[% session.app_url %]/dashboard/tags"><i class="icon-tag"></i> Tags</a></li>                
+                <li><a href="[% settings.app_url %]/dashboard/tags"><i class="icon-tag"></i> Tags</a></li>                
             
                 <li class="has_submenu">
                      <a href="#">
@@ -31,8 +31,8 @@
                      </a>
                      <!-- Sub menu -->
                      <ul>
-                        <li><a href="[% session.app_url %]/dashboard/users">All</a></li>
-                        <li><a href="[% session.app_url %]/dashboard/users/add">Create user</a></li>
+                        <li><a href="[% settings.app_url %]/dashboard/users">All</a></li>
+                        <li><a href="[% settings.app_url %]/dashboard/users/add">Create user</a></li>
                     </ul>
                 </li>
 
@@ -44,8 +44,8 @@
                     </a>
                     <!-- Sub menu -->
                     <ul>
-                       <li><a href="[% session.app_url %]/dashboard/settings">General</a></li>
-                       <li><a href="[% session.app_url %]/dashboard/settings/import">Import</a></li>
+                       <li><a href="[% settings.app_url %]/dashboard/settings">General</a></li>
+                       <li><a href="[% settings.app_url %]/dashboard/settings/import">Import</a></li>
                     </ul>
                 </li>            
             [% END %]        

@@ -1,77 +1,56 @@
 <div class="header">
     <div class="container">
-            <div class="col-md-3 col-sm-3">
-                <!-- Logo -->
-                <div class="logo">
-                    <h1><a href="[% session.app_url %]"> [% session.blog_name %]</a></h1>
-                </div>
+        <div class="col-md-3 col-sm-3">
+            <!-- Logo -->
+            <div class="logo">
+                <h1><a href="[% settings.app_url %]"> [% settings.blog_name %]</a></h1>
             </div>
+        </div>
 
-            <div class="col-md-9 col-sm-9"> 
-                <!-- Dropdown NavBar -->
-                <div class="navis">
-                </div>
+        <div class="col-md-9 col-sm-9"> 
+            <!-- Dropdown NavBar -->
+            <div class="navis">
             </div>
-[% UNLESS settings.static %]
-            [% IF settings.multiuser %]
-                <div class="register_links">
-                    [% IF vars.user.username %]
-                        <div class="col-md-6 pull-right">
-                            <div class="navbar" role="banner">
-                                <nav class="collapse navbar-collapse bs-navbar-collapse navbar-right" role="navigation">
-                                  <ul class="nav navbar-nav">
-                                    <li>
-                                        <a href="[% session.app_url %]/dashboard"> Welcome <b>[% vars.user.username %]</b> !</a>
-                                    </li>
-                                    <li class="dropdown my_account"> 
-                                      <a href="#" class="dropdown-toggle" data-toggle="dropdown">My Account <b class="caret"></b></a>
-                                      <ul class="dropdown-menu animated fadeInUp">
-                                        <li><a href="[% session.app_url %]/dashboard/posts">My posts</a></li>
-                                        <li><a href="[% session.app_url %]/dashboard/profile">My profile</a></li>
-                                        <li><a href="[% session.app_url %]/logout">Logout</a></li>
-                                      </ul> 
-                                    </li> 
-                                  </ul> 
-                                </nav>
-                            </div>
-                         </div>
-                    [% ELSE %]
+        </div>
+        [% UNLESS settings.static %]
+            <div class="register_links">
+                [% IF vars.user.username %]
+                    <div class="col-md-6 pull-right">
                         <div class="navbar" role="banner">
                             <nav class="collapse navbar-collapse bs-navbar-collapse navbar-right" role="navigation">
-                                <ul class="nav navbar-nav">
-                        [% IF ! settings.static %]
-                                    <li>
-                                        <a href="[% session.app_url %]/sign-up"> Sign Up</a>
-                                    </li>
-                                    <li>
-                                        <a href="[% session.app_url %]/dashboard"> Login</a>
-                                    </li>
-                        [% END %]
-                                </ul>
+                              <ul class="nav navbar-nav">
+                                <li>
+                                    <a href="[% settings.app_url %]/dashboard"> Welcome <b>[% vars.user.username %]</b> !</a>
+                                </li>
+                                <li class="dropdown my_account"> 
+                                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">My Account <b class="caret"></b></a>
+                                  <ul class="dropdown-menu animated fadeInUp">
+                                    <li><a href="[% settings.app_url %]/dashboard/posts">My posts</a></li>
+                                    <li><a href="[% settings.app_url %]/dashboard/profile">My profile</a></li>
+                                    <li><a href="[% settings.app_url %]/logout">Logout</a></li>
+                                  </ul> 
+                                </li> 
+                              </ul> 
                             </nav>
                         </div>
-                    [% END%]
-                </div>
-            [% ELSIF vars.user.username %]
-                <div class="col-md-6 pull-right">
+                     </div>
+                [% ELSE %]
                     <div class="navbar" role="banner">
                         <nav class="collapse navbar-collapse bs-navbar-collapse navbar-right" role="navigation">
-                          <ul class="nav navbar-nav">
-                            <li>
-                                <a href="[% session.app_url %]/dashboard"> Welcome <b>[% vars.user.username %]</b> !</a>
-                            </li>
-                            <li class="dropdown my_account"> 
-                              <a href="#" class="dropdown-toggle" data-toggle="dropdown">My Account <b class="caret"></b></a>
-                              <ul class="dropdown-menu animated fadeInUp">
-                                <li><a href="[% session.app_url %]/profile">Profile</a></li>
-                                <li><a href="[% session.app_url %]/logout">Logout</a></li>
-                              </ul> 
-                            </li> 
-                          </ul> 
+                            <ul class="nav navbar-nav">
+                    [% IF ! settings.static %]
+                                <li>
+                                    <a href="[% settings.app_url %]/sign-up"> Sign Up</a>
+                                </li>
+                                <li>
+                                    <a href="[% settings.app_url %]/dashboard"> Login</a>
+                                </li>
+                    [% END %]
+                            </ul>
                         </nav>
                     </div>
-                </div>
-            [% END %]
-[% END %]
+                [% END%]
+            </div>
+        [% END %]
     </div>
 </div>

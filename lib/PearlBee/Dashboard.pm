@@ -7,7 +7,6 @@ use PearlBee::Dashboard::Posts;
 use PearlBee::Dashboard::Users;
 use PearlBee::Dashboard::Categories;
 use PearlBee::Dashboard::Tags;
-use PearlBee::Dashboard::Settings;
 
 # it is how we're using Auth::Tiny in the code
 # so we configure it in the code as well
