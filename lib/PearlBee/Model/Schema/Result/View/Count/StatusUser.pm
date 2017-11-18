@@ -10,18 +10,16 @@ __PACKAGE__->table_class('DBIx::Class::ResultSource::View');
 __PACKAGE__->table('user');
 __PACKAGE__->result_source_instance->is_virtual(1);
 
-__PACKAGE__->result_source_instance->view_definition(
-    q[
-      SELECT
-      	SUM( status = 'deactivated' ) AS deactivated,
-      	SUM( status = 'activated') AS activated,
-      	SUM( status = 'suspended' ) AS suspended,
-        SUM( status = 'pending' ) AS pending,
-      	COUNT(*) AS total
-      FROM
-      	user
-    ]
-);
+__PACKAGE__->result_source_instance->view_definition(q[
+  SELECT
+      SUM( CASE WHEN "status" = 'inactive'  THEN 1 ELSE 0 END ) AS inactive,
+      SUM( CASE WHEN "status" = 'active'    THEN 1 ELSE 0 END ) AS active,
+      SUM( CASE WHEN "status" = 'suspended' THEN 1 ELSE 0 END ) AS suspended,
+      SUM( CASE WHEN "status" = 'pending'   THEN 1 ELSE 0 END ) AS pending,
+      COUNT(*)                                                  AS total
+  FROM
+      "user"
+]);
 
 __PACKAGE__->add_columns(
     "deactivated", { data_type => "integer", is_nullable => 0 },
