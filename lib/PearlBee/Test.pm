@@ -4,7 +4,11 @@ use warnings;
 use parent 'Exporter';
 use Import::Into;
 
-BEGIN { $ENV{DANCER_ENVIRONMENT} ||= 'testing' }
+BEGIN {
+    warn $ENV{DANCER_ENVIRONMENT};
+    $ENV{DANCER_ENVIRONMENT} ||= 'testing';
+    warn $ENV{DANCER_ENVIRONMENT};
+}
 
 use Test::More ();
 use Test::WWW::Mechanize::PSGI;
