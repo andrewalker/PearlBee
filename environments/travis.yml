@@ -16,4 +16,7 @@ show_errors: 1
 # print the banner
 startup_info: 1
 
-plugins.DBIC.default.dsn: TRAVIS_DATABASE
+plugins:
+  DBIC:
+    default:
+      dsn: TRAVIS_DATABASE

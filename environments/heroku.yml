@@ -18,4 +18,7 @@ route_cache: 1
 # just to keep it from breaking for now
 app_url: 'https://blogs-perl.herokuapp.com/'
 
-plugins.DBIC.default.dsn: DATABASE_URL
+plugins:
+  DBIC:
+    default:
+      dsn: DATABASE_URL
