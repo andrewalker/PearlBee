@@ -5,9 +5,7 @@ use parent 'Exporter';
 use Import::Into;
 
 BEGIN {
-    warn $ENV{DANCER_ENVIRONMENT};
     $ENV{DANCER_ENVIRONMENT} ||= 'testing';
-    warn $ENV{DANCER_ENVIRONMENT};
 }
 
 use Test::More ();

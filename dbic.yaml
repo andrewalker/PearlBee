@@ -5,8 +5,7 @@ DEVEL_DATABASE:
     pg_enable_utf8: 1
     quote_char: "\""
     name_sep: "."
-    on_connect_do:
-      - "SET search_path = pearlbee, public, pg_catalog"
+    on_connect_do: [ "SET search_path = pearlbee, public, pg_catalog" ]
 
 TRAVIS_DATABASE:
     dsn: "dbi:Pg:dbname=pearlbee"
@@ -15,5 +14,4 @@ TRAVIS_DATABASE:
     pg_enable_utf8: 1
     quote_char: "\""
     name_sep: "."
-    on_connect_do:
-      - "SET search_path = pearlbee, public, pg_catalog"
+    on_connect_do: [ "SET search_path = pearlbee, public, pg_catalog" ]

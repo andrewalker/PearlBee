@@ -43,7 +43,6 @@ plugins:
         from:  'The PearlBee Team <no-reply@pearlbee.com>'
     DBIC:
         default:
-            dsn: DEVEL_DATABASE
             schema_class: 'PearlBee::Model::Schema'
     Auth::PearlBee:
         permissions:
