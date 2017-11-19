@@ -20,8 +20,4 @@ show_errors: 1
 # print the banner
 startup_info: 1
 
-plugins:
-  DBIC:
-    default:
-      dsn: DEVEL_DATABASE
-      schema_class: 'PearlBee::Model::Schema'
+plugins.DBIC.default.dsn: DEVEL_DATABASE
