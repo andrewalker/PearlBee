@@ -16,7 +16,7 @@ my $admin = $schema->resultset('User')->create({
     password       => 'password',
     email          => 'admin@admin.com',
     role           => 'admin',
-    activation_key => 'activated',
+    status         => 'activated',
 });
 
 $admin->create_related(
