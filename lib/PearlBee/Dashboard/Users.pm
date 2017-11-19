@@ -2,6 +2,7 @@ package PearlBee::Dashboard::Users;
 use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Auth::PearlBee;
+use Dancer2::Plugin::Mailer::PearlBee;
 
 use PearlBee::Helpers::Pagination qw<
     get_total_pages
@@ -13,7 +14,6 @@ use String::Random qw<random_string>;
 
 use DateTime;
 use URI::Escape;
-use Email::Template;
 
 sub change_user_state {
     my ( $id, $state ) = @_;
@@ -128,37 +128,26 @@ prefix '/dashboard/users' => sub {
         my $user    = resultset('User')->find($user_id)
             or redirect config->{'app_url'} . '/dashboard/users';
 
-        eval {
-            my $password = random_string('Ccc!cCn');
-            $user->update( { password => $password } );
-            $user->allow();
+        my $password = random_string('Ccc!cCn');
+        $user->update( { password => $password } );
+        $user->allow();
 
-            Email::Template->send(
-                config->{'email_templates'} . 'welcome.tt',
-                {
-                    From    => config->{'default_email_sender'},
-                    To      => $user->email,
-                    Subject => config->{'welcome_email_subject'},
-
-                    tt_vars => {
-                        role       => $user->role,
-                        username   => $user->username,
-                        password   => $password,
-                        first_name => $user->first_name,
-                        app_url    => config->{'app_url'},
-                        blog_name  => config->{'blog_name'},
-                        signature  => config->{'email_signature'},
-                        allowed    => 1,
-                    },
-                }
-            ) or error 'Could not send the email'; # FIXME GH#9
-            1;
-        } or do {
-
-            # FIXME: ugh GH#9
-            my $error = $@ || 'Zombie error';
-            error $error;
-        };
+        sendmail({
+            name          => $user->first_name, # FIXME
+            email_address => $user->email,
+            template_file => 'welcome.tt',
+            subject       => 'Welcome to PearlBee', # FIXME
+            variables     => {
+                role       => $user->role,
+                username   => $user->username,
+                password   => $password,
+                first_name => $user->first_name,
+                app_url    => config->{'app_url'},
+                blog_name  => config->{'blog_name'},
+                signature  => '',
+                allowed    => 1,
+            }
+        });
 
         redirect config->{'app_url'} . '/dashboard/users';
     };
@@ -192,24 +181,19 @@ prefix '/dashboard/users' => sub {
                 }
             );
 
-            Email::Template->send(
-                config->{'email_templates'} . 'welcome.tt',
-                {
-                    From    => config->{'default_email_sender'},
-                    To      => $email,
-                    Subject => config->{'welcome_email_subject'},
-
-                    tt_vars => {
-                        role       => $role,
-                        username   => $username,
-                        password   => $password,
-                        first_name => $first_name,
-                        app_url    => config->{'app_url'},
-                        blog_name  => config->{'blog_name'},
-                        signature  => config->{'email_signature'},
-                    },
-                }
-            ) or error "Could not send the email";
+            sendmail({
+                template_file => 'welcome.tt',
+                name          => $first_name,           # FIXME
+                email_address => $email,
+                subject       => 'Welcome to PearlBee', # FIXME
+                role          => $role,
+                username      => $username,
+                password      => $password,
+                first_name    => $first_name,
+                app_url       => config->{'app_url'},
+                blog_name     => config->{'blog_name'},
+                signature     => '',
+            });
 
             1;
         } or do {

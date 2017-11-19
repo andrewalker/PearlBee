@@ -1,8 +1,5 @@
 use PearlBee::Test;
 use PearlBee::Helpers::Captcha;
-use Email::Template;
-
-my $EmailSuccessful = 1;
 
 my $user_details = {
     username   => 'johndoe',
@@ -29,10 +26,6 @@ my %expected = (
     *PearlBee::Helpers::Captcha::new_captcha_code = sub {'zxcvb'};
     *PearlBee::Helpers::Captcha::check_captcha_code
         = sub { $_[0] eq 'zxcvb' };
-
-    # The alternative would be using Email::Sender and using the Test transport
-    # We will do that eventually :D
-    *Email::Template::send = sub { return $EmailSuccessful };
 }
 
 subtest 'successful insert' => sub {
@@ -40,7 +33,6 @@ subtest 'successful insert' => sub {
 
     schema->resultset('User')->search( { email => 'johndoe@gmail.com' } )
         ->delete;
-    $EmailSuccessful = 1;
 
     $mech->get_ok( '/sign-up', 'Sign-up returns a page' );
     $mech->submit_form_ok(
@@ -78,7 +70,9 @@ subtest 'successful insert, failed e-mail' => sub {
 
     schema->resultset('User')->search( { email => 'johndoe@gmail.com' } )
         ->delete;
-    $EmailSuccessful = 0;
+
+    schema->resultset('User')->search( { email => 'admin@admin.com' } )
+        ->update({ email => 'failme@admin.com' });
 
     $mech->get_ok( '/sign-up', 'Sign-up returns a page' );
     $mech->submit_form_ok(
@@ -112,6 +106,9 @@ subtest 'successful insert, failed e-mail' => sub {
 
     schema->resultset('User')->search( { email => 'johndoe@gmail.com' } )
         ->delete;
+
+    schema->resultset('User')->search( { email => 'failme@admin.com' } )
+        ->update({ email => 'admin@admin.com' });
 };
 
 subtest 'wrong captcha code' => sub {
@@ -119,7 +116,6 @@ subtest 'wrong captcha code' => sub {
 
     schema->resultset('User')->search( { email => 'johndoe@gmail.com' } )
         ->delete;
-    $EmailSuccessful = 1;
 
     $mech->get_ok( '/sign-up', 'Sign-up returns a page' );
     $mech->submit_form_ok(
@@ -158,7 +154,6 @@ subtest 'e-mail already in use' => sub {
 
     schema->resultset('User')->search( { username => 'johndoe' } )->delete;
     schema->resultset('User')->search( { username => 'johndoe2' } )->delete;
-    $EmailSuccessful = 1;
 
     $mech->get_ok( '/sign-up', 'Sign-up returns a page' );
     $mech->submit_form_ok(
@@ -207,7 +202,6 @@ subtest 'username already in use' => sub {
         ->delete;
     schema->resultset('User')->search( { email => 'johndoe2@gmail.com' } )
         ->delete;
-    $EmailSuccessful = 1;
 
     $mech->get_ok( '/sign-up', 'Sign-up returns a page' );
     $mech->submit_form_ok(
@@ -256,7 +250,6 @@ subtest 'username empty' => sub {
 
     schema->resultset('User')->search( { email => 'johndoe@gmail.com' } )
         ->delete;
-    $EmailSuccessful = 1;
 
     $mech->get_ok( '/sign-up', 'Sign-up returns a page' );
     $mech->submit_form_ok(
@@ -294,7 +287,6 @@ subtest 'email empty' => sub {
     my $mech = mech;
 
     schema->resultset('User')->search( { username => 'johndoe' } )->delete;
-    $EmailSuccessful = 1;
 
     $mech->get_ok( '/sign-up', 'Sign-up returns a page' );
     $mech->submit_form_ok(

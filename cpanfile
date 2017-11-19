@@ -25,7 +25,8 @@ requires 'String::Random';
 requires 'String::Util';
 
 requires 'MIME::Base64';
-requires 'Email::Template';
+requires 'Email::Sender::Simple';
+requires 'Email::MIME';
 requires 'XML::Simple';
 requires 'Gravatar::URL';
 

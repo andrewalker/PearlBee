@@ -37,6 +37,10 @@ engines:
       session_dir: "/tmp/pearlbee"
 
 plugins:
+    Mailer::PearlBee:
+        renderer_args:
+            INCLUDE_PATH: 'views/emails/'
+        from:  'The PearlBee Team <no-reply@pearlbee.com>'
     DBIC:
         default:
             dsn: DEVEL_DATABASE
@@ -90,14 +94,10 @@ import_folder:    'public/uploads/import/'
 images_folder:    'public/uploads/images/'
 images_path:      '/uploads/images'
 app_url:          'http://localhost:5000'
-email_templates:  'views/emails/'
 timezone:         'Europe/Amsterdam'
 blog_name:        'PearlBee'
 theme_folder:     'views/themes/'
 
 # Specifics
-email_signature:       'The PearlBee Team'
-default_email_sender:  'no-reply@pearlbee.com'
-welcome_email_subject: 'Welcome to PearlBee!'
 posts_on_page:         5
 captcha_enabled:       0 # use 1 to enable captchas

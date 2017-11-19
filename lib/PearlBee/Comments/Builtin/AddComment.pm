@@ -1,6 +1,7 @@
 package PearlBee::Comments::Builtin::AddComment;
 use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
+use Dancer2::Plugin::Mailer::PearlBee;
 use PearlBee::Helpers::Captcha;
 
 post '/comment/add' => sub {
@@ -40,45 +41,41 @@ post '/comment/add' => sub {
 
     if ( PearlBee::Helpers::Captcha::check_captcha_code($secret) ) {
 
-        # The user entered the correct secret code
+        # If the person who leaves the comment is either the author or the admin the comment is automaticaly approved
+        my $comment
+            = resultset('Comment')->can_create( $parameters, $user );
+
+        # Notify the author that a new comment was submited
+        my $author = $post->user;
+
         eval {
-
-            # If the person who leaves the comment is either the author or the admin the comment is automaticaly approved
-
-            my $comment
-                = resultset('Comment')->can_create( $parameters, $user );
-
-            # Notify the author that a new comment was submited
-            my $author = $post->user;
-
-            Email::Template->send(
-                config->{email_templates} . 'new_comment.tt',
-                {
-                    From    => config->{default_email_sender},
-                    To      => $author->email,
-                    Subject => (
-                        $parameters->{'reply_to'}
-                        ? 'A comment reply was submitted to your post'
-                        : 'A new comment was submitted to your post'
-                    ),
-
-                    tt_vars => {
-                        fullname  => $fullname,
-                        title     => $post->title,
-                        comment   => $parameters->{'comment'},
-                        signature => config->{email_signature},
-                        post_url  => config->{app_url}
-                            . '/post/'
-                            . $post->slug,
-                        app_url          => config->{app_url},
-                        reply_to_content => $parameters->{'reply_to_content'}
-                            || '',
-                        reply_to_user => $parameters->{'reply_to_user'} || '',
-                    },
+            sendmail({
+                template_file => 'new_comment.tt',
+                name          => $author->first_name,
+                email_address => $author->email,
+                subject => (
+                    $parameters->{'reply_to'}
+                    ? 'A comment reply was submitted to your post'
+                    : 'A new comment was submitted to your post'
+                ),
+                variables => {
+                    fullname  => $fullname,
+                    title     => $post->title,
+                    comment   => $parameters->{'comment'},
+                    signature => '',
+                    post_url  => config->{app_url}
+                        . '/post/'
+                        . $post->slug,
+                    app_url          => config->{app_url},
+                    reply_to_content => $parameters->{'reply_to_content'}
+                        || '',
+                    reply_to_user => $parameters->{'reply_to_user'} || '',
                 }
-            ) or error "Could not send the email";
+            });
+            1;
+        } or do {
+            error 'Could not send the email';
         };
-        error $@ if ($@);
 
         # Grab the approved comments for this post
         @comments

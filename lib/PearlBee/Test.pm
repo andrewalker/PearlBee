@@ -4,16 +4,19 @@ use warnings;
 use parent 'Exporter';
 use Import::Into;
 
+BEGIN { $ENV{DANCER_ENVIRONMENT} ||= 'testing' }
+
 use Test::More ();
 use Test::WWW::Mechanize::PSGI;
 use HTTP::Cookies;
+
+use PearlBee::Test::EmailSenderTransport;
+$ENV{EMAIL_SENDER_TRANSPORT} = 'PearlBee::Test::EmailSenderTransport';
 
 use PearlBee;
 use PearlBee::Model::Schema;
 
 our @EXPORT = qw/ app mech schema logs /;
-
-PearlBee::set( logger => 'capture' );
 
 sub import {
     my ($caller) = @_;

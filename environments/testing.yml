@@ -1,11 +1,11 @@
-# configuration file for Travis CI
+# configuration file for testing environment
 
 logger: "capture"
 
 # the log level for this environment
 # core is the lowest, it shows Dancer2's core log messages as well as yours
 # (debug, info, warning and error)
-log: "info"
+log: "debug"
 
 # should Dancer2 consider warnings as critical errors?
 warnings: 0
@@ -16,4 +16,4 @@ show_errors: 1
 # print the banner
 startup_info: 1
 
-plugins.DBIC.default.dsn: TRAVIS_DATABASE
+plugins.DBIC.default.dsn: DEVEL_DATABASE

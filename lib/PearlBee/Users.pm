@@ -3,11 +3,10 @@ package PearlBee::Users;
 # ABSTRACT: User-related paths
 use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
+use Dancer2::Plugin::Mailer::PearlBee;
 use PearlBee::Helpers::Captcha;
 use String::Random qw<random_string>;
-
 use DateTime;
-use Email::Template;
 
 get '/sign-up' => sub {
     PearlBee::Helpers::Captcha::new_captcha_code();
@@ -40,64 +39,55 @@ post '/sign-up' => sub {
     PearlBee::Helpers::Captcha::check_captcha_code( $params->{'secret'} )
         or return $failed_login->('Invalid secret code.');
 
+    resultset('User')->search( { email => $email } )->first
+        and return $failed_login->("Email address already in use.");
+
+    resultset('User')->search( { username => $username } )->first
+        and return $failed_login->("Username already in use.");
+
+    # Set the proper timezone
+    my $dt       = DateTime->now;
+    $dt->set_time_zone( config->{timezone} );
+
+    my $password = random_string('Ccc!cCn');
+
+    resultset('User')->create(
+        {
+            username      => $username,
+            password      => $password,
+            email         => $email,
+            first_name    => $params->{'first_name'},
+            last_name     => $params->{'last_name'},
+            register_date => join( ' ', $dt->ymd, $dt->hms ),
+            role          => 'author',
+            status        => 'pending'
+        }
+    );
+
+    my $first_admin = resultset('User')->search({
+        role   => 'admin',
+        status => 'activated',
+    })->first;
+
     eval {
-        resultset('User')->search( { email => $email } )->first
-            and die "Email address already in use.\n";
-
-        resultset('User')->search( { username => $username } )->first
-            and die "Username already in use.\n";
-
-        # Create the user
-
-        # Set the proper timezone
-        my $dt       = DateTime->now;
-        $dt->set_time_zone( config->{timezone} );
-
-        my $password = random_string('Ccc!cCn');
-
-        resultset('User')->create(
-            {
-                username      => $username,
-                password      => $password,
-                email         => $email,
-                first_name    => $params->{'first_name'},
-                last_name     => $params->{'last_name'},
-                register_date => join( ' ', $dt->ymd, $dt->hms ),
-                role          => 'author',
-                status        => 'pending'
-            }
-        );
-
-        # Notify the author that a new comment was submited
-        my $first_admin = resultset('User')->search(
-            {
-                role   => 'admin',
-                status => 'activated',
-            }
-        )->first;
-
-        my $email_template = config->{'email_templates'} . 'new_user.tt';
-        Email::Template->send(
-            $email_template => {
-                From    => config->{'default_email_sender'},
-                To      => $first_admin->email,
-                Subject => 'A new user applied as an author to the blog',
-
-                tt_vars => {
-                    first_name => $params->{'first_name'},
-                    last_name  => $params->{'last_name'},
-                    username   => $params->{'username'},
-                    email      => $params->{'email'},
-                    signature  => config->{'email_signature'},
-                    blog_name  => session('blog_name'),
-                    app_url    => session('app_url'),
-                }
-            }
-        ) or die "Could not send the email\n";
-
+        sendmail({
+            template_file => 'new_user.tt',
+            name          => $first_admin->first_name,
+            email_address => $first_admin->email,
+            subject       => 'A new user applied as an author to the blog',
+            variables     => {
+                first_name => $params->{'first_name'},
+                last_name  => $params->{'last_name'},
+                username   => $params->{'username'},
+                email      => $params->{'email'},
+                signature  => '',
+                blog_name  => config->{'blog_name'},
+                app_url    => config->{'app_url'},
+            },
+        });
         1;
     } or do {
-        return $failed_login->( $@ || 'Unknown error' );
+        return $failed_login->('Could not send the email');
     };
 
     template notify => { success =>
