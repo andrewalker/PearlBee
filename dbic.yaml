@@ -1,7 +1,5 @@
-DEVEL_DATABASE:
+DEFAULT_DATABASE:
     dsn: "dbi:Pg:dbname=pearlbee"
-    user: "andre"
-    password: ""
     pg_enable_utf8: 1
     quote_char: "\""
     name_sep: "."
