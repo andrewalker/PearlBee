@@ -15,5 +15,25 @@ __PACKAGE__->load_namespaces;
 # Created by DBIx::Class::Schema::Loader v0.07039 @ 2015-02-23 16:54:04
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JjSNFVtFx/myDsjjQHMaZQ
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+use URI;
+
+sub filter_loaded_credentials {
+    my $class = shift;
+
+    my $res = $class->next::method( @_ );
+
+    if ( exists $ENV{DATABASE_URL} ) {
+        my $var = $ENV{DATABASE_URL};
+        $var =~ s/^postgres/db:pg/;
+
+        my $uri = URI->new( $var );
+
+        $res->{dsn}      = $uri->dbi_dsn;
+        $res->{user}     = $uri->user;
+        $res->{password} = $uri->password;
+    }
+
+    return $res;
+}
+
 1;

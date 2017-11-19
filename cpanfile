@@ -29,6 +29,7 @@ requires 'Email::Sender::Simple';
 requires 'Email::MIME';
 requires 'XML::Simple';
 requires 'Gravatar::URL';
+requires 'URI::db';
 
 # speed up Dancer2
 requires 'Scope::Guard';
