@@ -59,15 +59,14 @@ prefix '/dashboard' => sub {
     post '/edit' => needs login => sub {
         my $user   = resultset('User')->from_session( session('user_id') );
         my $params = body_parameters;
-        my $first_name    = $params->{'first_name'};
-        my $last_name     = $params->{'last_name'};
+        my $name          = $params->{'name'};
         my $email         = $params->{'email'};
         my $old_password  = delete $params->{'old_password'};
         my $new_password  = delete $params->{'new_password'};
         my $new_password2 = delete $params->{'new_password2'};
 
         my %update_parameters = map +( $_ => $params->{$_} ),
-            qw<first_name last_name email>;
+            qw<name email>;
 
         if ( $old_password && $new_password && $new_password2 ) {
             $user->check_password($old_password)

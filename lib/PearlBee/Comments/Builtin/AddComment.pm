@@ -16,7 +16,7 @@ post '/comment/add' => sub {
     my $post       = resultset('Post')->find($post_id);
     my @categories = resultset('Category')->all();
     my @recent     = resultset('Post')->search( { status => 'published' },
-        { order_by => { -desc => "created_date" }, rows => 3 } );
+        { order_by => { -desc => "created_at" }, rows => 3 } );
     my @popular
         = resultset('View::PopularPosts')->search( {}, { rows => 3 } );
     my $user = session('user');
@@ -51,7 +51,7 @@ post '/comment/add' => sub {
         eval {
             sendmail({
                 template_file => 'new_comment.tt',
-                name          => $author->first_name,
+                name          => $author->name,
                 email_address => $author->email,
                 subject => (
                     $parameters->{'reply_to'}
@@ -87,7 +87,7 @@ post '/comment/add' => sub {
         delete $template_params->{warning};
         delete $template_params->{in_reply_to};
 
-        if (   ( $post->user_id && $user && $post->user_id == $user->{id} )
+        if (   ( $post->author && $user && $post->author->id == $user->{id} )
             or ( $user && $user->{is_admin} ) )
         {
             $template_params->{success}

@@ -13,7 +13,7 @@ __PACKAGE__->result_source_instance->is_virtual(1);
 __PACKAGE__->result_source_instance->view_definition(
     q[
     SELECT
-      P.id AS id, COUNT(P.title) AS comments, P.title AS title, P.description AS description, P.slug AS slug
+      P.id AS id, COUNT(P.title) AS comments, P.title AS title, P.abstract AS abstract, P.slug AS slug
     FROM
       post as P
       INNER JOIN
@@ -23,7 +23,7 @@ __PACKAGE__->result_source_instance->view_definition(
     WHERE
       P.status = 'published'
     GROUP BY
-      P.id, P.title, P.description, P.slug
+      P.id, P.title, P.abstract, P.slug
     ORDER BY
       comments DESC
   ]
@@ -35,11 +35,11 @@ __PACKAGE__->add_columns(
     "comments",
     { data_type => "integer", is_nullable => 0 },
     "title",
-    { data_type => "varchar", is_nullable => 0, size => 200 },
-    "description",
-    { data_type => "varchar", is_nullable => 0, size => 200 },
+    { data_type => "text", is_nullable => 0 },
+    "abstract",
+    { data_type => "text", is_nullable => 0 },
     "slug",
-    { data_type => "varchar", is_nullable => 0, size => 255 },
+    { data_type => "text", is_nullable => 0 },
 );
 
 __PACKAGE__->set_primary_key("id");

@@ -275,7 +275,7 @@ sub is_authorized {
     my $schema     = $self->result_source->schema;
     my $authorized = 0;
     $authorized = 1 if ( $user->is_admin );
-    $authorized = 1 if ( !$user->is_admin && $self->user_id == $user->id );
+    $authorized = 1 if ( !$user->is_admin && $self->author->id == $user->id );
 
     return $authorized;
 }

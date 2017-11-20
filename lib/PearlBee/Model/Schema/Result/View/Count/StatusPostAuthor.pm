@@ -19,7 +19,7 @@ __PACKAGE__->result_source_instance->view_definition(q[
   FROM
       "post"
   WHERE
-      "user_id" = ?
+      "author" = ?
 ]);
 
 __PACKAGE__->add_columns(

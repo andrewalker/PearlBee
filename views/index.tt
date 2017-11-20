@@ -28,7 +28,7 @@
                  <!-- Meta details -->
                  <div class="meta">
                     <div class="block_elements">
-                      <i class="icon-calendar"></i> [% post.created_date %]
+                      <i class="icon-calendar"></i> [% post.created_at %]
                     </div>
                     <div class="block_elements">
                       <i class="icon-user"></i> <a href="/posts/user/[% post.user.username %][% settings.static && '.html' %]">[% post.user.username %]</a>

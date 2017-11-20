@@ -43,7 +43,7 @@ prefix '/dashboard/posts' => sub {
         my @posts = resultset('Post')->search(
             $search_parameters,
             {
-                order_by => { -desc => 'created_date' },
+                order_by => { -desc => 'created_at' },
                 rows     => $nr_of_rows,
                 page     => $page
             }
@@ -97,10 +97,6 @@ prefix '/dashboard/posts' => sub {
         my $post;
 
         eval {
-            # Set the proper timezone
-            my $dt       = DateTime->now;
-            $dt->set_time_zone( config->{timezone} );
-
             my $parameters = body_parameters;
             my $user       = var('user');
             my ( $slug, $changed )
@@ -123,28 +119,17 @@ prefix '/dashboard/posts' => sub {
                     config->{'covers_folder'} . $cover_filename );
             }
 
-            # Next we can store the post into the database safely
-            my $dtf    = schema->storage->datetime_parser;
-            my $params = {
-                title        => $parameters->{'title'},
-                slug         => $slug,
-                content      => $parameters->{'post'},
-                user_id      => $user->id,
-                status       => $parameters->{'status'},
-                cover        => ($cover_filename) ? $cover_filename : '',
-                created_date => $dtf->format_datetime($dt),
-            };
+            $post = resultset('Post')->create({
+                title   => $parameters->{'title'},
+                slug    => $slug,
+                content => $parameters->{'post'},
+                author  => $user,
+                status  => $parameters->{'status'},
+                cover   => ($cover_filename) ? $cover_filename : undef,
+            });
 
-            # XXX: this *does* create, not just *try* to create
-            $post = resultset('Post')->can_create($params);
-
-            # Insert the categories selected with the new post
-            resultset('PostCategory')
-                ->connect_categories( $parameters->{'category'}, $post->id );
-
-            # Connect and update the tags table
-            resultset('PostTag')
-                ->connect_tags( $parameters->{'tags'}, $post->id );
+            $post->add_to_post_tags({ tag => $_ })
+                for split /,/, $parameters->{'tags'};
 
             1;
         } or do {

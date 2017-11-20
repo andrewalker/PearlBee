@@ -123,9 +123,9 @@ sub _wp_import {
                     title        => $post->{title},
                     slug         => string_to_slug( $post->{title} ),
                     content      => $post_content,
-                    created_date => $post->{"wp:post_date"},
+                    created_at   => $post->{"wp:post_date"},
                     status       => 'published',
-                    user_id      => $args->{session}->data->{user_id}
+                    author       => $args->{session}->data->{user_id}
                 }
             );
             $self->_update_wp_posts_on_import( $categories, $comments,

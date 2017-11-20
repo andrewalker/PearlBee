@@ -22,7 +22,7 @@ __PACKAGE__->result_source_instance->view_definition(
           P.id = C.post_id
       INNER JOIN "user" AS U
         ON
-          P.user_id = U.id
+          P.author = U.id
     WHERE
       U.id = ?
   ]

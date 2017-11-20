@@ -18,8 +18,7 @@ post '/sign-up' => sub {
     my $template_params = {
         username   => $params->{'username'},
         email      => $params->{'email'},
-        first_name => $params->{'first_name'},
-        last_name  => $params->{'last_name'},
+        name       => $params->{'name'},
     };
 
     my $failed_login = sub {
@@ -56,9 +55,7 @@ post '/sign-up' => sub {
             username      => $username,
             password      => $password,
             email         => $email,
-            first_name    => $params->{'first_name'},
-            last_name     => $params->{'last_name'},
-            register_date => join( ' ', $dt->ymd, $dt->hms ),
+            name          => $params->{'name'},
             role          => 'author',
             status        => 'pending'
         }
@@ -72,12 +69,11 @@ post '/sign-up' => sub {
     eval {
         sendmail({
             template_file => 'new_user.tt',
-            name          => $first_admin->first_name,
+            name          => $first_admin->name,
             email_address => $first_admin->email,
             subject       => 'A new user applied as an author to the blog',
             variables     => {
-                first_name => $params->{'first_name'},
-                last_name  => $params->{'last_name'},
+                name       => $params->{'name'},
                 username   => $params->{'username'},
                 email      => $params->{'email'},
                 signature  => '',

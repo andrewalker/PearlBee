@@ -9,38 +9,6 @@ use PearlBee::Helpers::Util qw/string_to_slug generate_new_slug_name/;
 
 use String::Util qw(trim);
 
-=head
-
-Create a new post
-
-=cut
-
-sub can_create {
-    my ( $self, $params ) = @_;
-
-    my $title   = $params->{title};
-    my $slug    = $params->{slug};
-    my $content = $params->{content};
-    my $user_id = $params->{user_id};
-    my $status  = $params->{status};
-    my $cover   = $params->{cover};
-    my $dt      = $params->{created_date};
-
-    my $post = $self->create(
-        {
-            title        => $title,
-            slug         => $slug,
-            content      => $content,
-            user_id      => $user_id,
-            status       => $status,
-            created_date => $dt,
-            cover        => $cover,
-        }
-    );
-
-    return $post;
-}
-
 =haed
 
 Check if the slug is already used, if so generate a new slug or return the old one
@@ -80,7 +48,7 @@ sub post_slug_exists {
 
     my $schema = $self->result_source->schema;
     my $post   = $schema->resultset('Post')
-        ->search( { slug => $slug, user_id => $user_id } )->first();
+        ->search( { slug => $slug, author => $user_id } )->first();
 
     return $post;
 }

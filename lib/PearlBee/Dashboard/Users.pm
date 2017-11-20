@@ -54,7 +54,7 @@ prefix '/dashboard/users' => sub {
         }
 
         my $search_options = {
-            order_by => { -desc => 'register_date' },
+            order_by => { -desc => 'registered_at' },
             rows     => $nr_of_rows,
             page     => $page,
         };
@@ -133,7 +133,7 @@ prefix '/dashboard/users' => sub {
         $user->allow();
 
         sendmail({
-            name          => $user->first_name, # FIXME
+            name          => $user->name,
             email_address => $user->email,
             template_file => 'welcome.tt',
             subject       => 'Welcome to PearlBee', # FIXME
@@ -141,7 +141,7 @@ prefix '/dashboard/users' => sub {
                 role       => $user->role,
                 username   => $user->username,
                 password   => $password,
-                first_name => $user->first_name,
+                name       => $user->name,
                 app_url    => config->{'app_url'},
                 blog_name  => config->{'blog_name'},
                 signature  => '',
@@ -165,17 +165,14 @@ prefix '/dashboard/users' => sub {
             my $params     = body_parameters;
             my $username   = $params->{'username'};
             my $email      = $params->{'email'};
-            my $first_name = $params->{'first_name'};
-            my $last_name  = $params->{'last_name'};
+            my $name       = $params->{'name'};
             my $role       = $params->{'role'};
 
             resultset('User')->create(
                 {
                     username      => $username,
                     password      => $password,
-                    first_name    => $first_name,
-                    last_name     => $last_name,
-                    register_date => join( ' ', $dt->ymd, $dt->hms ),
+                    name          => $name,
                     role          => $role,
                     email         => $email,
                 }
@@ -183,13 +180,12 @@ prefix '/dashboard/users' => sub {
 
             sendmail({
                 template_file => 'welcome.tt',
-                name          => $first_name,           # FIXME
+                name          => $name,
                 email_address => $email,
                 subject       => 'Welcome to PearlBee', # FIXME
                 role          => $role,
                 username      => $username,
                 password      => $password,
-                first_name    => $first_name,
                 app_url       => config->{'app_url'},
                 blog_name     => config->{'blog_name'},
                 signature     => '',

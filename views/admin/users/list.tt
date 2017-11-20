@@ -80,11 +80,11 @@
 
 								</td>
 
-								<td> [% user.first_name %] [% user.last_name %] </td>
+								<td> [% user.name %] </td>
 
 								<td> [% user.email %] </td>
 
-								<td> [% user.register_date %] </td>
+								<td> [% user.registered_at %] </td>
 
 								<td> [% user.role %] </td>
 							</tr>

@@ -4,14 +4,13 @@ use PearlBee::Helpers::Captcha;
 my $user_details = {
     username   => 'johndoe',
     email      => 'johndoe@gmail.com',
-    first_name => 'John',
-    last_name  => 'Doe',
+    name       => 'John Doe',
     secret     => 'zxcvb',
 };
 
 my %expected = (
     map( +( $_ => $user_details->{$_} ), qw<
-            username email first_name last_name
+            username email name
             > ),
     role   => 'author',
     status => 'pending',

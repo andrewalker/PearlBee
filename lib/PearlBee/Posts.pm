@@ -15,7 +15,7 @@ prefix '/posts' => sub {
         my @posts = resultset('Post')->search(
             { status => 'published' },
             {
-                order_by => { -desc => "created_date" },
+                order_by => { -desc => "created_at" },
                 rows     => $nr_of_rows,
                 page     => $page
             }
@@ -24,7 +24,7 @@ prefix '/posts' => sub {
             = resultset('Post')->search( { status => 'published' } )->count;
         my @tags       = resultset('View::PublishedTags')->all();
         my @recent = resultset('Post')->search( { status => 'published' },
-            { order_by => { -desc => "created_date" }, rows => 3 } );
+            { order_by => { -desc => "created_at" }, rows => 3 } );
         my @popular
             = resultset('View::PopularPosts')->search( {}, { rows => 3 } );
 
@@ -50,7 +50,7 @@ prefix '/posts' => sub {
         my $post   = resultset('Post')->find( { slug => $slug } );
         my @tags   = resultset('View::PublishedTags')->all();
         my @recent = resultset('Post')->search( { status => 'published' },
-            { order_by => { -desc => "created_date" }, rows => 3 } );
+            { order_by => { -desc => "created_at" }, rows => 3 } );
         my @popular
             = resultset('View::PopularPosts')->search( {}, { rows => 3 } );
 
