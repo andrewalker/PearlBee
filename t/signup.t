@@ -21,8 +21,6 @@ my %expected = (
 
 my $urs = schema->resultset('User');
 
-ensure_admin_in_db();
-
 {
     no warnings 'redefine';
     no strict 'refs';
