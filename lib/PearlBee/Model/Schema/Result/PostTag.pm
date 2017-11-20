@@ -37,32 +37,31 @@ __PACKAGE__->table("post_tag");
 
 =head1 ACCESSORS
 
-=head2 tag_id
-
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 0
-
 =head2 post_id
 
   data_type: 'integer'
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 tag
+
+  data_type: 'text'
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
-  "tag_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "post_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "tag",
+  { data_type => "text", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
 
 =over 4
 
-=item * L</tag_id>
+=item * L</tag>
 
 =item * L</post_id>
 
@@ -70,7 +69,7 @@ __PACKAGE__->add_columns(
 
 =cut
 
-__PACKAGE__->set_primary_key("tag_id", "post_id");
+__PACKAGE__->set_primary_key("tag", "post_id");
 
 =head1 RELATIONS
 
@@ -86,27 +85,17 @@ __PACKAGE__->belongs_to(
   "post",
   "PearlBee::Model::Schema::Result::Post",
   { id => "post_id" },
-  { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
-);
-
-=head2 tag
-
-Type: belongs_to
-
-Related object: L<PearlBee::Model::Schema::Result::Tag>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "tag",
-  "PearlBee::Model::Schema::Result::Tag",
-  { id => "tag_id" },
-  { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 10:43:58
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MppoHrxMc20OnKnA8DTxaw
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 13:23:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:39CDcye/6TW4arBILkqjpQ
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+sub uri { '/posts/tag/' . $_[0]->slug . ( $PearlBee::is_static && '.html ' ) }
+
+sub edit_uri { '/dashboard/tags/edit/' . $_[0]->id }
+
+sub delete_uri { '/dashboard/tags/delete/' . $_[0]->id }
+
 1;

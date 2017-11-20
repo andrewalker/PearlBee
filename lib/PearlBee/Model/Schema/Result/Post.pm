@@ -46,36 +46,38 @@ __PACKAGE__->table("post");
 
 =head2 title
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 0
-  size: 255
 
 =head2 slug
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 0
-  size: 255
 
-=head2 description
+=head2 abstract
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 1
-  size: 255
 
 =head2 cover
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 0
-  size: 300
 
 =head2 content
 
   data_type: 'text'
   is_nullable: 0
 
-=head2 created_date
+=head2 created_at
 
-  data_type: 'timestamp'
+  data_type: 'timestamp with time zone'
+  default_value: CURRENT_TIMESTAMP
+  is_nullable: 0
+
+=head2 updated_at
+
+  data_type: 'timestamp with time zone'
   default_value: CURRENT_TIMESTAMP
   is_nullable: 0
 
@@ -86,7 +88,7 @@ __PACKAGE__->table("post");
   extra: {custom_type_name => "post_status_type",list => ["published","trash","draft"]}
   is_nullable: 1
 
-=head2 user_id
+=head2 author
 
   data_type: 'integer'
   is_foreign_key: 1
@@ -103,18 +105,24 @@ __PACKAGE__->add_columns(
     sequence          => "post_id_seq",
   },
   "title",
-  { data_type => "varchar", is_nullable => 0, size => 255 },
+  { data_type => "text", is_nullable => 0 },
   "slug",
-  { data_type => "varchar", is_nullable => 0, size => 255 },
-  "description",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
+  { data_type => "text", is_nullable => 0 },
+  "abstract",
+  { data_type => "text", is_nullable => 1 },
   "cover",
-  { data_type => "varchar", is_nullable => 0, size => 300 },
+  { data_type => "text", is_nullable => 0 },
   "content",
   { data_type => "text", is_nullable => 0 },
-  "created_date",
+  "created_at",
   {
-    data_type     => "timestamp",
+    data_type     => "timestamp with time zone",
+    default_value => \"CURRENT_TIMESTAMP",
+    is_nullable   => 0,
+  },
+  "updated_at",
+  {
+    data_type     => "timestamp with time zone",
     default_value => \"CURRENT_TIMESTAMP",
     is_nullable   => 0,
   },
@@ -128,7 +136,7 @@ __PACKAGE__->add_columns(
     },
     is_nullable => 1,
   },
-  "user_id",
+  "author",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
@@ -144,36 +152,35 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<post_slug_key>
+
+=over 4
+
+=item * L</slug>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("post_slug_key", ["slug"]);
+
 =head1 RELATIONS
 
-=head2 comments
+=head2 author
 
-Type: has_many
+Type: belongs_to
 
-Related object: L<PearlBee::Model::Schema::Result::Comment>
-
-=cut
-
-__PACKAGE__->has_many(
-  "comments",
-  "PearlBee::Model::Schema::Result::Comment",
-  { "foreign.post_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 post_categories
-
-Type: has_many
-
-Related object: L<PearlBee::Model::Schema::Result::PostCategory>
+Related object: L<PearlBee::Model::Schema::Result::User>
 
 =cut
 
-__PACKAGE__->has_many(
-  "post_categories",
-  "PearlBee::Model::Schema::Result::PostCategory",
-  { "foreign.post_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+__PACKAGE__->belongs_to(
+  "author",
+  "PearlBee::Model::Schema::Result::User",
+  { id => "author" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 post_tags
@@ -191,44 +198,10 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 user
 
-Type: belongs_to
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 13:23:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2WAc0NUQP+kHPVIg8Q6bag
 
-Related object: L<PearlBee::Model::Schema::Result::User>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "user",
-  "PearlBee::Model::Schema::Result::User",
-  { id => "user_id" },
-  { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
-);
-
-=head2 categories
-
-Type: many_to_many
-
-Composing rels: L</post_categories> -> category
-
-=cut
-
-__PACKAGE__->many_to_many("categories", "post_categories", "category");
-
-=head2 tags
-
-Type: many_to_many
-
-Composing rels: L</post_tags> -> tag
-
-=cut
-
-__PACKAGE__->many_to_many("tags", "post_tags", "tag");
-
-
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 10:43:58
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Or6WU0tvN3ibcRFQaEP9xA
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 

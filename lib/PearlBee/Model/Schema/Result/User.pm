@@ -44,53 +44,26 @@ __PACKAGE__->table("user");
   is_nullable: 0
   sequence: 'user_id_seq'
 
-=head2 first_name
+=head2 name
 
-  data_type: 'varchar'
-  is_nullable: 0
-  size: 255
-
-=head2 last_name
-
-  data_type: 'varchar'
-  is_nullable: 0
-  size: 255
+  data_type: 'text'
+  is_nullable: 1
 
 =head2 username
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 0
-  size: 200
+
+=head2 email
+
+  data_type: 'text'
+  is_nullable: 0
 
 =head2 password
 
   data_type: 'char'
   is_nullable: 0
   size: 59
-
-=head2 register_date
-
-  data_type: 'timestamp'
-  default_value: CURRENT_TIMESTAMP
-  is_nullable: 0
-
-=head2 email
-
-  data_type: 'varchar'
-  is_nullable: 0
-  size: 255
-
-=head2 company
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 255
-
-=head2 telephone
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 12
 
 =head2 role
 
@@ -99,18 +72,23 @@ __PACKAGE__->table("user");
   extra: {custom_type_name => "user_role_type",list => ["author","admin"]}
   is_nullable: 0
 
-=head2 activation_key
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 100
-
 =head2 status
 
   data_type: 'enum'
   default_value: 'deactivated'
   extra: {custom_type_name => "user_status_type",list => ["deactivated","activated","suspended","pending"]}
   is_nullable: 0
+
+=head2 registered_at
+
+  data_type: 'timestamp with time zone'
+  default_value: CURRENT_TIMESTAMP
+  is_nullable: 0
+
+=head2 last_login
+
+  data_type: 'timestamp with time zone'
+  is_nullable: 1
 
 =cut
 
@@ -122,26 +100,14 @@ __PACKAGE__->add_columns(
     is_nullable       => 0,
     sequence          => "user_id_seq",
   },
-  "first_name",
-  { data_type => "varchar", is_nullable => 0, size => 255 },
-  "last_name",
-  { data_type => "varchar", is_nullable => 0, size => 255 },
+  "name",
+  { data_type => "text", is_nullable => 1 },
   "username",
-  { data_type => "varchar", is_nullable => 0, size => 200 },
+  { data_type => "text", is_nullable => 0 },
+  "email",
+  { data_type => "text", is_nullable => 0 },
   "password",
   { data_type => "char", is_nullable => 0, size => 59 },
-  "register_date",
-  {
-    data_type     => "timestamp",
-    default_value => \"CURRENT_TIMESTAMP",
-    is_nullable   => 0,
-  },
-  "email",
-  { data_type => "varchar", is_nullable => 0, size => 255 },
-  "company",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "telephone",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
   "role",
   {
     data_type => "enum",
@@ -149,8 +115,6 @@ __PACKAGE__->add_columns(
     extra => { custom_type_name => "user_role_type", list => ["author", "admin"] },
     is_nullable => 0,
   },
-  "activation_key",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
   "status",
   {
     data_type => "enum",
@@ -161,6 +125,14 @@ __PACKAGE__->add_columns(
     },
     is_nullable => 0,
   },
+  "registered_at",
+  {
+    data_type     => "timestamp with time zone",
+    default_value => \"CURRENT_TIMESTAMP",
+    is_nullable   => 0,
+  },
+  "last_login",
+  { data_type => "timestamp with time zone", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -177,7 +149,7 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<email>
+=head2 C<user_email_key>
 
 =over 4
 
@@ -187,9 +159,9 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("email", ["email"]);
+__PACKAGE__->add_unique_constraint("user_email_key", ["email"]);
 
-=head2 C<username>
+=head2 C<user_username_key>
 
 =over 4
 
@@ -199,39 +171,9 @@ __PACKAGE__->add_unique_constraint("email", ["email"]);
 
 =cut
 
-__PACKAGE__->add_unique_constraint("username", ["username"]);
+__PACKAGE__->add_unique_constraint("user_username_key", ["username"]);
 
 =head1 RELATIONS
-
-=head2 categories
-
-Type: has_many
-
-Related object: L<PearlBee::Model::Schema::Result::Category>
-
-=cut
-
-__PACKAGE__->has_many(
-  "categories",
-  "PearlBee::Model::Schema::Result::Category",
-  { "foreign.user_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 comments
-
-Type: has_many
-
-Related object: L<PearlBee::Model::Schema::Result::Comment>
-
-=cut
-
-__PACKAGE__->has_many(
-  "comments",
-  "PearlBee::Model::Schema::Result::Comment",
-  { "foreign.uid" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
 
 =head2 posts
 
@@ -244,13 +186,28 @@ Related object: L<PearlBee::Model::Schema::Result::Post>
 __PACKAGE__->has_many(
   "posts",
   "PearlBee::Model::Schema::Result::Post",
-  { "foreign.user_id" => "self.id" },
+  { "foreign.author" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 registration_tokens
+
+Type: has_many
+
+Related object: L<PearlBee::Model::Schema::Result::RegistrationToken>
+
+=cut
+
+__PACKAGE__->has_many(
+  "registration_tokens",
+  "PearlBee::Model::Schema::Result::RegistrationToken",
+  { "foreign.user" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 10:43:58
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Sn/rnz8s4TtebVDE8C9AIA
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 13:56:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RVxFZ9Jo1Ii4Dob9VnwZ2w
 
 __PACKAGE__->add_columns(
     password => {
