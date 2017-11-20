@@ -2,3 +2,4 @@
 %project=pearlbee
 
 schema_pearlbee 2017-11-20T10:31:41Z Andre Walker <andre@andrewalker.net> # Create schema
+table_user [schema_pearlbee] 2017-11-20T10:42:04Z Andre Walker <andre@andrewalker.net> # User table
