@@ -1,5 +1,4 @@
 use utf8;
-
 package PearlBee::Model::Schema::Result::PostTag;
 
 # Created by DBIx::Class::Schema::Loader
@@ -7,7 +6,7 @@ package PearlBee::Model::Schema::Result::PostTag;
 
 =head1 NAME
 
-PearlBee::Model::Schema::Result::PostTag - Post tag table.
+PearlBee::Model::Schema::Result::PostTag
 
 =cut
 
@@ -15,6 +14,20 @@ use strict;
 use warnings;
 
 use base 'DBIx::Class::Core';
+
+=head1 COMPONENTS LOADED
+
+=over 4
+
+=item * L<DBIx::Class::EncodedColumn>
+
+=item * L<DBIx::Class::InflateColumn::DateTime>
+
+=back
+
+=cut
+
+__PACKAGE__->load_components("EncodedColumn", "InflateColumn::DateTime");
 
 =head1 TABLE: C<post_tag>
 
@@ -39,10 +52,10 @@ __PACKAGE__->table("post_tag");
 =cut
 
 __PACKAGE__->add_columns(
-    "tag_id",
-    { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-    "post_id",
-    { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "tag_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "post_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -57,7 +70,7 @@ __PACKAGE__->add_columns(
 
 =cut
 
-__PACKAGE__->set_primary_key( "tag_id", "post_id" );
+__PACKAGE__->set_primary_key("tag_id", "post_id");
 
 =head1 RELATIONS
 
@@ -70,10 +83,10 @@ Related object: L<PearlBee::Model::Schema::Result::Post>
 =cut
 
 __PACKAGE__->belongs_to(
-    "post",
-    "PearlBee::Model::Schema::Result::Post",
-    { id            => "post_id" },
-    { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
+  "post",
+  "PearlBee::Model::Schema::Result::Post",
+  { id => "post_id" },
+  { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
 );
 
 =head2 tag
@@ -85,14 +98,15 @@ Related object: L<PearlBee::Model::Schema::Result::Tag>
 =cut
 
 __PACKAGE__->belongs_to(
-    "tag",
-    "PearlBee::Model::Schema::Result::Tag",
-    { id            => "tag_id" },
-    { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
+  "tag",
+  "PearlBee::Model::Schema::Result::Tag",
+  { id => "tag_id" },
+  { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
 );
 
-# Created by DBIx::Class::Schema::Loader v0.07039 @ 2015-02-23 16:54:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:X6jXKbLzGuv5nx7NvsFNwA
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 10:43:58
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MppoHrxMc20OnKnA8DTxaw
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

@@ -1,5 +1,4 @@
 use utf8;
-
 package PearlBee::Model::Schema::Result::Tag;
 
 # Created by DBIx::Class::Schema::Loader
@@ -7,7 +6,7 @@ package PearlBee::Model::Schema::Result::Tag;
 
 =head1 NAME
 
-PearlBee::Model::Schema::Result::Tag - Tag table.
+PearlBee::Model::Schema::Result::Tag
 
 =cut
 
@@ -15,6 +14,20 @@ use strict;
 use warnings;
 
 use base 'DBIx::Class::Core';
+
+=head1 COMPONENTS LOADED
+
+=over 4
+
+=item * L<DBIx::Class::EncodedColumn>
+
+=item * L<DBIx::Class::InflateColumn::DateTime>
+
+=back
+
+=cut
+
+__PACKAGE__->load_components("EncodedColumn", "InflateColumn::DateTime");
 
 =head1 TABLE: C<tag>
 
@@ -29,6 +42,7 @@ __PACKAGE__->table("tag");
   data_type: 'integer'
   is_auto_increment: 1
   is_nullable: 0
+  sequence: 'tag_id_seq'
 
 =head2 name
 
@@ -45,12 +59,17 @@ __PACKAGE__->table("tag");
 =cut
 
 __PACKAGE__->add_columns(
-    "id",
-    { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-    "name",
-    { data_type => "varchar", is_nullable => 1, size => 100 },
-    "slug",
-    { data_type => "varchar", is_nullable => 1, size => 100 },
+  "id",
+  {
+    data_type         => "integer",
+    is_auto_increment => 1,
+    is_nullable       => 0,
+    sequence          => "tag_id_seq",
+  },
+  "name",
+  { data_type => "varchar", is_nullable => 1, size => 100 },
+  "slug",
+  { data_type => "varchar", is_nullable => 1, size => 100 },
 );
 
 =head1 PRIMARY KEY
@@ -76,10 +95,10 @@ Related object: L<PearlBee::Model::Schema::Result::PostTag>
 =cut
 
 __PACKAGE__->has_many(
-    "post_tags",
-    "PearlBee::Model::Schema::Result::PostTag",
-    { "foreign.tag_id" => "self.id" },
-    { cascade_copy     => 0, cascade_delete => 0 },
+  "post_tags",
+  "PearlBee::Model::Schema::Result::PostTag",
+  { "foreign.tag_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 posts
@@ -90,10 +109,11 @@ Composing rels: L</post_tags> -> post
 
 =cut
 
-__PACKAGE__->many_to_many( "posts", "post_tags", "post" );
+__PACKAGE__->many_to_many("posts", "post_tags", "post");
 
-# Created by DBIx::Class::Schema::Loader v0.07039 @ 2015-02-23 16:54:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:sIW8AAfcXBM0dgcuJrb7iw
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 10:43:58
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KGyFjngvktnaYDanLQY8pw
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 

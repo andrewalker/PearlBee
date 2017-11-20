@@ -1,5 +1,4 @@
 use utf8;
-
 package PearlBee::Model::Schema::Result::User;
 
 # Created by DBIx::Class::Schema::Loader
@@ -7,7 +6,7 @@ package PearlBee::Model::Schema::Result::User;
 
 =head1 NAME
 
-PearlBee::Model::Schema::Result::User - User table.
+PearlBee::Model::Schema::Result::User
 
 =cut
 
@@ -16,13 +15,25 @@ use warnings;
 
 use base 'DBIx::Class::Core';
 
+=head1 COMPONENTS LOADED
+
+=over 4
+
+=item * L<DBIx::Class::EncodedColumn>
+
+=item * L<DBIx::Class::InflateColumn::DateTime>
+
+=back
+
+=cut
+
+__PACKAGE__->load_components("EncodedColumn", "InflateColumn::DateTime");
+
 =head1 TABLE: C<user>
 
 =cut
 
 __PACKAGE__->table("user");
-
-__PACKAGE__->load_components(qw/EncodedColumn Core/);
 
 =head1 ACCESSORS
 
@@ -31,6 +42,7 @@ __PACKAGE__->load_components(qw/EncodedColumn Core/);
   data_type: 'integer'
   is_auto_increment: 1
   is_nullable: 0
+  sequence: 'user_id_seq'
 
 =head2 first_name
 
@@ -59,8 +71,7 @@ __PACKAGE__->load_components(qw/EncodedColumn Core/);
 =head2 register_date
 
   data_type: 'timestamp'
-  datetime_undef_if_invalid: 1
-  default_value: current_timestamp
+  default_value: CURRENT_TIMESTAMP
   is_nullable: 0
 
 =head2 email
@@ -85,7 +96,7 @@ __PACKAGE__->load_components(qw/EncodedColumn Core/);
 
   data_type: 'enum'
   default_value: 'author'
-  extra: {list => ["author","admin"]}
+  extra: {custom_type_name => "user_role_type",list => ["author","admin"]}
   is_nullable: 0
 
 =head2 activation_key
@@ -98,61 +109,58 @@ __PACKAGE__->load_components(qw/EncodedColumn Core/);
 
   data_type: 'enum'
   default_value: 'deactivated'
-  extra: {list => ["deactivated","activated","suspended","pending"]}
+  extra: {custom_type_name => "user_status_type",list => ["deactivated","activated","suspended","pending"]}
   is_nullable: 0
 
 =cut
 
 __PACKAGE__->add_columns(
-    "id",
-    { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-    "first_name",
-    { data_type => "varchar", is_nullable => 0, size => 255 },
-    "last_name",
-    { data_type => "varchar", is_nullable => 0, size => 255 },
-    "username",
-    { data_type => "varchar", is_nullable => 0, size => 200 },
-    "password",
-    {
-        data_type           => "char",
-        is_nullable         => 0,
-        size                => 59,
-        encode_column       => 1,
-        encode_class        => 'Crypt::Eksblowfish::Bcrypt',
-        encode_args         => { key_nul => 0, cost => 8 },
-        encode_check_method => 'check_password',
+  "id",
+  {
+    data_type         => "integer",
+    is_auto_increment => 1,
+    is_nullable       => 0,
+    sequence          => "user_id_seq",
+  },
+  "first_name",
+  { data_type => "varchar", is_nullable => 0, size => 255 },
+  "last_name",
+  { data_type => "varchar", is_nullable => 0, size => 255 },
+  "username",
+  { data_type => "varchar", is_nullable => 0, size => 200 },
+  "password",
+  { data_type => "char", is_nullable => 0, size => 59 },
+  "register_date",
+  {
+    data_type     => "timestamp",
+    default_value => \"CURRENT_TIMESTAMP",
+    is_nullable   => 0,
+  },
+  "email",
+  { data_type => "varchar", is_nullable => 0, size => 255 },
+  "company",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
+  "telephone",
+  { data_type => "varchar", is_nullable => 1, size => 12 },
+  "role",
+  {
+    data_type => "enum",
+    default_value => "author",
+    extra => { custom_type_name => "user_role_type", list => ["author", "admin"] },
+    is_nullable => 0,
+  },
+  "activation_key",
+  { data_type => "varchar", is_nullable => 1, size => 100 },
+  "status",
+  {
+    data_type => "enum",
+    default_value => "deactivated",
+    extra => {
+      custom_type_name => "user_status_type",
+      list => ["deactivated", "activated", "suspended", "pending"],
     },
-    "register_date",
-    {
-        data_type                 => "timestamp",
-        datetime_undef_if_invalid => 1,
-        default_value             => \"current_timestamp",
-        is_nullable               => 0,
-    },
-    "email",
-    { data_type => "varchar", is_nullable => 0, size => 255 },
-    "company",
-    { data_type => "varchar", is_nullable => 1, size => 255 },
-    "telephone",
-    { data_type => "varchar", is_nullable => 1, size => 12 },
-    "role",
-    {
-        data_type     => "enum",
-        default_value => "author",
-        extra         => { list => [ "author", "admin" ] },
-        is_nullable   => 0,
-    },
-    "activation_key",
-    { data_type => "varchar", is_nullable => 1, size => 100 },
-    "status",
-    {
-        data_type     => "enum",
-        default_value => "deactivated",
-        extra         => {
-            list => [ "deactivated", "activated", "suspended", "pending" ]
-        },
-        is_nullable => 0,
-    },
+    is_nullable => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -179,7 +187,7 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint( "email", ["email"] );
+__PACKAGE__->add_unique_constraint("email", ["email"]);
 
 =head2 C<username>
 
@@ -191,7 +199,7 @@ __PACKAGE__->add_unique_constraint( "email", ["email"] );
 
 =cut
 
-__PACKAGE__->add_unique_constraint( "username", ["username"] );
+__PACKAGE__->add_unique_constraint("username", ["username"]);
 
 =head1 RELATIONS
 
@@ -204,10 +212,10 @@ Related object: L<PearlBee::Model::Schema::Result::Category>
 =cut
 
 __PACKAGE__->has_many(
-    "categories",
-    "PearlBee::Model::Schema::Result::Category",
-    { "foreign.user_id" => "self.id" },
-    { cascade_copy      => 0, cascade_delete => 0 },
+  "categories",
+  "PearlBee::Model::Schema::Result::Category",
+  { "foreign.user_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 comments
@@ -219,10 +227,10 @@ Related object: L<PearlBee::Model::Schema::Result::Comment>
 =cut
 
 __PACKAGE__->has_many(
-    "comments",
-    "PearlBee::Model::Schema::Result::Comment",
-    { "foreign.uid" => "self.id" },
-    { cascade_copy  => 0, cascade_delete => 0 },
+  "comments",
+  "PearlBee::Model::Schema::Result::Comment",
+  { "foreign.uid" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 posts
@@ -234,16 +242,27 @@ Related object: L<PearlBee::Model::Schema::Result::Post>
 =cut
 
 __PACKAGE__->has_many(
-    "posts",
-    "PearlBee::Model::Schema::Result::Post",
-    { "foreign.user_id" => "self.id" },
-    { cascade_copy      => 0, cascade_delete => 0 },
+  "posts",
+  "PearlBee::Model::Schema::Result::Post",
+  { "foreign.user_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
-# Created by DBIx::Class::Schema::Loader v0.07039 @ 2015-03-12 11:32:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:K9HSB67oau0IzWdJILumFg
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 10:43:58
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Sn/rnz8s4TtebVDE8C9AIA
+
+__PACKAGE__->add_columns(
+    password => {
+        data_type           => "char",
+        is_nullable         => 0,
+        size                => 59,
+        encode_column       => 1,
+        encode_class        => 'Crypt::Eksblowfish::Bcrypt',
+        encode_args         => { key_nul => 0, cost => 8 },
+        encode_check_method => 'check_password',
+    }
+);
 
 =head
 

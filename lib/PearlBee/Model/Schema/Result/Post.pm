@@ -1,5 +1,4 @@
 use utf8;
-
 package PearlBee::Model::Schema::Result::Post;
 
 # Created by DBIx::Class::Schema::Loader
@@ -7,7 +6,7 @@ package PearlBee::Model::Schema::Result::Post;
 
 =head1 NAME
 
-PearlBee::Model::Schema::Result::Post - Post table.
+PearlBee::Model::Schema::Result::Post
 
 =cut
 
@@ -15,6 +14,20 @@ use strict;
 use warnings;
 
 use base 'DBIx::Class::Core';
+
+=head1 COMPONENTS LOADED
+
+=over 4
+
+=item * L<DBIx::Class::EncodedColumn>
+
+=item * L<DBIx::Class::InflateColumn::DateTime>
+
+=back
+
+=cut
+
+__PACKAGE__->load_components("EncodedColumn", "InflateColumn::DateTime");
 
 =head1 TABLE: C<post>
 
@@ -29,6 +42,7 @@ __PACKAGE__->table("post");
   data_type: 'integer'
   is_auto_increment: 1
   is_nullable: 0
+  sequence: 'post_id_seq'
 
 =head2 title
 
@@ -62,15 +76,14 @@ __PACKAGE__->table("post");
 =head2 created_date
 
   data_type: 'timestamp'
-  datetime_undef_if_invalid: 1
-  default_value: current_timestamp
+  default_value: CURRENT_TIMESTAMP
   is_nullable: 0
 
 =head2 status
 
   data_type: 'enum'
   default_value: 'draft'
-  extra: {list => ["published","trash","draft"]}
+  extra: {custom_type_name => "post_status_type",list => ["published","trash","draft"]}
   is_nullable: 1
 
 =head2 user_id
@@ -82,34 +95,41 @@ __PACKAGE__->table("post");
 =cut
 
 __PACKAGE__->add_columns(
-    "id",
-    { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-    "title",
-    { data_type => "varchar", is_nullable => 0, size => 255 },
-    "slug",
-    { data_type => "varchar", is_nullable => 0, size => 255 },
-    "description",
-    { data_type => "varchar", is_nullable => 1, size => 255 },
-    "cover",
-    { data_type => "varchar", is_nullable => 0, size => 300 },
-    "content",
-    { data_type => "text", is_nullable => 0 },
-    "created_date",
-    {
-        data_type                 => "timestamp",
-        datetime_undef_if_invalid => 1,
-        default_value             => \"current_timestamp",
-        is_nullable               => 0,
+  "id",
+  {
+    data_type         => "integer",
+    is_auto_increment => 1,
+    is_nullable       => 0,
+    sequence          => "post_id_seq",
+  },
+  "title",
+  { data_type => "varchar", is_nullable => 0, size => 255 },
+  "slug",
+  { data_type => "varchar", is_nullable => 0, size => 255 },
+  "description",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
+  "cover",
+  { data_type => "varchar", is_nullable => 0, size => 300 },
+  "content",
+  { data_type => "text", is_nullable => 0 },
+  "created_date",
+  {
+    data_type     => "timestamp",
+    default_value => \"CURRENT_TIMESTAMP",
+    is_nullable   => 0,
+  },
+  "status",
+  {
+    data_type => "enum",
+    default_value => "draft",
+    extra => {
+      custom_type_name => "post_status_type",
+      list => ["published", "trash", "draft"],
     },
-    "status",
-    {
-        data_type     => "enum",
-        default_value => "draft",
-        extra         => { list => [ "published", "trash", "draft" ] },
-        is_nullable   => 1,
-    },
-    "user_id",
-    { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+    is_nullable => 1,
+  },
+  "user_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -135,10 +155,10 @@ Related object: L<PearlBee::Model::Schema::Result::Comment>
 =cut
 
 __PACKAGE__->has_many(
-    "comments",
-    "PearlBee::Model::Schema::Result::Comment",
-    { "foreign.post_id" => "self.id" },
-    { cascade_copy      => 0, cascade_delete => 0 },
+  "comments",
+  "PearlBee::Model::Schema::Result::Comment",
+  { "foreign.post_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 post_categories
@@ -150,10 +170,10 @@ Related object: L<PearlBee::Model::Schema::Result::PostCategory>
 =cut
 
 __PACKAGE__->has_many(
-    "post_categories",
-    "PearlBee::Model::Schema::Result::PostCategory",
-    { "foreign.post_id" => "self.id" },
-    { cascade_copy      => 0, cascade_delete => 0 },
+  "post_categories",
+  "PearlBee::Model::Schema::Result::PostCategory",
+  { "foreign.post_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 post_tags
@@ -165,10 +185,10 @@ Related object: L<PearlBee::Model::Schema::Result::PostTag>
 =cut
 
 __PACKAGE__->has_many(
-    "post_tags",
-    "PearlBee::Model::Schema::Result::PostTag",
-    { "foreign.post_id" => "self.id" },
-    { cascade_copy      => 0, cascade_delete => 0 },
+  "post_tags",
+  "PearlBee::Model::Schema::Result::PostTag",
+  { "foreign.post_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 user
@@ -180,10 +200,10 @@ Related object: L<PearlBee::Model::Schema::Result::User>
 =cut
 
 __PACKAGE__->belongs_to(
-    "user",
-    "PearlBee::Model::Schema::Result::User",
-    { id            => "user_id" },
-    { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
+  "user",
+  "PearlBee::Model::Schema::Result::User",
+  { id => "user_id" },
+  { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
 );
 
 =head2 categories
@@ -194,7 +214,7 @@ Composing rels: L</post_categories> -> category
 
 =cut
 
-__PACKAGE__->many_to_many( "categories", "post_categories", "category" );
+__PACKAGE__->many_to_many("categories", "post_categories", "category");
 
 =head2 tags
 
@@ -204,10 +224,11 @@ Composing rels: L</post_tags> -> tag
 
 =cut
 
-__PACKAGE__->many_to_many( "tags", "post_tags", "tag" );
+__PACKAGE__->many_to_many("tags", "post_tags", "tag");
 
-# Created by DBIx::Class::Schema::Loader v0.07039 @ 2015-02-23 16:54:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5V6erZKi9jLOYo38x62HWg
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 10:43:58
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Or6WU0tvN3ibcRFQaEP9xA
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 

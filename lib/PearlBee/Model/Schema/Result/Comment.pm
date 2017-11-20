@@ -1,12 +1,12 @@
-package PearlBee::Model::Schema::Result::Comment;
 use utf8;
+package PearlBee::Model::Schema::Result::Comment;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-PearlBee::Model::Schema::Result::Comment - Comment table.
+PearlBee::Model::Schema::Result::Comment
 
 =cut
 
@@ -14,6 +14,20 @@ use strict;
 use warnings;
 
 use base 'DBIx::Class::Core';
+
+=head1 COMPONENTS LOADED
+
+=over 4
+
+=item * L<DBIx::Class::EncodedColumn>
+
+=item * L<DBIx::Class::InflateColumn::DateTime>
+
+=back
+
+=cut
+
+__PACKAGE__->load_components("EncodedColumn", "InflateColumn::DateTime");
 
 =head1 TABLE: C<comment>
 
@@ -28,6 +42,7 @@ __PACKAGE__->table("comment");
   data_type: 'integer'
   is_auto_increment: 1
   is_nullable: 0
+  sequence: 'comment_id_seq'
 
 =head2 content
 
@@ -61,15 +76,14 @@ __PACKAGE__->table("comment");
 =head2 comment_date
 
   data_type: 'timestamp'
-  datetime_undef_if_invalid: 1
-  default_value: current_timestamp
+  default_value: CURRENT_TIMESTAMP
   is_nullable: 0
 
 =head2 status
 
   data_type: 'enum'
   default_value: 'pending'
-  extra: {list => ["approved","spam","pending","trash"]}
+  extra: {custom_type_name => "comment_status_type",list => ["approved","spam","pending","trash"]}
   is_nullable: 1
 
 =head2 post_id
@@ -92,38 +106,45 @@ __PACKAGE__->table("comment");
 =cut
 
 __PACKAGE__->add_columns(
-    "id",
-    { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-    "content",
-    { data_type => "text", is_nullable => 1 },
-    "fullname",
-    { data_type => "varchar", is_nullable => 1, size => 100 },
-    "email",
-    { data_type => "varchar", is_nullable => 1, size => 200 },
-    "website",
-    { data_type => "varchar", is_nullable => 1, size => 255 },
-    "avatar",
-    { data_type => "varchar", is_nullable => 1, size => 255 },
-    "comment_date",
-    {
-        data_type                 => "timestamp",
-        datetime_undef_if_invalid => 1,
-        default_value             => \"current_timestamp",
-        is_nullable               => 0,
+  "id",
+  {
+    data_type         => "integer",
+    is_auto_increment => 1,
+    is_nullable       => 0,
+    sequence          => "comment_id_seq",
+  },
+  "content",
+  { data_type => "text", is_nullable => 1 },
+  "fullname",
+  { data_type => "varchar", is_nullable => 1, size => 100 },
+  "email",
+  { data_type => "varchar", is_nullable => 1, size => 200 },
+  "website",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
+  "avatar",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
+  "comment_date",
+  {
+    data_type     => "timestamp",
+    default_value => \"CURRENT_TIMESTAMP",
+    is_nullable   => 0,
+  },
+  "status",
+  {
+    data_type => "enum",
+    default_value => "pending",
+    extra => {
+      custom_type_name => "comment_status_type",
+      list => ["approved", "spam", "pending", "trash"],
     },
-    "status",
-    {
-        data_type     => "enum",
-        default_value => "pending",
-        extra       => { list => [ "approved", "spam", "pending", "trash" ] },
-        is_nullable => 1,
-    },
-    "post_id",
-    { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-    "uid",
-    { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
-    "reply_to",
-    { data_type => "integer", is_nullable => 1 },
+    is_nullable => 1,
+  },
+  "post_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "uid",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "reply_to",
+  { data_type => "integer", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -149,10 +170,10 @@ Related object: L<PearlBee::Model::Schema::Result::Post>
 =cut
 
 __PACKAGE__->belongs_to(
-    "post",
-    "PearlBee::Model::Schema::Result::Post",
-    { id            => "post_id" },
-    { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
+  "post",
+  "PearlBee::Model::Schema::Result::Post",
+  { id => "post_id" },
+  { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
 );
 
 =head2 uid
@@ -164,19 +185,20 @@ Related object: L<PearlBee::Model::Schema::Result::User>
 =cut
 
 __PACKAGE__->belongs_to(
-    "uid",
-    "PearlBee::Model::Schema::Result::User",
-    { id => "uid" },
-    {
-        is_deferrable => 1,
-        join_type     => "LEFT",
-        on_delete     => "RESTRICT",
-        on_update     => "RESTRICT",
-    },
+  "uid",
+  "PearlBee::Model::Schema::Result::User",
+  { id => "uid" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "RESTRICT",
+    on_update     => "RESTRICT",
+  },
 );
 
-# Created by DBIx::Class::Schema::Loader v0.07039 @ 2015-03-12 11:32:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kXOgl6BN015P4v3rssxB+g
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 10:43:58
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lnoAmj72aNLeKvk6BNzFew
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 

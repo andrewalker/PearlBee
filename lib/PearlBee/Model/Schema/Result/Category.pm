@@ -1,5 +1,4 @@
 use utf8;
-
 package PearlBee::Model::Schema::Result::Category;
 
 # Created by DBIx::Class::Schema::Loader
@@ -7,7 +6,7 @@ package PearlBee::Model::Schema::Result::Category;
 
 =head1 NAME
 
-PearlBee::Model::Schema::Result::Category - Category table.
+PearlBee::Model::Schema::Result::Category
 
 =cut
 
@@ -15,6 +14,20 @@ use strict;
 use warnings;
 
 use base 'DBIx::Class::Core';
+
+=head1 COMPONENTS LOADED
+
+=over 4
+
+=item * L<DBIx::Class::EncodedColumn>
+
+=item * L<DBIx::Class::InflateColumn::DateTime>
+
+=back
+
+=cut
+
+__PACKAGE__->load_components("EncodedColumn", "InflateColumn::DateTime");
 
 =head1 TABLE: C<category>
 
@@ -29,6 +42,7 @@ __PACKAGE__->table("category");
   data_type: 'integer'
   is_auto_increment: 1
   is_nullable: 0
+  sequence: 'category_id_seq'
 
 =head2 name
 
@@ -51,14 +65,19 @@ __PACKAGE__->table("category");
 =cut
 
 __PACKAGE__->add_columns(
-    "id",
-    { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-    "name",
-    { data_type => "varchar", is_nullable => 0, size => 100 },
-    "slug",
-    { data_type => "varchar", is_nullable => 0, size => 100 },
-    "user_id",
-    { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "id",
+  {
+    data_type         => "integer",
+    is_auto_increment => 1,
+    is_nullable       => 0,
+    sequence          => "category_id_seq",
+  },
+  "name",
+  { data_type => "varchar", is_nullable => 0, size => 100 },
+  "slug",
+  { data_type => "varchar", is_nullable => 0, size => 100 },
+  "user_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -85,7 +104,7 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint( "name", ["name"] );
+__PACKAGE__->add_unique_constraint("name", ["name"]);
 
 =head1 RELATIONS
 
@@ -98,10 +117,10 @@ Related object: L<PearlBee::Model::Schema::Result::PostCategory>
 =cut
 
 __PACKAGE__->has_many(
-    "post_categories",
-    "PearlBee::Model::Schema::Result::PostCategory",
-    { "foreign.category_id" => "self.id" },
-    { cascade_copy          => 0, cascade_delete => 0 },
+  "post_categories",
+  "PearlBee::Model::Schema::Result::PostCategory",
+  { "foreign.category_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 =head2 user
@@ -113,10 +132,10 @@ Related object: L<PearlBee::Model::Schema::Result::User>
 =cut
 
 __PACKAGE__->belongs_to(
-    "user",
-    "PearlBee::Model::Schema::Result::User",
-    { id            => "user_id" },
-    { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
+  "user",
+  "PearlBee::Model::Schema::Result::User",
+  { id => "user_id" },
+  { is_deferrable => 1, on_delete => "RESTRICT", on_update => "RESTRICT" },
 );
 
 =head2 posts
@@ -127,10 +146,11 @@ Composing rels: L</post_categories> -> post
 
 =cut
 
-__PACKAGE__->many_to_many( "posts", "post_categories", "post" );
+__PACKAGE__->many_to_many("posts", "post_categories", "post");
 
-# Created by DBIx::Class::Schema::Loader v0.07039 @ 2015-02-23 16:54:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YAIOlaZq+2QRt62utRmEoA
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 10:43:58
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jRIrux5EL+KEPfGPgrrjIQ
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 

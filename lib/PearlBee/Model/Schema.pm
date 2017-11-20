@@ -1,5 +1,4 @@
 use utf8;
-
 package PearlBee::Model::Schema;
 
 # Created by DBIx::Class::Schema::Loader
@@ -12,8 +11,9 @@ use base 'DBIx::Class::Schema::Config';
 
 __PACKAGE__->load_namespaces;
 
-# Created by DBIx::Class::Schema::Loader v0.07039 @ 2015-02-23 16:54:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JjSNFVtFx/myDsjjQHMaZQ
+
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 10:43:58
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+Cag3+jI+2hc8ixM4SNPUQ
 
 use URI;
 
