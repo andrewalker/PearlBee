@@ -4,3 +4,4 @@
 schema_pearlbee 2017-11-20T10:31:41Z Andre Walker <andre@andrewalker.net> # Create schema
 table_user [schema_pearlbee] 2017-11-20T10:42:04Z Andre Walker <andre@andrewalker.net> # User table
 table_post [schema_pearlbee table_user] 2017-11-20T11:41:50Z Andre Walker <andre@andrewalker.net> # Post table
+table_tag [schema_pearlbee table_post] 2017-11-20T11:56:12Z Andre Walker <andre@andrewalker.net> # Tag table
