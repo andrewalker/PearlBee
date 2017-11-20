@@ -38,33 +38,27 @@ post '/sign-up' => sub {
     PearlBee::Helpers::Captcha::check_captcha_code( $params->{'secret'} )
         or return $failed_login->('Invalid secret code.');
 
-    resultset('User')->search( { email => $email } )->first
+    resultset('User')->count( { email => $email } )
         and return $failed_login->("Email address already in use.");
 
-    resultset('User')->search( { username => $username } )->first
+    resultset('User')->count( { username => $username } )
         and return $failed_login->("Username already in use.");
-
-    # Set the proper timezone
-    my $dt       = DateTime->now;
-    $dt->set_time_zone( config->{timezone} );
 
     my $password = random_string('Ccc!cCn');
 
-    resultset('User')->create(
-        {
-            username      => $username,
-            password      => $password,
-            email         => $email,
-            name          => $params->{'name'},
-            role          => 'author',
-            status        => 'pending'
-        }
-    );
+    resultset('User')->create({
+        username      => $username,
+        password      => $password,
+        email         => $email,
+        name          => $params->{'name'},
+        role          => 'author',
+        status        => 'pending'
+    });
 
-    my $first_admin = resultset('User')->search({
+    my $first_admin = resultset('User')->single({
         role   => 'admin',
         status => 'activated',
-    })->first;
+    });
 
     eval {
         sendmail({

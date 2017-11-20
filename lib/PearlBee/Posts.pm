@@ -22,11 +22,8 @@ prefix '/posts' => sub {
         );
         my $nr_of_posts
             = resultset('Post')->search( { status => 'published' } )->count;
-        my @tags       = resultset('View::PublishedTags')->all();
         my @recent = resultset('Post')->search( { status => 'published' },
             { order_by => { -desc => "created_at" }, rows => 3 } );
-        my @popular
-            = resultset('View::PopularPosts')->search( {}, { rows => 3 } );
 
         # Calculate the next and previous page link
         my $total_pages = get_total_pages( $nr_of_posts, $nr_of_rows );
@@ -36,8 +33,8 @@ prefix '/posts' => sub {
         template 'index' => {
             posts         => \@posts,
             recent        => \@recent,
-            popular       => \@popular,
-            tags          => \@tags,
+            popular       => [],
+            tags          => [],
             page          => $page,
             total_pages   => $total_pages,
             previous_link => $previous_link,
@@ -48,7 +45,6 @@ prefix '/posts' => sub {
     get '/:slug' => sub {
         my $slug   = route_parameters->{'slug'};
         my $post   = resultset('Post')->find( { slug => $slug } );
-        my @tags   = resultset('View::PublishedTags')->all();
         my @recent = resultset('Post')->search( { status => 'published' },
             { order_by => { -desc => "created_at" }, rows => 3 } );
         my @popular
@@ -60,7 +56,7 @@ prefix '/posts' => sub {
             post    => $post,
             recent  => \@recent,
             popular => \@popular,
-            tags    => \@tags,
+            tags    => [],
         };
     };
 };
