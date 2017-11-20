@@ -50,7 +50,7 @@
                  </div>
                  
                  <!-- Read more -->
-                 <a href="[% settings.app_url %]/posts/[% post.slug %][% settings.static && '.html' %]" class="btn btn-info">Read More...</a>
+                 <a href="[% uri_for('/posts/' _ post.slug) %]" class="btn btn-info">Read More...</a>
               </div>
             [% END %]
             [% IF posts.first %]

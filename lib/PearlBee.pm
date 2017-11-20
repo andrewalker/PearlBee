@@ -26,6 +26,11 @@ hook before => sub {
     if ( request->path =~ /^(.*)\.html$/ ) { forward $1; }
 };
 
+hook before_template_render => sub {
+    my $tokens = shift;
+    $tokens->{uri_for} = \&uri_for;
+};
+
 # main page
 get '/' => sub {
     forward '/posts';

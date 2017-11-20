@@ -14,6 +14,3 @@ show_errors: 0
 
 # cache route resolution for maximum performance
 route_cache: 1
-
-# just to keep it from breaking for now
-app_url: 'https://blogs-perl.herokuapp.com'

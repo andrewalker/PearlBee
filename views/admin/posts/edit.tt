@@ -6,7 +6,7 @@
                </div>
                <!-- Page title -->
                
-                  <form class="form-horizontal" method="post" enctype="multipart/form-data" action="[% settings.app_url %]/dashboard/posts/update/[% post.id %]">
+                  <form class="form-horizontal" method="post" enctype="multipart/form-data" action="[% uri_for('/dashboard/posts/update/' _ post.id) %]">
                     <div class="row">
                        
                        <div class="col-md-8">

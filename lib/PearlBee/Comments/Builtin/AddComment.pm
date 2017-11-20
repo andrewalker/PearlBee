@@ -63,10 +63,8 @@ post '/comment/add' => sub {
                     title     => $post->title,
                     comment   => $parameters->{'comment'},
                     signature => '',
-                    post_url  => config->{app_url}
-                        . '/post/'
-                        . $post->slug,
-                    app_url          => config->{app_url},
+                    post_url  => uri_for('/post/' . $post->slug),
+                    app_url   => uri_for('/'),
                     reply_to_content => $parameters->{'reply_to_content'}
                         || '',
                     reply_to_user => $parameters->{'reply_to_user'} || '',

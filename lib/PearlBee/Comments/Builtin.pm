@@ -15,7 +15,8 @@ has '+list_comments_template' =>
     ( default => sub {'comments/builtin/list_comments'}, );
 
 has '+comments_dashboard_link' => (
-    default => sub { $_[0]->_app_config->{app_url} . '/dashboard/comments' },
+    # FIXME: use uri_for somewhere
+    default => sub { '/dashboard/comments' },
 );
 
 no Moo;

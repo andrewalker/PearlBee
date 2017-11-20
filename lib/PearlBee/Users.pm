@@ -72,7 +72,7 @@ post '/sign-up' => sub {
                 email      => $params->{'email'},
                 signature  => '',
                 blog_name  => config->{'blog_name'},
-                app_url    => config->{'app_url'},
+                app_url    => uri_for('/'),
             },
         });
         1;

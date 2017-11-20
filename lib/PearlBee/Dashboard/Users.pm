@@ -32,7 +32,7 @@ sub change_user_state {
         error $error;
     };
 
-    return config->{'app_url'} . '/dashboard/users';
+    return uri_for('/dashboard/users');
 }
 
 prefix '/dashboard/users' => sub {
@@ -126,7 +126,7 @@ prefix '/dashboard/users' => sub {
     get '/allow/:id' => needs_permission allow_user => sub {
         my $user_id = route_parameters->{'id'};
         my $user    = resultset('User')->find($user_id)
-            or redirect config->{'app_url'} . '/dashboard/users';
+            or redirect uri_for('/dashboard/users');
 
         my $password = random_string('Ccc!cCn');
         $user->update( { password => $password } );
@@ -149,7 +149,7 @@ prefix '/dashboard/users' => sub {
             }
         });
 
-        redirect config->{'app_url'} . '/dashboard/users';
+        redirect uri_for('/dashboard/users');
     };
 
     get '/add' => sub {

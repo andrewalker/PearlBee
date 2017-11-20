@@ -11,8 +11,8 @@
                  </a>
                  <!-- Sub menu -->
                  <ul>
-                    <li><a href="[% settings.app_url %]/dashboard/posts">All</a></li>
-                    <li><a href="[% settings.app_url %]/dashboard/posts/new">Create post</a></li>
+                    <li><a href="[% uri_for('/dashboard/posts') %]">All</a></li>
+                    <li><a href="[% uri_for('/dashboard/posts/new') %]">Create post</a></li>
                 </ul>
             </li>
 
@@ -26,8 +26,8 @@
                      </a>
                      <!-- Sub menu -->
                      <ul>
-                        <li><a href="[% settings.app_url %]/dashboard/users">All</a></li>
-                        <li><a href="[% settings.app_url %]/dashboard/users/add">Create user</a></li>
+                        <li><a href="[% uri_for('/dashboard/users') %]">All</a></li>
+                        <li><a href="[% uri_for('/dashboard/users/add') %]">Create user</a></li>
                     </ul>
                 </li>
 
@@ -39,8 +39,8 @@
                     </a>
                     <!-- Sub menu -->
                     <ul>
-                       <li><a href="[% settings.app_url %]/dashboard/settings">General</a></li>
-                       <li><a href="[% settings.app_url %]/dashboard/settings/import">Import</a></li>
+                       <li><a href="[% uri_for('/dashboard/settings') %]">General</a></li>
+                       <li><a href="[% uri_for('/dashboard/settings/import') %]">Import</a></li>
                     </ul>
                 </li>            
             [% END %]        

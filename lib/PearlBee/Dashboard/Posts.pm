@@ -30,7 +30,7 @@ sub change_post_state {
         error $error;
     };
 
-    return config->{'app_url'} . '/dashboard/posts';
+    return uri_for('/dashboard/posts');
 }
 
 prefix '/dashboard/posts' => sub {
@@ -137,14 +137,14 @@ prefix '/dashboard/posts' => sub {
             error $error;
 
             # FIXME: report error too (Deferred?)
-            redirect config->{'app_url'} . '/dashboard/posts/new';
+            redirect uri_for('/dashboard/posts/new');
         };
 
         # If the post was added successfully, store a success message to show on the view
         session success => 'The post was added successfully';
 
         # If the user created a new post redirect him to the post created
-        redirect config->{'app_url'} . '/dashboard/posts/edit/' . $post->slug;
+        redirect uri_for('/dashboard/posts/edit/' . $post->slug);
     };
 
     foreach my $state (qw<publish draft trash>) {
@@ -239,7 +239,7 @@ prefix '/dashboard/posts' => sub {
             error $error;
         };
 
-        redirect config->{'app_url'} . '/dashboard/posts/edit/' . $post->slug;
+        redirect uri_for('/dashboard/posts/edit/' . $post->slug);
     };
 };
 
