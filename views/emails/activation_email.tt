@@ -1,0 +1,7 @@
+Hello <strong>[% name %]</strong>,
+
+Welcome to PearlBee!
+
+<br/><br/>
+
+<a href="[% uri_for('/sign-up/confirm', { token => token }) %]">Confirm your email</a>, and start publishing right away!

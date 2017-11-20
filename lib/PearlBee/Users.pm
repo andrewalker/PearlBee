@@ -13,6 +13,28 @@ get '/sign-up' => sub {
     template signup => {};
 };
 
+get '/sign-up/confirm' => sub {
+    my $token = query_parameters->{'token'};
+
+    my $rs = resultset('RegistrationToken');
+    my $token_result = $rs->find({ token => $token, voided_at => undef });
+
+    if (!$token_result) {
+        # should we log?
+        return template 'signup_confirm_email' => { not_found => 1 };
+    }
+
+    if ($token_result->user->status ne 'pending') {
+        # should we log?
+        return template 'signup_confirm_email' => { not_pending => 1 };
+    }
+
+    $token_result->user->update({ status => 'activated' });
+    $token_result->update({ voided_at => \'current_timestamp' });
+
+    template 'signup_confirm_email' => { success => 1 };
+};
+
 post '/sign-up' => sub {
     my $params          = body_parameters;
     my $template_params = {
@@ -46,7 +68,7 @@ post '/sign-up' => sub {
 
     my $password = random_string('Ccc!cCn');
 
-    resultset('User')->create({
+    my $user = resultset('User')->create({
         username      => $username,
         password      => $password,
         email         => $email,
@@ -55,33 +77,41 @@ post '/sign-up' => sub {
         status        => 'pending'
     });
 
-    my $first_admin = resultset('User')->single({
-        role   => 'admin',
-        status => 'activated',
-    });
+#   Trigger a notify_new_user alert, that admin's can subscribe?
+#   my $first_admin = resultset('User')->single({
+#       role   => 'admin',
+#       status => 'activated',
+#   });
+#   sendmail({
+#       template_file => 'new_user.tt',
+#       name          => $first_admin->name,
+#       email_address => $first_admin->email,
+#       subject       => 'A new user applied as an author to the blog',
+#       variables     => {
+#           name       => $params->{'name'},
+#           username   => $params->{'username'},
+#           email      => $params->{'email'},
+#       },
+#   });
 
     eval {
         sendmail({
-            template_file => 'new_user.tt',
-            name          => $first_admin->name,
-            email_address => $first_admin->email,
-            subject       => 'A new user applied as an author to the blog',
+            template_file => 'activation_email.tt',
+            name          => $params->{'name'},
+            email_address => $params->{'email'},
+            subject       => 'Please confirm your email address',
             variables     => {
-                name       => $params->{'name'},
-                username   => $params->{'username'},
-                email      => $params->{'email'},
-                signature  => '',
-                blog_name  => config->{'blog_name'},
-                app_url    => uri_for('/'),
-            },
+                name  => $params->{'name'},
+                token => $user->new_random_token,
+            }
         });
         1;
     } or do {
-        return $failed_login->('Could not send the email');
+        return $failed_login->('Could not send the email: ' . $@);
     };
 
     template notify => { success =>
-            'The user was created and it is waiting for admin approval.' };
+            'Please check your inbox and confirm your email address' };
 };
 
 get '/login' => sub {

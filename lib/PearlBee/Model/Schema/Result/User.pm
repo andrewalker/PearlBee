@@ -311,6 +311,18 @@ sub allow {
     $self->update( { status => 'deactivated' } );
 }
 
+use String::Random 'random_string';
+
+sub new_random_token {
+    my ($self) = @_;
+
+    my $token_obj = $self->add_to_registration_tokens({
+        token => random_string('CcCcccCnCcCnCcccCnCcccCnccCn')
+    });
+
+    return $token_obj->token;
+}
+
 sub uri {
     '/posts/user/' . $_[0]->username . ( $PearlBee::is_static && '.html ' );
 }

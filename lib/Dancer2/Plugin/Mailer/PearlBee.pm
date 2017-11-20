@@ -6,6 +6,7 @@ use Dancer2::Plugin;
 use Email::Sender::Simple;
 use Email::MIME;
 use Template;
+use HTML::Entities 'encode_entities';
 
 has 'renderer_args' => (
     'is'          => 'ro',
@@ -36,8 +37,12 @@ sub sendmail :PluginKeyword {
         : $email_data->{email_address}
         ;
 
-    my $body;
-    $self->renderer->process($email_data->{template_file}, $email_data, \$body);
+    $email_data->{variables}{uri_for}  = sub { encode_entities $self->dsl->uri_for(@_) };
+    $email_data->{variables}{settings} = $self->dsl->config;
+
+    my $body = '';
+    $self->renderer->process($email_data->{template_file}, $email_data->{variables}, \$body)
+        or print STDERR $self->renderer->error;
 
     my $email = Email::MIME->create(
         header_str => [

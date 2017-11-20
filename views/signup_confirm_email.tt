@@ -1,0 +1,19 @@
+<div class="register-done">
+   <div class="container">
+     <div class="row">
+       <div class="col-sm-6 col-sm-offset-3 text-center">
+         [% IF not_found %]
+         <h1>Invalid token</h1>
+         <p class="lead">The token you are using is invalid. Please check if there's a typo in the URL, or if the token is already expired.</p>
+         [% ELSIF not_pending %]
+         <h1>User not pending</h1>
+         <p class="lead">We can't activate your account because it's not pending.</p>
+         [% ELSE %]
+         <h1>Congratulations!</h1>
+         <h4>Your account has been verified.</h4>
+         <button type="button" id="start-blogging" class="btn btn-start">Start blogging</button>
+         [% END %]
+       </div>
+     </div>
+   </div>
+</div>

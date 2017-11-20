@@ -13,11 +13,12 @@ use HTTP::Cookies;
 
 use PearlBee::Test::EmailSenderTransport;
 $ENV{EMAIL_SENDER_TRANSPORT} = 'PearlBee::Test::EmailSenderTransport';
+use Email::Sender::Simple;
 
 use PearlBee;
 use PearlBee::Model::Schema;
 
-our @EXPORT = qw/ app mech schema logs ensure_admin_in_db /;
+our @EXPORT = qw/ app mech schema logs ensure_admin_in_db mails /;
 
 sub import {
     my ($caller) = @_;
@@ -59,6 +60,10 @@ sub ensure_admin_in_db {
     });
 
     return;
+}
+
+sub mails {
+    return Email::Sender::Simple->default_transport;
 }
 
 1;

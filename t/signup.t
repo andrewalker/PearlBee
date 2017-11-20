@@ -1,5 +1,8 @@
 use PearlBee::Test;
 use PearlBee::Helpers::Captcha;
+use HTML::Entities qw(decode_entities);
+use URI;
+use URI::QueryParam;
 
 my $user_details = {
     username   => 'johndoe',
@@ -54,34 +57,61 @@ subtest 'successful insert' => sub {
         for keys %expected;
 
     $mech->content_like(
-        qr/The user was created and it is waiting for admin approval/,
+        qr/Please check your inbox and confirm your email address/,
         'the user is presented with the expected message'
     );
 
+    my @inbox = mails->deliveries;
+    is(@inbox, 1, 'got 1 email');
+    my $email = $inbox[0]{email}->object;
+    like($email->body, qr{Hello.*John Doe}, 'user is greeted by name');
+    like($email->body, qr{http://localhost/sign-up/confirm}, 'there is a confirmation link');
+    $email->body =~ m{(http://localhost/sign-up/confirm\?[^'"]+)};
+    my $confirmation_link = URI->new(decode_entities $1);
+
+    my $token = $confirmation_link->query_param('token');
+    my $token_result = schema->resultset('RegistrationToken')->find({ token => $token });
+    is($token_result->user->username, 'johndoe', 'token in the email refers to the correct user');
+    is($token_result->user->status, 'pending', 'user is pending in database');
+    is($token_result->voided_at, undef, "the token hasn't been voided");
+    isnt($token_result->created_at, undef, "but it has a created_at timestamp");
+
+    $mech->get_ok($confirmation_link, 'can click on the confirmation link');
+    $mech->content_like(
+        qr/Your account has been verified/,
+        'The user has a verified account now'
+    );
+
+    $token_result = schema->resultset('RegistrationToken')->find({ token => $token });
+
+    isnt($token_result->voided_at, undef, "the token is now voided");
+    is($token_result->user->status, 'activated', 'user is activated in database');
+
     $urs->search( { email => 'johndoe@gmail.com' } )->delete;
+    mails->clear_deliveries;
 };
 
 subtest 'successful insert, failed e-mail' => sub {
     my $mech = mech;
 
     $urs->search( { email => 'johndoe@gmail.com' } )->delete;
-
-    $urs->search( { email => 'admin@admin.com' } )
-        ->update( { email => 'failme@admin.com' } );
+    $urs->search( { email => 'failme@gmail.com' } )->delete;
 
     $mech->get_ok( '/sign-up', 'Sign-up returns a page' );
     $mech->submit_form_ok(
         {
-            with_fields => $user_details,
+            with_fields => { %$user_details, email => 'failme@gmail.com' },
         },
         'Was able to submit form'
     );
 
-    ok( my $row = $urs->single( { email => 'johndoe@gmail.com' } ),
+    ok( my $row = $urs->single( { email => 'failme@gmail.com' } ),
         'found row in the database' );
 
+    # email is different than what's in %expected in this case, and we know
+    # it's correct because we found the row using the email
     is( $row->$_, $expected{$_}, "New user's $_ has the expected value" )
-        for keys %expected;
+        for grep !/^email$/, keys %expected;
 
     $mech->content_like( qr/Could not send the email/,
         'the user is presented with the expected message' );
@@ -95,10 +125,8 @@ subtest 'successful insert, failed e-mail' => sub {
     is( $logs->[0]->{level}, 'error', "the log level is 'error'" );
     is( scalar @$logs,       1,       'exactly 1 error was logged' );
 
-    $urs->search( { email => 'johndoe@gmail.com' } )->delete;
-
-    $urs->search( { email => 'failme@admin.com' } )
-        ->update( { email => 'admin@admin.com' } );
+    $urs->search( { email => 'failme@gmail.com' } )->delete;
+    mails->clear_deliveries;
 };
 
 subtest 'wrong captcha code' => sub {
@@ -132,6 +160,7 @@ subtest 'wrong captcha code' => sub {
     is( scalar @$logs,       1,       'exactly 1 error was logged' );
 
     $urs->search( { email => 'johndoe@gmail.com' } )->delete;
+    mails->clear_deliveries;
 };
 
 subtest 'e-mail already in use' => sub {
@@ -175,6 +204,7 @@ subtest 'e-mail already in use' => sub {
 
     $urs->search( { username => 'johndoe' } )->delete;
     $urs->search( { username => 'johndoe2' } )->delete;
+    mails->clear_deliveries;
 };
 
 subtest 'username already in use' => sub {
@@ -218,6 +248,7 @@ subtest 'username already in use' => sub {
 
     $urs->search( { email => 'johndoe@gmail.com' } )->delete;
     $urs->search( { email => 'johndoe2@gmail.com' } )->delete;
+    mails->clear_deliveries;
 };
 
 subtest 'username empty' => sub {
@@ -251,6 +282,7 @@ subtest 'username empty' => sub {
     is( scalar @$logs,       1,       'exactly 1 error was logged' );
 
     $urs->search( { email => 'johndoe@gmail.com' } )->delete;
+    mails->clear_deliveries;
 };
 
 subtest 'email empty' => sub {
@@ -284,6 +316,7 @@ subtest 'email empty' => sub {
     is( scalar @$logs,       1,       'exactly 1 error was logged' );
 
     $urs->search( { username => 'johndoe' } )->delete;
+    mails->clear_deliveries;
 };
 
 done_testing;

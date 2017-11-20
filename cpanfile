@@ -13,7 +13,7 @@ requires 'Template::Plugin::HTML::Strip';
 requires 'Module::Runtime';
 
 requires 'DateTime';
-requires 'DateTime::TimeZone';
+requires 'DateTime::Format::Pg';
 
 requires 'Data::GUID';
 requires 'Data::Pageset';
