@@ -20,12 +20,6 @@
                                 <i class="icon-user"></i> <a href="/posts/user/[% post.user.username %][% settings.static && '.html' %]">[% post.user.username %]</a>
                             </div>
 
-                            [% FOREACH category in post.post_categories %]
-                                <div class="block_elements">
-                                    <i class="icon-list"></i> <a href="[% settings.app_url %]/posts/category/[% category.category.slug %][% settings.static && '.html' %]">[% category.category.name %]</a>
-                                </div>
-                            [% END %]
-
                             [% comments_engine.render("post_comment_count_template") %]
                         </div>
 

@@ -29,7 +29,6 @@
                  <tr>
                    <th> Author     </th>
                    <th> Title      </th>
-                   <th> Categories </th>
                    <th> Tags       </th>
                    <th> Comments   </th>
                    <th> Actions    </th>
@@ -76,15 +75,9 @@
                       [% END %]
                     </td>
 
-                    <td>
-                        [% FOREACH post_category IN post.post_categories %]
-                          <a href="/posts/category/[% post_category.category.slug %]"> [% post_category.category.name %] </a>
-                        [% END %]
-                    </td>
-
                     <td width="5%"> 
                       [% FOREACH post_tag IN post.post_tags %]
-                        <a href="/posts/tag/[% post_tag.tag.slug %]"> [% post_tag.tag.name %] </a>
+                        <a href="/posts/tag/[% post_tag.tag %]"> [% post_tag.tag %] </a>
                       [% END %]
                     </td>
 

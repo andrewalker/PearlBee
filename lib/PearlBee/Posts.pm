@@ -4,7 +4,6 @@ package PearlBee::Posts;
 use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
 
-use PearlBee::Helpers::Util qw<map_posts>;
 use PearlBee::Helpers::Pagination qw<get_total_pages get_previous_next_link>;
 use PearlBee::Helpers::Captcha;
 
@@ -24,15 +23,10 @@ prefix '/posts' => sub {
         my $nr_of_posts
             = resultset('Post')->search( { status => 'published' } )->count;
         my @tags       = resultset('View::PublishedTags')->all();
-        my @categories = resultset('View::PublishedCategories')
-            ->search( { name => { '!=' => 'Uncategorized' } } );
         my @recent = resultset('Post')->search( { status => 'published' },
             { order_by => { -desc => "created_date" }, rows => 3 } );
         my @popular
             = resultset('View::PopularPosts')->search( {}, { rows => 3 } );
-
-        # extract demo posts info
-        my @mapped_posts = map_posts(@posts);
 
         # Calculate the next and previous page link
         my $total_pages = get_total_pages( $nr_of_posts, $nr_of_rows );
@@ -40,11 +34,10 @@ prefix '/posts' => sub {
             = get_previous_next_link( $page, $total_pages );
 
         template 'index' => {
-            posts         => \@mapped_posts,
+            posts         => \@posts,
             recent        => \@recent,
             popular       => \@popular,
             tags          => \@tags,
-            categories    => \@categories,
             page          => $page,
             total_pages   => $total_pages,
             previous_link => $previous_link,
@@ -53,11 +46,9 @@ prefix '/posts' => sub {
     };
 
     get '/:slug' => sub {
-        my $slug       = route_parameters->{'slug'};
-        my $post       = resultset('Post')->find( { slug => $slug } );
-        my @tags       = resultset('View::PublishedTags')->all();
-        my @categories = resultset('View::PublishedCategories')
-            ->search( { name => { '!=' => 'Uncategorized' } } );
+        my $slug   = route_parameters->{'slug'};
+        my $post   = resultset('Post')->find( { slug => $slug } );
+        my @tags   = resultset('View::PublishedTags')->all();
         my @recent = resultset('Post')->search( { status => 'published' },
             { order_by => { -desc => "created_date" }, rows => 3 } );
         my @popular
@@ -66,11 +57,10 @@ prefix '/posts' => sub {
         PearlBee::Helpers::Captcha::new_captcha_code();
 
         template post => {
-            post       => $post,
-            recent     => \@recent,
-            popular    => \@popular,
-            categories => \@categories,
-            tags       => \@tags,
+            post    => $post,
+            recent  => \@recent,
+            popular => \@popular,
+            tags    => \@tags,
         };
     };
 };

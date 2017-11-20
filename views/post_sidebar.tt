@@ -1,13 +1,5 @@
 <div class="sidebar">
     <div class="widget">
-      <h4> Categories </h4>
-      <ul class="simple-list">
-      [% FOREACH category in categories %]
-        <li><a href="[% settings.app_url %]/posts/category/[% category.slug %][% settings.static && '.html' %]"> [% category.name %] </a></li>
-      [% END %]
-      </ul>
-    </div>
-    <div class="widget">
       <ul id="myTab" class="nav nav-tabs">
         <li class="active"><a href="#recent" data-toggle="tab">Recent</a></li>
         <li><a href="#popular" data-toggle="tab">Popular</a></li>

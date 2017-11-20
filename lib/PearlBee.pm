@@ -15,8 +15,6 @@ use Dancer2::Plugin::Auth::PearlBee;
 use PearlBee::Posts;
 use PearlBee::Users;
 use PearlBee::Authors;
-use PearlBee::Categories;
-use PearlBee::Tags;
 use if !$PearlBee::is_static, 'PearlBee::Dashboard';
 use PearlBee::Comments;
 

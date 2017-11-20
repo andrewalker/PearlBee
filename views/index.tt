@@ -7,11 +7,6 @@
             <h2> <i class="icon-user"></i> <a href="/posts/user/[% posts_for_user %][% settings.static && '.html' %]">[% posts_for_user %]</a></h2>
           </div>
         [% END %]
-        [% IF posts_for_category %]
-          <div class="filtered_posts">
-            <h2> <i class="icon-list"></i> <a href="/posts/category/[% posts_for_category %][% settings.static && '.html' %]">[% posts_for_category %]</a></h2>
-          </div>
-        [% END %]
         [% IF posts_for_tag %]
           <div class="filtered_posts">
             <h2> <i class="icon-tag"></i> <a href="/posts/tag/[% posts_for_tag %][% settings.static && '.html' %]">[% posts_for_tag %]</a></h2>
@@ -39,12 +34,6 @@
                       <i class="icon-user"></i> <a href="/posts/user/[% post.user.username %][% settings.static && '.html' %]">[% post.user.username %]</a>
                     </div>
                     
-                    [% FOREACH category in post.post_categories %]
-                      <div class="block_elements">
-                        <i class="icon-list"></i> <a href="[% settings.app_url %]/posts/category/[% category.category.slug %][% settings.static && '.html' %]">[% category.category.name %]</a>
-                      </div>
-                    [% END %]
-
                     [% comments_engine.render("post_comment_count_template") %]
                  </div>
                  

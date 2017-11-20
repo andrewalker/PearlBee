@@ -18,10 +18,3 @@ my $admin = $schema->resultset('User')->create({
     role           => 'admin',
     status         => 'activated',
 });
-
-$admin->create_related(
-    categories => {
-        name => 'Uncategorized',
-        slug => 'uncategorized',
-    }
-);

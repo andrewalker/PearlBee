@@ -90,13 +90,10 @@ prefix '/dashboard/posts' => sub {
     };
 
     get '/new' => needs_permission create_post => sub {
-        template 'admin/posts/add' =>
-            { categories => [ resultset('Category')->all() ], } =>
-            { layout     => 'admin' };
+        template 'admin/posts/add' => {} => { layout => 'admin' };
     };
 
     post '/new' => needs_permission create_post => sub {
-        my @categories = resultset('Category')->all();
         my $post;
 
         eval {
@@ -178,27 +175,13 @@ prefix '/dashboard/posts' => sub {
     get '/edit/:slug' => needs_permission update_post => sub {
         my $post_slug = route_parameters->{'slug'};
         my $post = resultset('Post')->find( { slug => $post_slug } );
-        my @post_categories = $post->post_categories;
-        my @post_tags       = $post->post_tags;
-        my @all_categories  = resultset('Category')->all;
-        my @all_tags        = resultset('Tag')->all;
 
         # Prepare tags for the UI
-        my $joined_tags = join ', ', map $_->tag->name, @post_tags;
-
-        # Prepare the categories
-        my @categories = map $_->category, @post_categories;
-
-        # Array of post categories id for populating the checkboxes
-        my @categories_ids = map $_->id, @categories;
+        my $joined_tags = join ', ', map $_->tag->name, $post->post_tags;
 
         my $params = {
             post           => $post,
             tags           => $joined_tags,
-            categories     => \@categories,
-            all_categories => \@all_categories,
-            ids            => \@categories_ids,
-            all_tags       => \@all_tags
         };
 
         # Check if there are any messages to show
@@ -259,12 +242,9 @@ prefix '/dashboard/posts' => sub {
                 }
             );
 
-            # Reconnect the categories with the new one and delete the old ones
-            resultset('PostCategory')
-                ->connect_categories( params->{category}, $post->id );
-
-            # Reconnect and update the selected tags
-            resultset('PostTag')->connect_tags( params->{tags}, $post->id );
+            $post->post_tags->delete;
+            $post->add_to_post_tags({ tag => $_ })
+                for split /,/, params->{'tags'};
 
             session success => 'The post was updated successfully!';
 

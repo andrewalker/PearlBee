@@ -19,11 +19,6 @@
             <li><a href="[% comments_engine.comments_dashboard_link %]"><i class="icon-comment"></i> Comments</a></li>
 
             [% IF (vars.user.is_admin) %]
-
-                <li><a href="[% settings.app_url %]/dashboard/categories"><i class="icon-list"></i> Categories</a></li>
-            
-                <li><a href="[% settings.app_url %]/dashboard/tags"><i class="icon-tag"></i> Tags</a></li>                
-            
                 <li class="has_submenu">
                      <a href="#">
                         <i class="icon-user"></i> Users
