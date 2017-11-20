@@ -46,6 +46,7 @@ on 'develop' => sub {
     requires 'Code::TidyAll';
     requires 'Text::Diff' => 1.44;
     requires 'DBIx::Class::Schema::Loader';
+    requires 'App::Sqitch';
 };
 
 on 'test' => sub {
