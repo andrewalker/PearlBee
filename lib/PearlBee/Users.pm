@@ -114,11 +114,17 @@ post '/sign-up' => sub {
 };
 
 get '/login' => sub {
+    my $failure = query_parameters->{'invalid'}
+                ? 'Invalid login credentials'
+                : query_parameters->{'suspended'}
+                ? 'Your account has been suspended'
+                : query_parameters->{'pending'}
+                ? 'Your e-mail address has not been verified yet'
+                : ''
+                ;
 
-    # if registered, just display the dashboard
-    my $failure = query_parameters->{'failure'};
     $failure and return template
-        login => { warning => $failure, },
+        login => { warning => $failure },
         { layout => 'admin' };
 
     session('user_id') and redirect '/dashboard';
@@ -128,21 +134,24 @@ get '/login' => sub {
 };
 
 post '/login' => sub {
-    my $password = params->{password};
-    my $username = params->{username};
+    my $password = params->{'password'};
+    my $username = params->{'username'};
 
-    my $user = resultset('User')->find(
-        {
+    my $user = resultset('User')->single({
+        -or => [
             username => $username,
-            -or      => [
-                status => 'activated',
-                status => 'deactivated'
-            ]
-        }
-    ) or redirect '/login?failed=1';
+            email    => $username,
+        ],
+    }) or redirect '/login?invalid=1';
 
     $user->check_password($password)
-        or redirect '/login?failed=1';
+        or redirect '/login?invalid=1';
+
+    $user->status eq 'pending'
+        and redirect '/login?pending=1';
+
+    $user->status eq 'suspended'
+        and redirect '/login?suspended=1';
 
     session user_id => $user->id;
 
