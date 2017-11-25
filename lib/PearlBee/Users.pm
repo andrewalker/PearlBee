@@ -5,7 +5,6 @@ use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Mailer::PearlBee;
 use PearlBee::Helpers::Captcha;
-use String::Random qw<random_string>;
 use DateTime;
 
 get '/sign-up' => sub {
@@ -66,13 +65,13 @@ post '/sign-up' => sub {
     resultset('User')->count( { username => $username } )
         and return $failed_login->("Username already in use.");
 
-    my $password = random_string('Ccc!cCn');
+    $params->{'password'} ne $params->{'confirm_password'}
+        and return $failed_login->("Passwords don't match.");
 
     my $user = resultset('User')->create({
         username      => $username,
-        password      => $password,
+        password      => $params->{'password'},
         email         => $email,
-        name          => $params->{'name'},
         role          => 'author',
         status        => 'pending'
     });
@@ -97,11 +96,11 @@ post '/sign-up' => sub {
     eval {
         sendmail({
             template_file => 'activation_email.tt',
-            name          => $params->{'name'},
+            name          => $params->{'username'},
             email_address => $params->{'email'},
             subject       => 'Please confirm your email address',
             variables     => {
-                name  => $params->{'name'},
+                name  => $params->{'username'},
                 token => $user->new_random_token,
             }
         });

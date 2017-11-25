@@ -128,8 +128,6 @@ prefix '/dashboard/users' => sub {
         my $user    = resultset('User')->find($user_id)
             or redirect uri_for('/dashboard/users');
 
-        my $password = random_string('Ccc!cCn');
-        $user->update( { password => $password } );
         $user->allow();
 
         sendmail({
@@ -140,7 +138,6 @@ prefix '/dashboard/users' => sub {
             variables     => {
                 role       => $user->role,
                 username   => $user->username,
-                password   => $password,
                 name       => $user->name,
                 app_url    => config->{'app_url'},
                 blog_name  => config->{'blog_name'},

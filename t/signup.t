@@ -5,16 +5,17 @@ use URI;
 use URI::QueryParam;
 
 my $user_details = {
-    username   => 'johndoe',
-    email      => 'johndoe@gmail.com',
-    name       => 'John Doe',
-    secret     => 'zxcvb',
+    username         => 'johndoe',
+    email            => 'johndoe@gmail.com',
+    password         => 'type-mane-eng-blake-ripe-marco-kiva-hobby-jason',
+    confirm_password => 'type-mane-eng-blake-ripe-marco-kiva-hobby-jason',
+    secret           => 'zxcvb',
 };
 
 my %expected = (
     username => $user_details->{username},
     email    => $user_details->{email},
-    name     => $user_details->{name},
+    name     => undef,
     role     => 'author',
     status   => 'pending',
 );
@@ -62,7 +63,7 @@ subtest 'successful insert' => sub {
     my @inbox = mails->deliveries;
     is(@inbox, 1, 'got 1 email');
     my $email = $inbox[0]{email}->object;
-    like($email->body, qr{Hello.*John Doe}, 'user is greeted by name');
+    like($email->body, qr{Hello.*johndoe}, 'user is greeted by username');
     like($email->body, qr{http://localhost/sign-up/confirm}, 'there is a confirmation link');
     $email->body =~ m{(http://localhost/sign-up/confirm\?[^'"]+)};
     my $confirmation_link = URI->new(decode_entities $1);
@@ -124,6 +125,41 @@ subtest 'successful insert, failed e-mail' => sub {
     is( scalar @$logs,       1,       'exactly 1 error was logged' );
 
     $urs->search( { email => 'failme@gmail.com' } )->delete;
+    mails->clear_deliveries;
+};
+
+subtest 'passwords mismatch' => sub {
+    my $mech = mech;
+
+    $urs->search( { email => 'johndoe@gmail.com' } )->delete;
+
+    $mech->get_ok( '/sign-up', 'Sign-up returns a page' );
+    $mech->submit_form_ok(
+        {
+            with_fields => {
+                %{$user_details},
+                confirm_password => 'not-my-password',
+            },
+        },
+        'Was able to submit form'
+    );
+
+    ok( !defined $urs->single( { email => 'johndoe@gmail.com' } ),
+        'row was not found in the database' );
+
+    $mech->content_like( qr/Passwords don't match/,
+        'the user is presented with the expected message' );
+
+    my $logs = logs;
+    like(
+        $logs->[0]->{message},
+        qr/Passwords don't match/,
+        'the error (Passwords don\'t match) is logged'
+    );
+    is( $logs->[0]->{level}, 'error', "the log level is 'error'" );
+    is( scalar @$logs,       1,       'exactly 1 error was logged' );
+
+    $urs->search( { email => 'johndoe@gmail.com' } )->delete;
     mails->clear_deliveries;
 };
 
