@@ -59,6 +59,13 @@ __PACKAGE__->table("registration_token");
   data_type: 'timestamp with time zone'
   is_nullable: 1
 
+=head2 reason
+
+  data_type: 'enum'
+  default_value: 'verify-email-address'
+  extra: {custom_type_name => "registration_token_reason",list => ["verify-email-address","reset-password"]}
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -74,6 +81,16 @@ __PACKAGE__->add_columns(
   },
   "voided_at",
   { data_type => "timestamp with time zone", is_nullable => 1 },
+  "reason",
+  {
+    data_type => "enum",
+    default_value => "verify-email-address",
+    extra => {
+      custom_type_name => "registration_token_reason",
+      list => ["verify-email-address", "reset-password"],
+    },
+    is_nullable => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -106,8 +123,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 19:41:44
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dHK3LBRDfDPmguCn1qHHcQ
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-28 13:29:58
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dGci0/eubbsxx+eeu6/Q1Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

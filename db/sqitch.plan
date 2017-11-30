@@ -6,3 +6,4 @@ table_user [schema_pearlbee] 2017-11-20T10:42:04Z Andre Walker <andre@andrewalke
 table_post [schema_pearlbee table_user] 2017-11-20T11:41:50Z Andre Walker <andre@andrewalker.net> # Post table
 table_tag [schema_pearlbee table_post] 2017-11-20T11:56:12Z Andre Walker <andre@andrewalker.net> # Tag table
 table_registration_token [schema_pearlbee table_user] 2017-11-20T12:27:45Z Andre Walker <andre@andrewalker.net> # Registration token table
+registration_token_reason [table_registration_token] 2017-11-28T12:23:58Z Andre Walker <andre@andrewalker.net> # Use registration_token table also for reset-password

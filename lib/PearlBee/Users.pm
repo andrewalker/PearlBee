@@ -101,7 +101,7 @@ post '/sign-up' => sub {
             subject       => 'Please confirm your email address',
             variables     => {
                 name  => $params->{'username'},
-                token => $user->new_random_token,
+                token => $user->new_random_token('verify-email-address'),
             }
         });
         1;
@@ -156,6 +156,100 @@ post '/login' => sub {
     session user_id => $user->id;
 
     redirect('/dashboard');
+};
+
+get '/forgot-password' => sub {
+    PearlBee::Helpers::Captcha::new_captcha_code();
+    template 'forgot_password' => {
+        not_found     => query_parameters->{'not_found'},
+        not_activated => query_parameters->{'not_activated'},
+        failed_email  => query_parameters->{'failed_email'},
+        wrong_captcha => query_parameters->{'wrong_captcha'},
+        sent          => query_parameters->{'sent'}
+    };
+};
+
+post '/forgot-password' => sub {
+    my $username = params->{'username'};
+
+    PearlBee::Helpers::Captcha::check_captcha_code( body_parameters->{'secret'} )
+        or return redirect '/forgot-password?wrong_captcha=1';
+
+    my $user = resultset('User')->single({
+        -or => [
+            username => $username,
+            email    => $username,
+        ],
+    }) or redirect '/forgot-password?not_found=1';
+
+    $user->status eq 'activated'
+        or redirect '/forgot-password?not_activated=1';
+
+    eval {
+        sendmail({
+            template_file => 'reset_password.tt',
+            name          => ($user->name || $user->username),
+            email_address => $user->email,
+            subject       => 'Reset password',
+            variables     => {
+                name  => ($user->name || $user->username),
+                token => $user->new_random_token('reset-password'),
+            }
+        });
+        1;
+    } or do {
+        error "Failed to send e-mail: $@";
+        return redirect '/forgot-password?failed_email=1'
+    };
+
+    redirect '/forgot-password?sent=1';
+};
+
+get '/reset-password' => sub {
+    my $token = query_parameters->{'token'}
+        or return redirect '/forgot-password';
+
+    my $rs = resultset('RegistrationToken');
+    my $token_result = $rs->single({ token => $token, reason => 'reset-password' });
+
+    if ( ( !$token_result || $token_result->voided_at )
+        && !query_parameters->{'done'} )
+    {
+        # should we log? add query param?
+        return redirect '/forgot-password';
+    }
+
+    template 'reset_password' => {
+        user           => $token_result->user,
+        token          => $token,
+        no_match       => query_parameters->{'no_match'},
+        empty_password => query_parameters->{'empty_password'},
+        done           => query_parameters->{'done'},
+    };
+};
+
+post '/reset-password' => sub {
+    my $token = params->{'token'}
+        or return redirect uri_for('/forgot-password');
+
+    my $pass = body_parameters->{'password'}
+        or return redirect uri_for('/reset-password', { empty_password => 1, token => $token });
+
+    $pass eq body_parameters->{'confirm_password'}
+        or return redirect uri_for('/reset-password', { no_match => 1, token => $token });
+
+    my $rs = resultset('RegistrationToken');
+    my $token_result = $rs->single({ token => $token, voided_at => undef, reason => 'reset-password' });
+
+    if (!$token_result) {
+        # should we log? add query param?
+        return redirect uri_for('/forgot-password');
+    }
+
+    $token_result->user->update({ password => $pass });
+    $token_result->update({ voided_at => \'now()' });
+
+    redirect uri_for('/reset-password', { done => 1, token => $token });
 };
 
 get '/logout' => sub {
