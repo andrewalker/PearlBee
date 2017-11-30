@@ -314,10 +314,11 @@ sub allow {
 use String::Random 'random_string';
 
 sub new_random_token {
-    my ($self) = @_;
+    my ($self, $reason) = @_;
 
     my $token_obj = $self->add_to_registration_tokens({
-        token => random_string('CcCcccCnCcCnCcccCnCcccCnccCn')
+        token  => random_string('CcCcccCnCcCnCcccCnCcccCnccCn'),
+        reason => $reason,
     });
 
     return $token_obj->token;
