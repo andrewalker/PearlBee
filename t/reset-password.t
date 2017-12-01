@@ -4,18 +4,20 @@ use HTML::Entities qw(decode_entities);
 use URI;
 use URI::QueryParam;
 
-BAIL_OUT 'WIP';
+# BAIL_OUT 'WIP';
 
 my $urs = schema->resultset('User');
-$urs->search( { email => 'johndoe-reset-password@gmail.com' } )->delete;
-$urs->create({
-    username => 'johndoe-reset-password',
-    email    => 'johndoe-reset-password@gmail.com',
-    password => 'type-mane-eng-blake-ripe-marco-kiva-hobby-jason',
-    name     => 'John Doe',
-    role     => 'author',
-    status   => 'activated',
-});
+sub recreate {
+    $urs->search( { email => 'johndoe-reset-password@gmail.com' } )->delete;
+    $urs->create({
+        username => 'johndoe-reset-password',
+        email    => 'johndoe-reset-password@gmail.com',
+        password => 'type-mane-eng-blake-ripe-marco-kiva-hobby-jason',
+        name     => 'John Doe',
+        role     => 'author',
+        status   => 'activated',
+    });
+}
 
 {
     no warnings 'redefine';
@@ -34,6 +36,7 @@ my $ResetPasswordLink;
 # breaks in the reset password tests, it will be useful to know the results of
 # this when debugging.
 subtest 'old password works' => sub {
+    recreate();
     my $mech = mech;
 
     $mech->get_ok( '/login', 'Login returns a page' );
@@ -58,10 +61,12 @@ subtest 'old password works' => sub {
 };
 
 subtest 'reset password with email' => sub {
+    recreate();
     test_reset_password_with('johndoe-reset-password@gmail.com');
 };
 
 subtest 'reset password with username' => sub {
+    recreate();
     test_reset_password_with('johndoe-reset-password');
 };
 
@@ -86,7 +91,7 @@ sub test_reset_password_with {
     my @inbox = mails->deliveries;
     is(@inbox, 1, 'got 1 email');
     my $email = $inbox[0]{email}->object;
-    like($email->body, qr{Hello.*johndoe-reset-password}, 'user is greeted by username');
+    like($email->body, qr{Hello.*John Doe}, 'user is greeted by name');
     like($email->body, qr{http://localhost/reset-password}, 'there is a confirmation link');
     $email->body =~ m{(http://localhost/reset-password\?[^'"]+)};
     my $reset_password_link = URI->new(decode_entities $1);
@@ -101,28 +106,25 @@ sub test_reset_password_with {
     # open a new browser session, in a way
     my $mech_reset = mech;
     $mech_reset->get_ok($reset_password_link, 'can follow the reset password link');
-    $mech_reset->content_like(qr{Choose a new password});
+    $mech_reset->content_like(qr{New password});
 
     $mech_reset->submit_form_ok(
         {
             with_fields => {
-                username         => $username,
                 password         => 'mane-eng-blake-ripe-marco-kiva-hobby-jason-type',
                 confirm_password => 'mane-eng-blake-ripe-marco-kiva-hobby-jason-type',
-                secret           => 'zxcvb',
             },
         },
         'was able to submit form to choose new password'
     );
 
-    $mech_reset->content_like(qr{Password reset});
+    $mech_reset->content_like(qr{Your password has been successfully updated});
 
     note 'trying to login with new password';
 
     # open a new browser session, again
     my $mech_login = mech;
     $mech_login->get_ok('/login', 'can follow the reset password link');
-    $mech_login->content_like(qr{Choose a new password});
 
     $mech_login->submit_form_ok(
         {

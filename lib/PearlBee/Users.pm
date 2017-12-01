@@ -210,15 +210,18 @@ get '/reset-password' => sub {
         or return redirect '/forgot-password';
 
     my $rs = resultset('RegistrationToken');
-    my $token_result = $rs->single({ token => $token, voided_at => undef, reason => 'reset-password' });
+    my $token_result = $rs->single({ token => $token, reason => 'reset-password' });
 
-    if (!$token_result) {
+    if ( ( !$token_result || $token_result->voided_at )
+        && !query_parameters->{'done'} )
+    {
         # should we log? add query param?
         return redirect '/forgot-password';
     }
 
     template 'reset_password' => {
         user           => $token_result->user,
+        token          => $token,
         no_match       => query_parameters->{'no_match'},
         empty_password => query_parameters->{'empty_password'},
         done           => query_parameters->{'done'},
@@ -226,27 +229,27 @@ get '/reset-password' => sub {
 };
 
 post '/reset-password' => sub {
+    my $token = params->{'token'}
+        or return redirect uri_for('/forgot-password');
+
     my $pass = body_parameters->{'password'}
-        or return redirect '/reset-password?empty_password=1';
+        or return redirect uri_for('/reset-password', { empty_password => 1, token => $token });
 
     $pass eq body_parameters->{'confirm_password'}
-        or return redirect '/reset-password?no_match=1';
-
-    my $token = params->{'token'}
-        or return redirect '/forgot-password';
+        or return redirect uri_for('/reset-password', { no_match => 1, token => $token });
 
     my $rs = resultset('RegistrationToken');
     my $token_result = $rs->single({ token => $token, voided_at => undef, reason => 'reset-password' });
 
     if (!$token_result) {
         # should we log? add query param?
-        return redirect '/forgot-password';
+        return redirect uri_for('/forgot-password');
     }
 
     $token_result->user->update({ password => $pass });
     $token_result->update({ voided_at => \'now()' });
 
-    redirect '/reset-password?done=1';
+    redirect uri_for('/reset-password', { done => 1, token => $token });
 };
 
 get '/logout' => sub {
