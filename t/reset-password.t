@@ -4,8 +4,6 @@ use HTML::Entities qw(decode_entities);
 use URI;
 use URI::QueryParam;
 
-# BAIL_OUT 'WIP';
-
 my $urs = schema->resultset('User');
 sub recreate {
     $urs->search( { email => 'johndoe-reset-password@gmail.com' } )->delete;
@@ -29,8 +27,6 @@ sub recreate {
     *PearlBee::Helpers::Captcha::check_captcha_code
         = sub { $_[0] eq 'zxcvb' };
 }
-
-my $ResetPasswordLink;
 
 # Just to be sure the user is alright, and can login alright. If something
 # breaks in the reset password tests, it will be useful to know the results of
@@ -60,14 +56,55 @@ subtest 'old password works' => sub {
     mails->clear_deliveries;
 };
 
+subtest 'reset password with non-existent account' => sub {
+    recreate();
+    my $mech_trigger = mech;
+
+    $mech_trigger->get_ok( '/login', 'Login returns a page' );
+    $mech_trigger->follow_link_ok({ url_regex => qr{/forgot-password\b} }, "there's a link to reset password");
+
+    $mech_trigger->submit_form_ok(
+        {
+            with_fields => {
+                username => 'i-dont-exist@gmail.com',
+                secret   => 'zxcvb',
+            },
+        },
+        'was able to submit form to reset password'
+    );
+
+    # I considered showing something generic like: "If you have an account, one
+    # e-mail was sent". But I think that's not really more secure, only less
+    # helpful. The username will be public, because it will be the slug in the
+    # URL. And the e-mail won't be public, but all that we would be leaking is
+    # whether or not the e-mail has an account on this server. Which could be
+    # discovered in a different way (registration). No security advantage at all.
+    $mech_trigger->content_like(
+        qr{Username or email not found},
+        "there's a message about account not found"
+    );
+
+    $mech_trigger->content_unlike(
+        qr{Check your inbox and follow the steps there to choose a new password},
+        "there's no message about email being sent"
+    );
+
+    my @inbox = mails->deliveries;
+    is(@inbox, 0, 'got no email');
+
+    mails->clear_deliveries;
+};
+
 subtest 'reset password with email' => sub {
     recreate();
     test_reset_password_with('johndoe-reset-password@gmail.com');
+    mails->clear_deliveries;
 };
 
 subtest 'reset password with username' => sub {
     recreate();
     test_reset_password_with('johndoe-reset-password');
+    mails->clear_deliveries;
 };
 
 sub test_reset_password_with {
@@ -86,6 +123,16 @@ sub test_reset_password_with {
             },
         },
         'was able to submit form to reset password'
+    );
+
+    $mech_trigger->content_unlike(
+        qr{Username or email not found},
+        "there's no message about account not found"
+    );
+
+    $mech_trigger->content_like(
+        qr{Check your inbox and follow the steps there to choose a new password},
+        "there's a message about email being sent"
     );
 
     my @inbox = mails->deliveries;
@@ -168,8 +215,6 @@ sub test_reset_password_with {
 
     unlike($mech_old_login->uri->path, qr{^/dashboard}, 'user was not redirected to dashboard');
     like($mech_old_login->uri->path, qr{^/login}, 'user is still in login page');
-
-    mails->clear_deliveries;
 }
 
 $urs->search( { email => 'johndoe-reset-password@gmail.com' } )->delete;
