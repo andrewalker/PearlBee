@@ -1,15 +1,13 @@
-
-            
 <div class="mainy">
    <!-- Page title -->
    <div class="page-title">
-      <h2><i class="icon-desktop color"></i> Dashboard <small>Author details</small></h2> 
+      <h2><i class="icon-desktop color"></i> Dashboard <small>Author details</small></h2>
       <hr />
    </div>
    <!-- Page title -->
-            
+
    <div class="row">
-   
+
       <div class="col-md-12">
          <div class="awidget">
             <div class="awidget-head">
@@ -58,7 +56,5 @@
             </div>
          </div>
       </div>
-      
-   </div>       
-               
+   </div>
 </div>
