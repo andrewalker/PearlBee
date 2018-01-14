@@ -1,12 +1,136 @@
 = User Journey with Pearlbee
-André Walker
+André Walker <andre@andrewalker.net>
 
 == Abstract
 
 This document describes the different actors that interact with Pearlbee, and
 what they expect to see and be able to do. It's meant for me to be a kind of
-completion criterea as I develop the software.
+completion criteria as I develop the software.
 
 == Actors
+
+I'm mainly interested in four actors at this point:
+
+- The Reader
+- The Author
+- The Site Administrator
+- The Theme Developer
+
+The rest of this document will go into detail of what each of those will be
+able to do. In other words, what features the platform is expected to provide
+each of them.
+
+The journey is expressed in terms of a multi-user blogging installation, as my
+goal is to use it for blogs.perl.org. It probably wouldn't be much different
+for a single-user blog, only simpler.
+
+Some possible users of the platform are not listed above, because they are not
+my primary concern at the moment. They are still relevant and should be taken
+into account as the platform matures. Some examples:
+
+- Robots -- I'll just treat them as Readers for now, which is fine for an MVP,
+  but will require more care later on.
+- Extension Developers -- we will have to provide some sort of engine for
+  extensions, but for now, I'll only offer a working core.
+
+Probably some others, but let's begin with the list we're mostly concerned.
+
+=== The Reader
+
+A visitor comes to the homepage, they see a list of recent posts. For now, let's
+say it's only sorted by date, most recent to oldest, among all authors. Only
+some brief information is shown about every post: title, author, date it was
+published and abstract. Clicking on the post takes the Reader to a page showing
+the full post.
+
+From the homepage, a search bar is visible where the user can search by keyword.
+Somewhere else in the website, there should be a way to do an advanced search:
+by author, by keyword, by date, by tag.
+
+Still in the home page, it will be possible to click author names (from the list
+of recent posts, at least), which will take the Reader to an author page. That
+will be like the author's own blog: it will list their recent posts, an avatar,
+a bio, links to social media, etc. It will not include a different layout
+though, it will be consistent with the rest of the website.
+
+That author page will also have an easy to remember URI, just "/:username". This
+way it can be easily bookmarked or shared. It will likely be a common
+entry point to the website, besides the homepage.
+
+The Reader can also subscribe to RSS feeds for the entire blog (all the authors)
+or for specific authors.
+
+The Reader will be able to become an author by registering in the platform.
+Every registered user will be able to write. Registering will provide no
+additional features for readers at this point (there won't be a "follow" feature
+as far as I can see). Not even comments, since it will be provided by a
+third-party on a first moment (e.g. Disqus).
+
+== The Author
+
+As stated above, to become an Author, one would have to register on Pearlbee.
+The process consists of filling out a short form, with email, username (only as
+a handle for the URI) and password. The author would then need to verify the
+email by clicking a link.
+
+Now, when I say "Author" I'm actually grouping multiple actors together. As soon
+as an Author gets registered, they are in fact an _Unconfirmed Author_. That
+means they can write a post, but it won't be published right away. Some of the
+other authors will have to _confirm_ that post, so that it is effectively
+published. This is to avoid spam, since using CAPTCHA and verifying email are
+not 100% effective.
+
+To elaborate a little more: the Author submits the registration form, clicks
+the link on their email, and writes a post. That Author can see the published
+post, and so can other logged in Authors. But it is not publicly displayed on
+the homepage, or for unauthenticated Readers. Only other Authors will see it in
+their dashboards, possibly with a notification to ask them to confirm it is
+real.
+
+FIXME: Should everyone get a notification? Should there be a settings toggle per
+user where they can subscribe by email for that? Or just show a small number
+on a menu for users that are logged in, and don't tell anybody by email?
+
+Once an Author is confirmed, they can write as many posts as they'd like. (We
+should still have some DDoS protection though).
+
+When an Author author logs into the dashboard, what they see is:
+
+- a link to edit their _Profile_: avatar, bio, social media links. Change email
+  (requires verifying again), and change password;
+- a link to list their posts: there they can remove or edit them;
+- a link to create a new post; there have been suggestions this should be the
+  first page they see when they log in;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
