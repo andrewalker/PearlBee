@@ -80,16 +80,16 @@ other authors will have to _confirm_ that post, so that it is effectively
 published. This is to avoid spam, since using CAPTCHA and verifying email are
 not 100% effective.
 
-To elaborate a little more: the Author submits the registration form, clicks
-the link on their email, and writes a post. That Author can see the published
-post, and so can other logged in Authors. But it is not publicly displayed on
-the homepage, or for unauthenticated Readers. Only other Authors will see it in
-their dashboards, possibly with a notification to ask them to confirm it is
-real.
+To elaborate a little more: the Author submits the registration form, clicks the
+link on their email, and writes a post. That Author can see their own post, but
+it is not publicly displayed on the homepage, or for unauthenticated Readers.
+Only other Authors will see it in their dashboards, in a dedicated section to
+review posts by unconfirmed authors.
 
-FIXME: Should everyone get a notification? Should there be a settings toggle per
-user where they can subscribe by email for that? Or just show a small number
-on a menu for users that are logged in, and don't tell anybody by email?
+TODO: Should everyone get a notification to confirm new posts? Should there be
+a settings toggle per user where they can subscribe by email for that? Or just
+show a small number on a menu for users that are logged in, and don't tell
+anybody by email?
 
 Once an Author is confirmed, they can write as many posts as they'd like. (We
 should still have some DDoS protection though).
@@ -99,38 +99,50 @@ When an Author author logs into the dashboard, what they see is:
 - a link to edit their _Profile_: avatar, bio, social media links. Change email
   (requires verifying again), and change password;
 - a link to list their posts: there they can remove or edit them;
-- a link to create a new post; there have been suggestions this should be the
-  first page they see when they log in;
+- a link to write a new post;
+- _(only confirmed authors)_ a link to see the list of unconfirmed posts, and
+  approve or reject them;
 
+There have been suggestions to make "write new post" page the first one they see
+when they log in, instead of the traditional "post list". Doesn't matter much,
+but might as well be.
 
+The list of posts will be sortable per publication date, ascending or
+descending, and filterable per tag or keyword. Next to every post will be links
+to update it or delete it. No actions will be destructive on the database level
+though.
 
+When writing the post, the Author will be presented with a simple WYSIWYG
+editor, and it will be saved in Markdown for the time being. No other formats
+will be supported at this time. The Author will also be able to write an
+abstract for the post, to add a "cover image" for it, add a title, and tags.
 
+When saving it, they will be able to publish right away or save as draft.
 
+No guarantees will be made at this point regarding autosaving as draft. It would
+be nice to have, but I'll focus on other basic features for now.
 
+Regarding the confirmation of new authors, maybe we can start with the simplest
+possible process, which is: a list of posts, similar to the list of the Author's
+own posts. Next to that list, two links: thumbs down and thumbs up (or something
+equivalent). One approval makes the new Author be _confirmed_, while one
+rejection makes it _banned_.
 
+I don't think it's a very robust process, but it should be enough for the MVP.
+The idea is to work towards an implementation that requires little to no
+maintenance from the Site Administrator, and engages participation of Authors.
+If this eventually turns into a system where the platform knows which Authors
+are trustworthy, and asks for multiple confirmations when in doubt, would be
+very nice. Apparently Facebook does that for groups.
 
+I also mentioned an Author can be _banned_. That can come from either other
+Author rejecting their first post, or the Site Administrator banning them. Once
+an Author is banned, only the Site Administrator can _unban_ them. A banned
+Author is one whose posts are hidden, and cannot approve other Authors.
 
+A final note about Authors: they are not editors. As specified above, they can
+only update their own posts, never from other people.
 
+== The Site Administrator
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+TODO.
