@@ -1,0 +1,12 @@
+= User Journey with Pearlbee
+André Walker
+
+== Abstract
+
+This document describes the different actors that interact with Pearlbee, and
+what they expect to see and be able to do. It's meant for me to be a kind of
+completion criterea as I develop the software.
+
+== Actors
+
+
