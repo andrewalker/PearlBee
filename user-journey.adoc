@@ -35,7 +35,7 @@ into account as the platform matures. Some examples:
 
 Probably some others, but let's begin with the list we're mostly concerned.
 
-=== The Reader
+== The Reader
 
 A visitor comes to the homepage, they see a list of recent posts. For now, let's
 say it's only sorted by date, most recent to oldest, among all authors. Only
@@ -144,5 +144,9 @@ A final note about Authors: they are not editors. As specified above, they can
 only update their own posts, never from other people.
 
 == The Site Administrator
+
+TODO.
+
+== The Theme Developer
 
 TODO.
