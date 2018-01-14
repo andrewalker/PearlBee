@@ -214,10 +214,10 @@ Get the number of comments for this post
 sub nr_of_comments {
     my ($self) = @_;
 
-    my @post_comments = $self->comments;
-    my @comments = grep { $_->status eq 'approved' } @post_comments;
+    #    my @post_comments = $self->comments;
+    # my @comments = grep { $_->status eq 'approved' } @post_comments;
 
-    return scalar @comments;
+    return 0;
 }
 
 =head
