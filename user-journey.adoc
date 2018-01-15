@@ -187,4 +187,19 @@ one"?)_
 
 == The Theme Developer
 
-TODO.
+Themes are represented by a file structure, similar to the way Ghost or
+WordPress themes are built.
+
+Themes can be written with (at least) Handlebars template language. Other
+languages may be supported, probably with very little effort from the platform
+point of view, but the main one will be Handlebars. The reason for this is to
+leverage the existing ecosystem for Ghost. It's not really easy to support the
+WordPress ecosystem, because it exposes a lot of internals, and themes usually
+have some pretty heavy PHP logic in them.
+
+We'll try to follow this as closely as possible: https://themes.ghost.org/docs.
+
+At first, I'll try to keep theme and engine separate, and try to use Handlebars.
+I will try to keep things sensible enough I can extend this later, but I won't
+go into too much thought and planning on this, since it's not really required
+for blogs.perl.org. As long as it can be extended later.
