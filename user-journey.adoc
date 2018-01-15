@@ -29,7 +29,10 @@ my primary concern at the moment. They are still relevant and should be taken
 into account as the platform matures. Some examples:
 
 - Robots -- I'll just treat them as Readers for now, which is fine for an MVP,
-  but will require more care later on.
+  but will require more care later on. (Not that I would make multiple versions
+  of the website, but that I would think of bots use cases and implement
+  features they require)
+- Editors -- Powerful Author that can also edit other peoples' posts.
 - Extension Developers -- we will have to provide some sort of engine for
   extensions, but for now, I'll only offer a working core.
 
@@ -145,7 +148,42 @@ only update their own posts, never from other people.
 
 == The Site Administrator
 
-TODO.
+The Site Administrator is responsible for installing the Pearlbee platform,
+upgrading it, performing general maintenance tasks.
+
+Let's begin with installation. The Site Administrator will download a built
+version of Pearlbee (ideally something like an rpm or deb), and install it
+according to their distribution. It can also be from CPAN. In fact, I'm
+differentiating the built version from the source version mainly with regards
+with static assets (js, css, images, etc). There will likely be a build step
+to take the git version and turn it into the deployment version to be shipped to
+CPAN.
+
+It can be installed globally in the system, or using tools like local\::lib,
+carton, perlbrew, etc. The most important thing is that the Pearlbee package
+will remain separate from the site-specific theme and configuration.
+
+Pearlbee will come with a core theme, and to pick a different one, the Site
+Administrator will have to specify a command line argument with the path to the
+theme they want to use.
+
+Most of the configuration will be specified in a configuration file, also kept
+outside of the Pearlbee package. That will include credentials for database,
+site name, credentials for external services (e.g. Disqus), SMTP configuration,
+etc.
+
+The upgrade process will consist of upgrading the package and calling `sqitch
+deploy` (or a wrapper around it).
+
+The Site Administrator will also have a sort of _root_ user in the Pearlbee
+interface. It will be similar to the Author interface, but they will have access
+to everything.
+
+On that dashboard they will be able to _confirm_, _ban_ and _unban_ any Author,
+delete and update posts.
+
+_(Maybe the dashboard one could be a different actor from the "command line
+one"?)_
 
 == The Theme Developer
 
