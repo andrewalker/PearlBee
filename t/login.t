@@ -139,10 +139,10 @@ subtest 'invalid login: invalid password' => sub {
     like($mech->uri->path, qr{^/login}, 'user is still in login page');
 };
 
-subtest 'invalid login: suspended user' => sub {
+subtest 'invalid login: banned user' => sub {
     my $mech = mech;
 
-    $urs->find({ email => 'johndoe-login@gmail.com' })->update({ status => 'suspended' });
+    $urs->find({ email => 'johndoe-login@gmail.com' })->update({ status => 'banned' });
 
     $mech->get_ok( '/login', 'Login returns a page' );
     $mech->submit_form_ok(
@@ -161,7 +161,7 @@ subtest 'invalid login: suspended user' => sub {
     );
 
     $mech->content_like(
-        qr{Your account has been suspended},
+        qr{Your account has been banned},
         'The message is correct'
     );
 

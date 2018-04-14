@@ -75,8 +75,8 @@ __PACKAGE__->table("user");
 =head2 status
 
   data_type: 'enum'
-  default_value: 'deactivated'
-  extra: {custom_type_name => "user_status_type",list => ["deactivated","activated","suspended","pending"]}
+  default_value: 'pending'
+  extra: {custom_type_name => "user_status_type",list => ["activated","banned","pending"]}
   is_nullable: 0
 
 =head2 registered_at
@@ -118,10 +118,10 @@ __PACKAGE__->add_columns(
   "status",
   {
     data_type => "enum",
-    default_value => "deactivated",
+    default_value => "pending",
     extra => {
       custom_type_name => "user_status_type",
-      list => ["deactivated", "activated", "suspended", "pending"],
+      list => ["activated", "banned", "pending"],
     },
     is_nullable => 0,
   },
@@ -206,8 +206,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 13:56:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RVxFZ9Jo1Ii4Dob9VnwZ2w
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-04-14 14:07:02
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cQGSwfWQT20AAygG2MKLDg
 
 __PACKAGE__->add_columns(
     password => {

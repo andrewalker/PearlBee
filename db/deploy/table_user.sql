@@ -10,9 +10,8 @@ SET search_path = pearlbee, pg_catalog;
 CREATE TYPE user_role_type AS ENUM ( 'author', 'admin' );
 
 CREATE TYPE user_status_type AS ENUM (
-    'deactivated',
     'activated',
-    'suspended',
+    'banned',
     'pending'
 );
 
@@ -23,7 +22,7 @@ CREATE TABLE "user" (
     email text NOT NULL UNIQUE,
     password character(59) NOT NULL,
     role  user_role_type DEFAULT 'author'::user_role_type NOT NULL,
-    status user_status_type DEFAULT 'deactivated'::user_status_type NOT NULL,
+    status user_status_type DEFAULT 'pending'::user_status_type NOT NULL,
     registered_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     last_login timestamp with time zone NULL,
     PRIMARY KEY(id)

@@ -116,8 +116,8 @@ post '/sign-up' => sub {
 get '/login' => sub {
     my $failure = query_parameters->{'invalid'}
                 ? 'Invalid login credentials'
-                : query_parameters->{'suspended'}
-                ? 'Your account has been suspended'
+                : query_parameters->{'banned'}
+                ? 'Your account has been banned'
                 : query_parameters->{'pending'}
                 ? 'Your e-mail address has not been verified yet'
                 : ''
@@ -150,8 +150,8 @@ post '/login' => sub {
     $user->status eq 'pending'
         and redirect '/login?pending=1';
 
-    $user->status eq 'suspended'
-        and redirect '/login?suspended=1';
+    $user->status eq 'banned'
+        and redirect '/login?banned=1';
 
     session user_id => $user->id;
 

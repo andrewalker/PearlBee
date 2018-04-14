@@ -54,15 +54,15 @@ __PACKAGE__->table("post");
   data_type: 'text'
   is_nullable: 0
 
+=head2 meta
+
+  data_type: 'jsonb'
+  is_nullable: 1
+
 =head2 abstract
 
   data_type: 'text'
   is_nullable: 1
-
-=head2 cover
-
-  data_type: 'text'
-  is_nullable: 0
 
 =head2 content
 
@@ -108,10 +108,10 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "slug",
   { data_type => "text", is_nullable => 0 },
+  "meta",
+  { data_type => "jsonb", is_nullable => 1 },
   "abstract",
   { data_type => "text", is_nullable => 1 },
-  "cover",
-  { data_type => "text", is_nullable => 0 },
   "content",
   { data_type => "text", is_nullable => 0 },
   "created_at",
@@ -199,8 +199,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-20 13:23:00
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2WAc0NUQP+kHPVIg8Q6bag
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-04-14 14:07:02
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XSVFHu0dVPO9Ic43XoeM9w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
