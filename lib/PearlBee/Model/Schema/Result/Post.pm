@@ -154,9 +154,11 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<post_slug_key>
+=head2 C<post_author_slug_key>
 
 =over 4
+
+=item * L</author>
 
 =item * L</slug>
 
@@ -164,7 +166,7 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("post_slug_key", ["slug"]);
+__PACKAGE__->add_unique_constraint("post_author_slug_key", ["author", "slug"]);
 
 =head1 RELATIONS
 
@@ -199,8 +201,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-04-14 14:07:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XSVFHu0dVPO9Ic43XoeM9w
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-04-14 15:06:37
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iiNoaG8V6XyM1ybKdTkOSg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

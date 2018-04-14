@@ -26,7 +26,7 @@ CREATE TABLE post (
     status post_status_type DEFAULT 'draft'::post_status_type,
     author integer NOT NULL,
     PRIMARY KEY(id),
-    UNIQUE(slug),
+    UNIQUE(author, slug),
     FOREIGN KEY (author) REFERENCES "user"(id)
 );
 

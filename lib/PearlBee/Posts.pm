@@ -61,4 +61,29 @@ prefix '/posts' => sub {
     };
 };
 
+get '/:author/:slug' => sub {
+    my $author = route_parameters->{'author'};
+    my $slug   = route_parameters->{'slug'};
+
+    my $post = resultset('Post')->search(
+        {
+            'author.username' => $author,
+            'me.slug'         => $slug,
+            'me.status'       => 'published'
+        },
+        { join => 'author' },
+    )->first;
+
+    if (!$post) {
+        status 'not_found';
+        return 'Post not found';
+    }
+
+
+    template post => {
+        post    => $post,
+        tags    => $post->tags,
+    };
+};
+
 1;
