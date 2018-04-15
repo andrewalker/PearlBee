@@ -8,10 +8,15 @@ logger: "capture"
 log: "debug"
 
 # should Dancer2 consider warnings as critical errors?
-warnings: 0
+warnings: 1
 
 # should Dancer2 show a stacktrace when an error is caught?
 show_errors: 1
 
 # print the banner
 startup_info: 1
+
+plugins:
+  DBIC:
+    default:
+      dsn: TESTING_DATABASE
