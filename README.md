@@ -1,9 +1,9 @@
-# PearlBee
+# PearlBee [![Build Status](https://travis-ci.org/andrewalker/PearlBee.svg?branch=master)](https://travis-ci.org/andrewalker/PearlBee)
 
 An open source blogging platform written in Perl. [pearlbee.org](http://pearlbee.org)
 
 Don't run tests against a production database! Make sure dbic.yaml has
-different values for `TESTING\_DATABASE` and `DEFAULT\_DATABASE`.
+different values for `TESTING_DATABASE` and `DEFAULT_DATABASE`.
 
 ## Setup
 
