@@ -9,29 +9,31 @@ my %sort = map +($_, $_), qw( id created_at updated_at );
 my %dir  = map +($_, "-$_"), qw( asc desc );
 
 get '/api/posts' => sub {
-    my $per_page  = int(query_parameters->{'per_page'} // 0) || 10;
-    my $page      = int(query_parameters->{'page'}     // 0) || 1;
-    my $sort      = $sort{ query_parameters->{'sort'}      || 'created_at' } || 'created_at';
-    my $direction = $dir{  query_parameters->{'direction'} || 'desc' }       || '-desc';
-
-    if ($per_page > 50) {
-        $per_page = 50;
-    }
-
-    my $posts = get_posts({
-        per_page  => $per_page,
-        page      => $page,
-        sort      => $sort,
-        direction => $direction,
-        tags      => query_parameters->{'tags'},
-        filter    => query_parameters->{'filter'},
-    });
-
-    send_as JSON => { posts => $posts, };
+    return api_posts_endpoint();
 };
 
 get '/api/user/:user/posts' => sub {
-    my $author    = route_parameters->{'user'};
+    my $username = route_parameters->{'user'};
+
+    my $author_obj = resultset('User')->search(
+        { username => $username },
+        { columns => 'id' }
+    )->first;
+
+    if (!$author_obj) {
+        status 'not_found';
+        send_as JSON => { error => "not found" };
+    }
+
+    return api_posts_endpoint($author_obj->id);
+};
+
+get '/api/user/posts' => sub {
+    return api_posts_endpoint(session 'user_id');
+};
+
+sub api_posts_endpoint {
+    my ($author) = @_;
     my $per_page  = int(query_parameters->{'per_page'} // 0) || 10;
     my $page      = int(query_parameters->{'page'}     // 0) || 1;
     my $sort      = $sort{ query_parameters->{'sort'}      || 'created_at' } || 'created_at';
@@ -41,7 +43,7 @@ get '/api/user/:user/posts' => sub {
         $per_page = 50;
     }
 
-    my $posts = get_posts({
+    my $posts = search_posts({
         author    => $author,
         per_page  => $per_page,
         page      => $page,
@@ -51,21 +53,12 @@ get '/api/user/:user/posts' => sub {
         filter    => query_parameters->{'filter'},
     });
 
-    send_as JSON => { posts => $posts };
-};
+    send_as JSON => { posts => $posts, };
+}
 
-sub get_posts {
+sub search_posts {
     my ($params) = @_;
     my (@ids, @filter_query);
-
-    my $author_id;
-    if ($params->{author}) {
-        my $author_obj
-            = resultset('User')->search( { username => $params->{author} }, { columns => 'id' } )
-            ->first
-            or return [];
-        $author_id = $author_obj->id;
-    }
 
     # XXX: This is complicated... if we're too permissive, we can open
     # ourselves for DoS. We'll have to be careful when combining filters and
@@ -76,7 +69,7 @@ sub get_posts {
         my @tags = split /,/, $tags;
         # at most 3 tags
         @tags = splice @tags, 0, 3;
-        @ids = map $_->{post_id}, get_tags(\@tags, $params->{per_page}, $author_id);
+        @ids = map $_->{post_id}, search_tags(\@tags, $params->{per_page}, $params->{author});
     }
     # TODO: fulltext search
     elsif (my $filter = query_parameters->{'filter'}) {
@@ -90,7 +83,7 @@ sub get_posts {
 
     my @id_query = @ids ? ('me.id' => { -in => \@ids }) : ();
 
-    my @author_query = $author_id ? ( 'me.author' => $author_id ) : ();
+    my @author_query = $params->{author} ? ( 'me.author' => $params->{author} ) : ();
 
     my @posts = map {
         $_->{url} = uri_for('/' . $_->{author}{username} . '/' . $_->{slug});
@@ -112,7 +105,7 @@ sub get_posts {
     return \@posts;
 }
 
-sub get_tags {
+sub search_tags {
     my ($tags, $per_page, $author_id) = @_;
 
     my $query
