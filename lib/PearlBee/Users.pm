@@ -153,6 +153,7 @@ post '/login' => sub {
     $user->status eq 'banned'
         and redirect '/login?banned=1';
 
+    $user->update({ last_login => \'now()' });
     session user_id => $user->id;
 
     redirect('/dashboard');

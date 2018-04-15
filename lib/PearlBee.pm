@@ -17,6 +17,7 @@ use PearlBee::Authors;
 use if !$PearlBee::is_static, 'PearlBee::Dashboard';
 use PearlBee::Comments;
 use PearlBee::API::Posts;
+use PearlBee::API::Users;
 use PearlBee::Posts;
 
 hook before => sub {

@@ -204,6 +204,32 @@ subtest 'filtering' => sub {
     is(scalar @{ $res->{posts} }, 1, 'only 1 posts');
 };
 
+subtest 'user data' => sub {
+    insert_posts();
+    my $mech = mech;
+    login($mech, 'johndoe-author1');
+
+    $mech->get_ok('/api/user', 'can get /api/user/johndoe-author1')
+        or die $mech->content;
+    my $res = decode_json($mech->content);
+
+    my $registered_at = delete $res->{user}{registered_at};
+    my $last_login    = delete $res->{user}{last_login};
+
+    is_deeply(
+        $res->{user},
+        {
+            name       => 'John Doe Author 1',
+            username   => 'johndoe-author1',
+            email      => 'johndoe-author1@gmail.com',
+            role       => 'author',
+            status     => 'activated',
+            post_count => 4,
+        },
+        'user data is expected'
+    );
+};
+
 sub test_post {
     my ($got, $exp_p, $exp_a, $tags) = @_;
 

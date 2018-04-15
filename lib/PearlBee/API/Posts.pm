@@ -3,10 +3,6 @@ package PearlBee::API::Posts;
 # ABSTRCT: Posts-related paths
 use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
-use PearlBee::Helpers::Pagination qw<get_total_pages get_previous_next_link>;
-
-my %sort = map +($_, $_), qw( id created_at updated_at );
-my %dir  = map +($_, "-$_"), qw( asc desc );
 
 get '/api/posts' => sub {
     return api_posts_endpoint();
@@ -32,6 +28,9 @@ get '/api/user/posts' => sub {
     return api_posts_endpoint(session 'user_id');
 };
 
+my %sort = map +($_, $_), qw( id created_at updated_at );
+my %dir  = map +($_, "-$_"), qw( asc desc );
+
 sub api_posts_endpoint {
     my ($author) = @_;
     my $per_page  = int(query_parameters->{'per_page'} // 0) || 10;
@@ -56,6 +55,7 @@ sub api_posts_endpoint {
     send_as JSON => { posts => $posts, };
 }
 
+# TODO: move this to the model
 sub search_posts {
     my ($params) = @_;
     my (@ids, @filter_query);
@@ -105,6 +105,7 @@ sub search_posts {
     return \@posts;
 }
 
+# TODO: move this to the model
 sub search_tags {
     my ($tags, $per_page, $author_id) = @_;
 

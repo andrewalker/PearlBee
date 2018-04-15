@@ -195,6 +195,26 @@ subtest 'filtering' => sub {
     is(scalar @{ $res->{posts} }, 1, 'only 1 posts');
 };
 
+subtest 'user data' => sub {
+    insert_posts();
+    my $mech = mech;
+
+    $mech->get_ok('/api/user/johndoe-author1', 'can get /api/user/johndoe-author1');
+    my $res = decode_json($mech->content);
+
+    is_deeply(
+        $res->{user},
+        {
+            name       => 'John Doe Author 1',
+            username   => 'johndoe-author1',
+            role       => 'author',
+            status     => 'activated',
+            post_count => 4,
+        },
+        'user data is expected'
+    );
+};
+
 sub test_post {
     my ($got, $exp_p, $exp_a, $tags) = @_;
 
@@ -211,14 +231,6 @@ sub test_post {
         name     => "John Doe Author $exp_a",
     }, 'Post author is expected');
     is_deeply($got->{tags}, $tags || [], 'Post tags are expected');
-}
-
-TODO: {
-    local $TODO = 'implement this...';
-
-    subtest 'test /api/user (logged in user)' => sub {
-    };
-
 }
 
 done_testing;
