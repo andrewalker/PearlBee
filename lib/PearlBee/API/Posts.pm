@@ -18,26 +18,65 @@ get '/api/posts' => sub {
         $per_page = 50;
     }
 
+    my $posts = get_posts({
+        per_page  => $per_page,
+        page      => $page,
+        sort      => $sort,
+        direction => $direction,
+        tags      => query_parameters->{'tags'},
+        filter    => query_parameters->{'filter'},
+    });
+
+    send_as JSON => { posts => $posts, };
+};
+
+get '/api/user/:user/posts' => sub {
+    my $author    = route_parameters->{'user'};
+    my $per_page  = int(query_parameters->{'per_page'} // 0) || 10;
+    my $page      = int(query_parameters->{'page'}     // 0) || 1;
+    my $sort      = $sort{ query_parameters->{'sort'}      || 'created_at' } || 'created_at';
+    my $direction = $dir{  query_parameters->{'direction'} || 'desc' }       || '-desc';
+
+    if ($per_page > 50) {
+        $per_page = 50;
+    }
+
+    my $posts = get_posts({
+        author    => $author,
+        per_page  => $per_page,
+        page      => $page,
+        sort      => $sort,
+        direction => $direction,
+        tags      => query_parameters->{'tags'},
+        filter    => query_parameters->{'filter'},
+    });
+
+    send_as JSON => { posts => $posts };
+};
+
+sub get_posts {
+    my ($params) = @_;
     my (@ids, @filter_query);
+
+    my $author_id;
+    if ($params->{author}) {
+        my $author_obj
+            = resultset('User')->search( { username => $params->{author} }, { columns => 'id' } )
+            ->first
+            or return [];
+        $author_id = $author_obj->id;
+    }
 
     # XXX: This is complicated... if we're too permissive, we can open
     # ourselves for DoS. We'll have to be careful when combining filters and
     # tags. For now, we'll allow only one or the other. With the current
     # implementation, this wouldn't be possible because we're limiting the rows
     # for the tag search here.
-    if (my $tags = query_parameters->{'tags'}) {
+    if (my $tags = $params->{tags}) {
         my @tags = split /,/, $tags;
         # at most 3 tags
         @tags = splice @tags, 0, 3;
-        my $tag_query = @tags == 1 ? { tag => $tags[0] } : { -or => [ map +{ tag => $_ }, \@tags ] };
-        @ids = map $_->{post_id}, resultset('PostTag')->search(
-            $tag_query,
-            {
-                columns      => ['post_id'],
-                result_class => 'DBIx::Class::ResultClass::HashRefInflator',
-                rows         => $per_page,
-            }
-        )->all;
+        @ids = map $_->{post_id}, get_tags(\@tags, $params->{per_page}, $author_id);
     }
     # TODO: fulltext search
     elsif (my $filter = query_parameters->{'filter'}) {
@@ -51,16 +90,18 @@ get '/api/posts' => sub {
 
     my @id_query = @ids ? ('me.id' => { -in => \@ids }) : ();
 
+    my @author_query = $author_id ? ( 'me.author' => $author_id ) : ();
+
     my @posts = map {
         $_->{url} = uri_for('/' . $_->{author}{username} . '/' . $_->{slug});
         $_->{tags} = [ sort map $_->{tag}, @{ delete $_->{post_tags} } ];
         $_;
     } resultset('Post')->search(
-        { 'me.status' => 'published', @id_query, @filter_query },
+        { 'me.status' => 'published', @id_query, @filter_query, @author_query },
         {
-            order_by     => { $direction => $sort },
-            rows         => $per_page,
-            page         => $page,
+            order_by     => { $params->{direction} => $params->{sort} },
+            rows         => $params->{per_page},
+            page         => $params->{page},
             join         => 'author',
             prefetch     => 'post_tags',
             '+select'    => ['author.username', 'author.name'],
@@ -68,7 +109,28 @@ get '/api/posts' => sub {
         }
     )->all;
 
-    send_as JSON => { posts => \@posts, };
-};
+    return \@posts;
+}
+
+sub get_tags {
+    my ($tags, $per_page, $author_id) = @_;
+
+    my $query
+        = @$tags == 1
+        ? { 'me.tag' => $tags->[0] }
+        : { -or => [ map +{ 'me.tag' => $_ }, @$tags ] };
+    my $options = {
+        columns      => ['post_id'],
+        result_class => 'DBIx::Class::ResultClass::HashRefInflator',
+        rows         => $per_page,
+    };
+
+    if ($author_id) {
+        $options->{'join'} = 'post';
+        $query->{'post.author'} = $author_id;
+    }
+
+    return resultset('PostTag')->search( $query, $options )->all;
+}
 
 1;

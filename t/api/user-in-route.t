@@ -1,5 +1,5 @@
 use PearlBee::Test;
-use JSON::MaybeXS qw(decode_json);
+use JSON::MaybeXS;
 
 my $urs = schema->resultset('User');
 my $prs = schema->resultset('Post');
@@ -82,39 +82,48 @@ sub insert_posts {
     }
 }
 
-# Posts by any author
-# /api/posts/:id
-# /api/posts?per_page=10
-# /api/posts?per_page=10&page=2
-# /api/posts?sort=date&direction=asc
-# /api/posts?sort=date&direction=desc
-# /api/posts?since=2018-01-01T10:00:00
-# /api/posts?filter=foo
-# /api/posts?tags=foo,bar,baz
 
-subtest 'test getting from /api/posts' => sub {
+# Logged in user
+# /api/user
+# /api/user/posts/:slug
+# /api/user/posts?per_page=10
+# /api/user/posts?per_page=10&page=2
+# /api/user/posts?sort=date&direction=asc
+# /api/user/posts?sort=date&direction=desc
+# /api/user/posts?since=2018-01-01T10:00:00
+# /api/user/posts?filter=foo
+# /api/user/posts?tags=foo,bar,baz
+#
+# Some user specified by username
+# /api/user/:user
+# /api/user/:user/posts/:slug
+# /api/user/:user/posts?per_page=10
+# /api/user/:user/posts?per_page=10&page=2
+# /api/user/:user/posts?sort=date&direction=asc
+# /api/user/:user/posts?sort=date&direction=desc
+# /api/user/:user/posts?since=2018-01-01T10:00:00
+# /api/user/:user/posts?filter=foo
+# /api/user/:user/posts?tags=foo,bar,baz
+
+subtest 'test getting from /api/user/:user/posts' => sub {
     insert_posts();
     my $mech = mech;
 
-    $mech->get_ok('/api/posts', 'can get /api/posts');
+    $mech->get_ok('/api/user/johndoe-author1/posts', 'can get /api/user/johndoe-author1/posts');
     my $res = decode_json($mech->content);
 
-    test_post($res->{posts}[0], 5, 2);
-    test_post($res->{posts}[1], 4, 2, [qw(t4)]);
-    test_post($res->{posts}[2], 2, 2);
-    test_post($res->{posts}[3], 1, 2, [qw(t1 t2 t3)]);
-    test_post($res->{posts}[4], 5, 1);
-    test_post($res->{posts}[5], 4, 1, [qw(t4)]);
-    test_post($res->{posts}[6], 2, 1);
-    test_post($res->{posts}[7], 1, 1, [qw(t1 t2 t3)]);
-    is(scalar @{ $res->{posts} }, 8, 'only 8 posts');
+    test_post($res->{posts}[0], 5, 1);
+    test_post($res->{posts}[1], 4, 1, [qw(t4)]);
+    test_post($res->{posts}[2], 2, 1);
+    test_post($res->{posts}[3], 1, 1, [qw(t1 t2 t3)]);
+    is(scalar @{ $res->{posts} }, 4, 'only 8 posts');
 };
 
 subtest 'paging' => sub {
     insert_posts();
     my $mech = mech;
 
-    $mech->get_ok('/api/posts?per_page=3', 'can get /api/posts?per_page=3');
+    $mech->get_ok('/api/user/johndoe-author2/posts?per_page=3', 'can get /api/user/johndoe-author2/posts?per_page=3');
     my $res1 = decode_json($mech->content);
 
     test_post($res1->{posts}[0], 5, 2);
@@ -122,88 +131,68 @@ subtest 'paging' => sub {
     test_post($res1->{posts}[2], 2, 2);
     is(scalar @{ $res1->{posts} }, 3, 'only 3 posts in this page');
 
-    $mech->get_ok('/api/posts?per_page=3&page=2', 'can get /api/posts?per_page=3&page=2');
+    $mech->get_ok('/api/user/johndoe-author2/posts?per_page=3&page=2', 'can get /api/user/johndoe-author2/posts?per_page=3&page=2');
     my $res2 = decode_json($mech->content);
 
     test_post($res2->{posts}[0], 1, 2, [qw(t1 t2 t3)]);
-    test_post($res2->{posts}[1], 5, 1);
-    test_post($res2->{posts}[2], 4, 1, [qw(t4)]);
-    is(scalar @{ $res2->{posts} }, 3, 'only 3 posts in this page');
-
-    $mech->get_ok('/api/posts?per_page=3&page=3', 'can get /api/posts?per_page=3&page=2');
-    my $res3 = decode_json($mech->content);
-    test_post($res3->{posts}[0], 2, 1);
-    test_post($res3->{posts}[1], 1, 1, [qw(t1 t2 t3)]);
-    is(scalar @{ $res3->{posts} }, 2, 'only 2 posts in this page');
+    is(scalar @{ $res2->{posts} }, 1, 'only 1 posts in this page');
 };
 
 subtest 'by tags' => sub {
     insert_posts();
     my $mech = mech;
 
-    $mech->get_ok('/api/posts?tags=t1,t4', 'can get /api/posts?tags=t1,t4');
+    $mech->get_ok('/api/user/johndoe-author2/posts?tags=t1,t4', 'can get /api/user/johndoe-author2/posts?tags=t1,t4');
     my $res1 = decode_json($mech->content);
 
     test_post($res1->{posts}[0], 4, 2, [qw(t4)]);
     test_post($res1->{posts}[1], 1, 2, [qw(t1 t2 t3)]);
-    test_post($res1->{posts}[2], 4, 1, [qw(t4)]);
-    test_post($res1->{posts}[3], 1, 1, [qw(t1 t2 t3)]);
-    is(scalar @{ $res1->{posts} }, 4, 'only 4 posts in this page');
+    is(scalar @{ $res1->{posts} }, 2, 'only 2 posts in this page');
 
-    $mech->get_ok('/api/posts?tags=t2,t3', 'can get /api/posts?tags=t2,t3');
+    $mech->get_ok('/api/user/johndoe-author2/posts?tags=t2,t3', 'can get /api/user/johndoe-author2/posts?tags=t2,t3');
     my $res2 = decode_json($mech->content);
 
     test_post($res2->{posts}[0], 1, 2, [qw(t1 t2 t3)]);
-    test_post($res2->{posts}[1], 1, 1, [qw(t1 t2 t3)]);
-    is(scalar @{ $res2->{posts} }, 2, 'only 2 posts in this page');
+    is(scalar @{ $res2->{posts} }, 1, 'only 1 posts in this page');
 };
 
 subtest 'sorting created_at desc (default)' => sub {
     insert_posts();
     my $mech = mech;
 
-    $mech->get_ok('/api/posts?sort=created_at&direction=desc', 'can get /api/posts?sort=created_at&direction=desc');
+    $mech->get_ok('/api/user/johndoe-author1/posts?sort=created_at&direction=desc', 'can get /api/user/johndoe-author1/posts?sort=created_at&direction=desc');
     my $res = decode_json($mech->content);
 
-    test_post($res->{posts}[0], 5, 2);
-    test_post($res->{posts}[1], 4, 2, [qw(t4)]);
-    test_post($res->{posts}[2], 2, 2);
-    test_post($res->{posts}[3], 1, 2, [qw(t1 t2 t3)]);
-    test_post($res->{posts}[4], 5, 1);
-    test_post($res->{posts}[5], 4, 1, [qw(t4)]);
-    test_post($res->{posts}[6], 2, 1);
-    test_post($res->{posts}[7], 1, 1, [qw(t1 t2 t3)]);
-    is(scalar @{ $res->{posts} }, 8, 'only 8 posts');
+    test_post($res->{posts}[0], 5, 1);
+    test_post($res->{posts}[1], 4, 1, [qw(t4)]);
+    test_post($res->{posts}[2], 2, 1);
+    test_post($res->{posts}[3], 1, 1, [qw(t1 t2 t3)]);
+    is(scalar @{ $res->{posts} }, 4, 'only 4 posts');
 };
 
 subtest 'sorting created_at asc' => sub {
     insert_posts();
     my $mech = mech;
 
-    $mech->get_ok('/api/posts?sort=created_at&direction=asc', 'can get /api/posts?sort=created_at&direction=desc');
+    $mech->get_ok('/api/user/johndoe-author1/posts?sort=created_at&direction=asc', 'can get /api/user/johndoe-author1/posts?sort=created_at&direction=asc');
     my $res = decode_json($mech->content);
 
-    test_post($res->{posts}[7], 5, 2);
-    test_post($res->{posts}[6], 4, 2, [qw(t4)]);
-    test_post($res->{posts}[5], 2, 2);
-    test_post($res->{posts}[4], 1, 2, [qw(t1 t2 t3)]);
     test_post($res->{posts}[3], 5, 1);
     test_post($res->{posts}[2], 4, 1, [qw(t4)]);
     test_post($res->{posts}[1], 2, 1);
     test_post($res->{posts}[0], 1, 1, [qw(t1 t2 t3)]);
-    is(scalar @{ $res->{posts} }, 8, 'only 8 posts');
+    is(scalar @{ $res->{posts} }, 4, 'only 4 posts');
 };
 
 subtest 'filtering' => sub {
     insert_posts();
     my $mech = mech;
 
-    $mech->get_ok('/api/posts?filter=post%205', 'can get /api/posts?filter=post%205');
+    $mech->get_ok('/api/user/johndoe-author1/posts?filter=post%205', 'can get /api/user/johndoe-author1/posts?filter=post%205');
     my $res = decode_json($mech->content);
 
-    test_post($res->{posts}[0], 5, 2);
-    test_post($res->{posts}[1], 5, 1);
-    is(scalar @{ $res->{posts} }, 2, 'only 2 posts');
+    test_post($res->{posts}[0], 5, 1);
+    is(scalar @{ $res->{posts} }, 1, 'only 1 posts');
 };
 
 sub test_post {
@@ -222,6 +211,14 @@ sub test_post {
         name     => "John Doe Author $exp_a",
     }, 'Post author is expected');
     is_deeply($got->{tags}, $tags || [], 'Post tags are expected');
+}
+
+TODO: {
+    local $TODO = 'implement this...';
+
+    subtest 'test /api/user (logged in user)' => sub {
+    };
+
 }
 
 done_testing;
