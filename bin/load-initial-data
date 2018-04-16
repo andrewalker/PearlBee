@@ -10,10 +10,11 @@ my ($dsn, $user, $password) = @ARGV;
 my $schema = PearlBee::Model::Schema->connect($dsn, $user, $password);
 
 my $admin = $schema->resultset('User')->create({
-    name           => 'Default Admin',
-    username       => 'admin',
-    password       => 'password',
-    email          => 'admin@admin.com',
-    role           => 'admin',
-    status         => 'activated',
+    name              => 'Default Admin',
+    username          => 'admin',
+    password          => 'password',
+    email             => 'admin@admin.com',
+    role              => 'admin',
+    verified_email    => 1,
+    verified_by_peers => 1,
 });

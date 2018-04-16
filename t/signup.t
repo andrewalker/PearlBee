@@ -13,11 +13,11 @@ my $user_details = {
 };
 
 my %expected = (
-    username => $user_details->{username},
-    email    => $user_details->{email},
-    name     => undef,
-    role     => 'author',
-    status   => 'pending',
+    username       => $user_details->{username},
+    email          => $user_details->{email},
+    name           => undef,
+    role           => 'author',
+    verified_email => 0,
 );
 
 my $urs = schema->resultset('User');
@@ -71,7 +71,7 @@ subtest 'successful insert' => sub {
     my $token = $confirmation_link->query_param('token');
     my $token_result = schema->resultset('RegistrationToken')->find({ token => $token });
     is($token_result->user->username, 'johndoe', 'token in the email refers to the correct user');
-    is($token_result->user->status, 'pending', 'user is pending in database');
+    is($token_result->user->verified_email, 0, 'user is pending in database');
     is($token_result->voided_at, undef, "the token hasn't been voided");
     isnt($token_result->created_at, undef, "but it has a created_at timestamp");
 
@@ -84,7 +84,7 @@ subtest 'successful insert' => sub {
     $token_result = schema->resultset('RegistrationToken')->find({ token => $token });
 
     isnt($token_result->voided_at, undef, "the token is now voided");
-    is($token_result->user->status, 'activated', 'user is activated in database');
+    is($token_result->user->verified_email, 1, 'user is activated in database');
 
     $urs->search( { email => 'johndoe@gmail.com' } )->delete;
     mails->clear_deliveries;

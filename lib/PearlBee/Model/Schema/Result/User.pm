@@ -72,11 +72,22 @@ __PACKAGE__->table("user");
   extra: {custom_type_name => "user_role_type",list => ["author","admin"]}
   is_nullable: 0
 
-=head2 status
+=head2 verified_email
 
-  data_type: 'enum'
-  default_value: 'pending'
-  extra: {custom_type_name => "user_status_type",list => ["activated","banned","pending"]}
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
+=head2 verified_by_peers
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
+=head2 banned
+
+  data_type: 'boolean'
+  default_value: false
   is_nullable: 0
 
 =head2 registered_at
@@ -115,16 +126,12 @@ __PACKAGE__->add_columns(
     extra => { custom_type_name => "user_role_type", list => ["author", "admin"] },
     is_nullable => 0,
   },
-  "status",
-  {
-    data_type => "enum",
-    default_value => "pending",
-    extra => {
-      custom_type_name => "user_status_type",
-      list => ["activated", "banned", "pending"],
-    },
-    is_nullable => 0,
-  },
+  "verified_email",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "verified_by_peers",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "banned",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
   "registered_at",
   {
     data_type     => "timestamp with time zone",
@@ -206,8 +213,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-04-14 14:07:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cQGSwfWQT20AAygG2MKLDg
+# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-04-16 17:09:01
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kKVYH2l5RwwsjbQ+x/kRSw
 
 __PACKAGE__->add_columns(
     password => {

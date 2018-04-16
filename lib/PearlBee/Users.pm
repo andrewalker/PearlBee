@@ -23,12 +23,12 @@ get '/sign-up/confirm' => sub {
         return template 'signup_confirm_email' => { not_found => 1 };
     }
 
-    if ($token_result->user->status ne 'pending') {
+    if ($token_result->user->verified_email) {
         # should we log?
         return template 'signup_confirm_email' => { not_pending => 1 };
     }
 
-    $token_result->user->update({ status => 'activated' });
+    $token_result->user->update({ verified_email => 1 });
     $token_result->update({ voided_at => \'current_timestamp' });
 
     template 'signup_confirm_email' => { success => 1 };
@@ -72,8 +72,7 @@ post '/sign-up' => sub {
         username      => $username,
         password      => $params->{'password'},
         email         => $email,
-        role          => 'author',
-        status        => 'pending'
+        role          => 'author'
     });
 
 #   Trigger a notify_new_user alert, that admin's can subscribe?
@@ -147,10 +146,10 @@ post '/login' => sub {
     $user->check_password($password)
         or redirect '/login?invalid=1';
 
-    $user->status eq 'pending'
-        and redirect '/login?pending=1';
+    $user->verified_email
+        or redirect '/login?pending=1';
 
-    $user->status eq 'banned'
+    $user->banned
         and redirect '/login?banned=1';
 
     $user->update({ last_login => \'now()' });
@@ -183,7 +182,7 @@ post '/forgot-password' => sub {
         ],
     }) or redirect '/forgot-password?not_found=1';
 
-    $user->status eq 'activated'
+    $user->verified_email
         or redirect '/forgot-password?not_activated=1';
 
     eval {

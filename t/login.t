@@ -3,12 +3,12 @@ use PearlBee::Test;
 my $urs = schema->resultset('User');
 $urs->search( { email => 'johndoe-login@gmail.com' } )->delete;
 $urs->create({
-    username => 'johndoe-login',
-    email    => 'johndoe-login@gmail.com',
-    password => 'type-mane-eng-blake-ripe-marco-kiva-hobby-jason',
-    name     => 'John Doe',
-    role     => 'author',
-    status   => 'activated',
+    username       => 'johndoe-login',
+    email          => 'johndoe-login@gmail.com',
+    password       => 'type-mane-eng-blake-ripe-marco-kiva-hobby-jason',
+    name           => 'John Doe',
+    role           => 'author',
+    verified_email => 1,
 });
 
 subtest 'successful login (email / password)' => sub {
@@ -142,7 +142,7 @@ subtest 'invalid login: invalid password' => sub {
 subtest 'invalid login: banned user' => sub {
     my $mech = mech;
 
-    $urs->find({ email => 'johndoe-login@gmail.com' })->update({ status => 'banned' });
+    $urs->find({ email => 'johndoe-login@gmail.com' })->update({ banned => 1 });
 
     $mech->get_ok( '/login', 'Login returns a page' );
     $mech->submit_form_ok(
@@ -172,7 +172,7 @@ subtest 'invalid login: banned user' => sub {
 subtest 'invalid login: pending user' => sub {
     my $mech = mech;
 
-    $urs->find({ email => 'johndoe-login@gmail.com' })->update({ status => 'pending' });
+    $urs->find({ email => 'johndoe-login@gmail.com' })->update({ verified_email => 0 });
 
     $mech->get_ok( '/login', 'Login returns a page' );
     $mech->submit_form_ok(

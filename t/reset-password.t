@@ -13,7 +13,7 @@ sub recreate {
         password => 'type-mane-eng-blake-ripe-marco-kiva-hobby-jason',
         name     => 'John Doe',
         role     => 'author',
-        status   => 'activated',
+        verified_email => 1,
     });
 }
 

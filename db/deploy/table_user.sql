@@ -22,7 +22,9 @@ CREATE TABLE "user" (
     email text NOT NULL UNIQUE,
     password character(59) NOT NULL,
     role  user_role_type DEFAULT 'author'::user_role_type NOT NULL,
-    status user_status_type DEFAULT 'pending'::user_status_type NOT NULL,
+    verified_email boolean DEFAULT FALSE NOT NULL,
+    verified_by_peers boolean DEFAULT FALSE NOT NULL,
+    banned boolean DEFAULT FALSE NOT NULL,
     registered_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     last_login timestamp with time zone NULL,
     PRIMARY KEY(id)

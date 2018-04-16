@@ -46,17 +46,18 @@ sub schema {
 
 sub ensure_admin_in_db {
     my $urs = schema->resultset('User');
-    my $count = $urs->count({ role => 'admin', status => 'activated' });
+    my $count = $urs->count({ role => 'admin', verified_email => 1, verified_by_peers => 1 });
 
     return if $count;
 
     $urs->create({
-        name           => 'Default Admin',
-        username       => 'admin',
-        password       => 'password',
-        email          => 'admin@admin.com',
-        role           => 'admin',
-        status         => 'activated',
+        name              => 'Default Admin',
+        username          => 'admin',
+        password          => 'password',
+        email             => 'admin@admin.com',
+        role              => 'admin',
+        verified_email    => 1,
+        verified_by_peers => 1,
     });
 
     return;
