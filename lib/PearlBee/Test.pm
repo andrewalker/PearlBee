@@ -8,7 +8,7 @@ use Import::Into;
 BEGIN { $ENV{DANCER_ENVIRONMENT} ||= 'testing' }
 
 use Test::More ();
-use Test::WWW::Mechanize::PSGI;
+use PearlBee::Test::Mechanize;
 use HTTP::Cookies;
 
 use PearlBee::Test::EmailSenderTransport;
@@ -28,7 +28,7 @@ sub import {
 }
 
 sub mech {
-    my $mech = Test::WWW::Mechanize::PSGI->new( app => PearlBee->to_app );
+    my $mech = PearlBee::Test::Mechanize->new( app => PearlBee->to_app );
     $mech->cookie_jar( HTTP::Cookies->new );
     return $mech;
 }
