@@ -3,6 +3,88 @@ package PearlBee::API::Users;
 # ABSTRCT: Posts-related paths
 use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
+use Dancer2::Plugin::Auth::Tiny;
+use Dancer2::Plugin::Mailer::PearlBee;
+
+get '/api/user' => needs 'login' => sub {
+    my $user_id = session 'user_id';
+
+    my $user = resultset('User')->find($user_id);
+
+    send_as JSON => {
+        user => {
+            name              => $user->name,
+            username          => $user->username,
+            email             => $user->email,
+            role              => $user->role,
+            verified_email    => $user->verified_email,
+            verified_by_peers => $user->verified_by_peers,
+            post_count        => $user->posts->search({status => 'published'})->count,
+            registered_at     => $user->registered_at->iso8601(),
+            $user->last_login
+                ? ( last_login => $user->last_login->iso8601 )
+                : (),
+        },
+    };
+};
+
+patch '/api/user' => needs 'login' => sub {
+    if (request->header('Content-Type') ne 'application/merge-patch+json') {
+        status 'not_acceptable';
+        send_as JSON => {
+            error => 'Not acceptable. Use application/merge-patch+json, according to RFC 7396'
+        };
+    }
+
+    my $user_id = session 'user_id';
+    my $user = resultset('User')->find($user_id);
+    my $json = decode_json( request->body );
+
+    if (my $name = $json->{name}) {
+        $user->update({ name => $name });
+        status 'no_content';
+        return '';
+    }
+    if (my $email = $json->{email}) {
+        if (resultset('User')->count( { email => $email } )) {
+            status 'conflict';
+            send_as JSON => { error => 'email already in use' };
+        }
+
+        $user->update({ email => $email, verified_email => 0 });
+        eval {
+            sendmail({
+                template_file => 'verify_new_email.tt',
+                name          => $user->username,
+                email_address => $email,
+                subject       => 'Please confirm your email address',
+                variables     => {
+                    name  => $user->username,
+                    token => $user->new_random_token('verify-email-address'),
+                }
+            });
+            1;
+        } or do {
+            error 'Could not send the email: ' . $@;
+            status 'internal_server_error';
+            return '';
+        };
+
+        status 'no_content';
+        return '';
+    }
+    if (my $password = $json->{password}) {
+        $user->update({ password => $password });
+
+        status 'no_content';
+        return '';
+    }
+
+    status 'bad_request';
+    send_as JSON => {
+        error => 'Bad Request',
+    };
+};
 
 get '/api/user' => sub {
     my $user_id = session 'user_id';
