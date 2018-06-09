@@ -6,6 +6,6 @@
             "elm": "^0.18.0"
       },
       "scripts": {
-            "postinstall": "cd dashboard-ng && elm make --output elm.js src/Main.elm"
+            "postinstall": "cd dashboard-ng && elm make --yes --output elm.js src/Main.elm"
       }
 }
