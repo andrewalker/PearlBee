@@ -42,7 +42,7 @@ sub api_posts_endpoint {
         $per_page = 50;
     }
 
-    my $posts = search_posts({
+    my @posts = search_posts({
         author    => $author,
         per_page  => $per_page,
         page      => $page,
@@ -52,7 +52,7 @@ sub api_posts_endpoint {
         filter    => query_parameters->{'filter'},
     });
 
-    send_as JSON => { posts => $posts, };
+    send_as JSON => { posts => \@posts, };
 }
 
 # TODO: move this to the model
@@ -60,19 +60,22 @@ sub search_posts {
     my ($params) = @_;
     my (@ids, @filter_query);
 
+    if ($params->{id}) {
+        @ids = $params->{id};
+    }
     # XXX: This is complicated... if we're too permissive, we can open
     # ourselves for DoS. We'll have to be careful when combining filters and
     # tags. For now, we'll allow only one or the other. With the current
     # implementation, this wouldn't be possible because we're limiting the rows
     # for the tag search here.
-    if (my $tags = $params->{tags}) {
+    elsif (my $tags = $params->{tags}) {
         my @tags = split /,/, $tags;
         # at most 3 tags
         @tags = splice @tags, 0, 3;
         @ids = map $_->{post_id}, search_tags(\@tags, $params->{per_page}, $params->{author});
     }
     # TODO: fulltext search
-    elsif (my $filter = query_parameters->{'filter'}) {
+    elsif (my $filter = $params->{'filter'}) {
         @filter_query = (
             -or => [
                 { 'me.title'    => { -ilike => "\%$filter\%" } },
@@ -81,20 +84,41 @@ sub search_posts {
         );
     }
 
-    my @id_query = @ids ? ('me.id' => { -in => \@ids }) : ();
+    # Some endpoints can access all posts, others can only access the published
+    # posts. To be safe, the default is to show only the published ones.
+    my $only_published = exists $params->{only_published} ? $params->{only_published} : 1;
+    my @status_query
+        = $only_published
+        ? ( 'me.status' => 'published', 'author.verified_by_peers' => 1 )
+        : ();
 
+    my @paging_and_sorting = !$params->{id} ? (
+        order_by     => { $params->{direction} => $params->{sort} },
+        rows         => $params->{per_page},
+        page         => $params->{page},
+    ) : ();
+
+    my @id_query
+        = @ids == 1 ? ( 'me.id' => $ids[0] )
+        : @ids ? ( 'me.id' => { -in => \@ids } )
+        :        ();
     my @author_query = $params->{author} ? ( 'me.author' => $params->{author} ) : ();
 
     my @posts = map {
         $_->{url} = uri_for('/' . $_->{author}{username} . '/' . $_->{slug});
         $_->{tags} = [ sort map $_->{tag}, @{ delete $_->{post_tags} } ];
+        $_->{meta} = decode_json( delete $_->{meta} )
+            if $_->{meta};
+
+        # strip fractional seconds:
+        $_->{'created_at'} =~ s/(\.[0-9]+)(\+)/$2/;
+        $_->{'updated_at'} =~ s/(\.[0-9]+)(\+)/$2/;
+
         $_;
     } resultset('Post')->search(
-        { 'me.status' => 'published', @id_query, @filter_query, @author_query },
+        { @status_query, @id_query, @filter_query, @author_query },
         {
-            order_by     => { $params->{direction} => $params->{sort} },
-            rows         => $params->{per_page},
-            page         => $params->{page},
+            @paging_and_sorting,
             join         => 'author',
             prefetch     => 'post_tags',
             '+select'    => ['author.username', 'author.name'],
@@ -102,7 +126,7 @@ sub search_posts {
         }
     )->all;
 
-    return \@posts;
+    return @posts;
 }
 
 # TODO: move this to the model

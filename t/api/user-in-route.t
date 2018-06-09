@@ -11,20 +11,22 @@ sub insert_posts {
     $urs->search( { email => 'johndoe-author1@gmail.com' } )->delete;
     $urs->search( { email => 'johndoe-author2@gmail.com' } )->delete;
     my $author1 = $urs->create({
-        username       => 'johndoe-author1',
-        email          => 'johndoe-author1@gmail.com',
-        password       => 'type-mane-eng-kiva-hobby-jason-blake-ripe-marco',
-        name           => 'John Doe Author 1',
-        role           => 'author',
-        verified_email => 1,
+        username          => 'johndoe-author1',
+        email             => 'johndoe-author1@gmail.com',
+        password          => 'type-mane-eng-kiva-hobby-jason-blake-ripe-marco',
+        name              => 'John Doe Author 1',
+        role              => 'author',
+        verified_email    => 1,
+        verified_by_peers => 1,
     });
     my $author2 = $urs->create({
-        username       => 'johndoe-author2',
-        email          => 'johndoe-author2@gmail.com',
-        password       => 'kiva-type-mane-eng-hobby-jason-blake-ripe-marco',
-        name           => 'John Doe Author 2',
-        role           => 'author',
-        verified_email => 1,
+        username          => 'johndoe-author2',
+        email             => 'johndoe-author2@gmail.com',
+        password          => 'kiva-type-mane-eng-hobby-jason-blake-ripe-marco',
+        name              => 'John Doe Author 2',
+        role              => 'author',
+        verified_email    => 1,
+        verified_by_peers => 1,
     });
     for my $author ($author1, $author2) {
         my $p1 = $prs->create({
@@ -209,7 +211,7 @@ subtest 'user data' => sub {
             username          => 'johndoe-author1',
             role              => 'author',
             verified_email    => 1,
-            verified_by_peers => 0,
+            verified_by_peers => 1,
             post_count        => 4,
         },
         'user data is expected'
