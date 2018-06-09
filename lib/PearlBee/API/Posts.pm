@@ -124,6 +124,76 @@ post '/api/user/posts' => needs login => sub {
     };
 };
 
+patch '/api/posts/:id' => needs 'login' => sub {
+    if (request->header('Content-Type') ne 'application/merge-patch+json') {
+        status 'not_acceptable';
+        return send_as JSON => {
+            error => 'Not acceptable. Use application/merge-patch+json, according to RFC 7396'
+        };
+    }
+
+    my $user_id = session 'user_id';
+    my $post = resultset('Post')->find(route_parameters->{id});
+
+    if (!$post) {
+        status 'not_found';
+        return send_as JSON => { error => 'not found' };
+    }
+    if (!$post->can_be_edited_by($user_id)) {
+        status 'forbidden';
+        return send_as JSON => { error => "You can't edit this post." };
+    }
+
+    my $json = decode_json( request->body );
+
+    my $updated = 0;
+    my @post_columns = qw/title slug status content abstract/;
+    my %to_be_updated = map +($_, $json->{$_}),
+                        grep exists $json->{$_}, @post_columns;
+
+    if ($json->{meta}) {
+        is_hashref($json->{meta})
+            or return send_as_bad_request({ error => q/meta has to be a JSON object/ });
+
+        check_meta_deep($json->{meta})
+            or return send_as_bad_request({ error => q/meta can't have deep data structures/ });
+
+        check_meta_size($json->{meta})
+            or return send_as_bad_request({ error => q/meta is too big/ });
+
+        $to_be_updated{meta} = encode_json(
+            merge_patch( $post->meta ? decode_json( $post->meta ) : {}, $json->{meta} )
+        );
+    }
+
+    if ($json->{tags}) {
+        check_tags_format($json->{tags})
+            or return send_as_bad_request({ error => q/tags are supposed to be an array of strings/ });
+
+        check_tags_size($json->{tags})
+            or return send_as_bad_request({ error => q/tags are too big/ });
+    }
+
+    if (%to_be_updated) {
+        $post->update(\%to_be_updated);
+        $updated++;
+    }
+    if (my $tags = $json->{tags}) {
+        $post->delete_related('tags');
+        $post->add_to_post_tags({ tag => $_ }) for @$tags;
+        $updated++;
+    }
+
+    if ($updated) {
+        $post->update({  updated_at => \'now()' });
+        status 'no_content';
+        return '';
+    }
+    else {
+        status 'bad_request';
+        send_as JSON => { error => 'Bad Request' };
+    }
+};
 
 
 #################################################################
@@ -166,6 +236,21 @@ sub sluggify {
 
 sub abstractify {
     String::Truncate::elide($_[0], MAX_ABSTRACT_LENGTH, { at_space => 1 });
+}
+
+sub merge_patch {
+    my ($original, $patch) = @_;
+
+    for (keys %$patch) {
+        if (! defined $patch->{$_}) {
+            delete $original->{$_};
+        }
+        else {
+            $original->{$_} = $patch->{$_};
+        }
+    }
+
+    return $original;
 }
 
 sub send_as_bad_request {

@@ -292,4 +292,17 @@ sub get_comments {
     ];
 }
 
+# yes, it's similar to is_authorized... I'll remove the is_authorized in due
+# time.
+sub can_be_edited_by {
+    my ( $self, $user_id ) = @_;
+
+    return 1 if $self->get_column('author') == $user_id;
+
+    # for now only check 'admin', since we only have 'author' and 'admin'. Soon
+    # we might have other roles, such as 'editor', etc.
+    my $schema = $self->result_source->schema;
+    return $schema->resultset('User')->find($user_id)->role eq 'admin';
+}
+
 1;

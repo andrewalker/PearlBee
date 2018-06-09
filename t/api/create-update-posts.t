@@ -179,4 +179,133 @@ subtest 'insert new post UTF-8' => sub {
     like($json_res->{post}{updated_at}, qr/\d{4}\-\d{2}\-\d{2} \d{1,2}\:\d{2}\:\d{2}(((\+|\-)\d{2})|Z)/, 'updated_at is in the correct format');
 };
 
+subtest 'update post' => sub {
+    insert_fixtures();
+    my $mech = mech;
+    login($mech, 'johndoe-create-post-api');
+    my $id;
+    my $last_timestamp;
+
+    {
+        my $req = HTTP::Request->new( POST => '/api/user/posts' );
+        $req->content_type( 'application/json' );
+        $req->content(
+            encode_json({
+                title    => 'Blog post 1',
+                slug     => 'blog-post-1',
+                abstract => 'Some abstract 1',
+                content  => 'Content content content 1',
+                status   => 'published',
+                tags     => [ qw/whatever foo bar/ ],
+                meta     => {
+                    foo => 1,
+                    bar => 2,
+                },
+            })
+        );
+
+        my $res = $mech->request($req);
+        ok($res->is_success, 'request is successful');
+        is($res->code, 201, 'response code is 201 Created');
+        $id = decode_json($res->decoded_content)->{post}{id};
+        $last_timestamp = $prs->find($id)->updated_at;
+    }
+
+    {
+        my $req = HTTP::Request->new( PATCH => "/api/posts/$id" );
+        $req->content_type( 'application/merge-patch+json' );
+        $req->content(
+            encode_json({
+                title    => 'Blog post 2',
+            })
+        );
+
+        my $res = $mech->request($req);
+        is($res->code, 204, 'response code is 204 No Content');
+        is($prs->find($id)->title, 'Blog post 2', 'title was changed');
+        is($prs->find($id)->slug, 'blog-post-1', 'slug was not changed');
+        is_deeply(
+            decode_json( $prs->find($id)->meta ),
+            { foo => 1, bar => 2 },
+            'meta was not changed'
+        );
+        cmp_ok($prs->find($id)->updated_at, '>', $last_timestamp, 'updated_at was changed');
+        $last_timestamp = $prs->find($id)->updated_at;
+    }
+
+    {
+        my $req = HTTP::Request->new( PATCH => "/api/posts/$id" );
+        $req->content_type( 'application/merge-patch+json' );
+        $req->content(
+            encode_json({
+                slug     => 'blog-post-2',
+                abstract => 'Some abstract 2',
+                content  => 'Content content content 2',
+            })
+        );
+
+        my $res = $mech->request($req);
+        is($res->code, 204, 'response code is 204 No Content');
+        is($prs->find($id)->slug, 'blog-post-2', 'slug was changed');
+        is($prs->find($id)->abstract, 'Some abstract 2', 'abstract was changed');
+        is($prs->find($id)->content, 'Content content content 2', 'content was changed');
+        is($prs->find($id)->title, 'Blog post 2', 'title was not changed');
+        is_deeply(
+            decode_json( $prs->find($id)->meta ),
+            { foo => 1, bar => 2 },
+            'meta was not changed'
+        );
+        cmp_ok($prs->find($id)->updated_at, '>', $last_timestamp, 'updated_at was changed');
+        $last_timestamp = $prs->find($id)->updated_at;
+    }
+
+    {
+        my $req = HTTP::Request->new( PATCH => "/api/posts/$id" );
+        $req->content_type( 'application/merge-patch+json' );
+        $req->content(
+            encode_json({
+                meta => { baz => 3 }
+            })
+        );
+
+        my $res = $mech->request($req);
+        is($res->code, 204, 'response code is 204 No Content');
+        is($prs->find($id)->slug, 'blog-post-2', 'slug was not changed');
+        is($prs->find($id)->abstract, 'Some abstract 2', 'abstract was not changed');
+        is($prs->find($id)->content, 'Content content content 2', 'content was not changed');
+        is($prs->find($id)->title, 'Blog post 2', 'title was not changed');
+        is_deeply(
+            decode_json( $prs->find($id)->meta ),
+            { foo => 1, bar => 2, baz => 3 },
+            'meta was correctly changed'
+        );
+        cmp_ok($prs->find($id)->updated_at, '>', $last_timestamp, 'updated_at was changed');
+        $last_timestamp = $prs->find($id)->updated_at;
+    }
+
+    {
+        my $req = HTTP::Request->new( PATCH => "/api/posts/$id" );
+        $req->content_type( 'application/merge-patch+json' );
+        $req->content(
+            encode_json({
+                meta => { bar => undef }
+            })
+        );
+
+        my $res = $mech->request($req);
+        is($res->code, 204, 'response code is 204 No Content');
+        is($prs->find($id)->slug, 'blog-post-2', 'slug was not changed');
+        is($prs->find($id)->abstract, 'Some abstract 2', 'abstract was not changed');
+        is($prs->find($id)->content, 'Content content content 2', 'content was not changed');
+        is($prs->find($id)->title, 'Blog post 2', 'title was not changed');
+        is_deeply(
+            decode_json( $prs->find($id)->meta ),
+            { foo => 1, baz => 3 },
+            'meta was correctly changed'
+        );
+        cmp_ok($prs->find($id)->updated_at, '>', $last_timestamp, 'updated_at was changed');
+        $last_timestamp = $prs->find($id)->updated_at;
+    }
+};
+
 done_testing;
