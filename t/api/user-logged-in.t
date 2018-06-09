@@ -225,8 +225,8 @@ subtest 'user data' => sub {
             username          => 'johndoe-author1',
             email             => 'johndoe-author1@gmail.com',
             role              => 'author',
-            verified_email    => 1,
-            verified_by_peers => 1,
+            verified_email    => '1',
+            verified_by_peers => '1',
             post_count        => 4,
         },
         'user data is expected'
