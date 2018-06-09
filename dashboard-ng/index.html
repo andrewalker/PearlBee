@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<style>
+.app {
+  position: relative;
+  width: 100%;
+  padding-left: 331px;
+  min-height: 100vh;
+  margin: 0 auto;
+  left: 0;
+  overflow: hidden;
+}
+
+.main-wrapper {
+  width: 100%;
+  position: absolute;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden; }
+
+.sidebar {
+  width: 331px;
+  padding-bottom: 60px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 20; }
+  @media (max-width: 991px) {
+    .sidebar {
+      left: -331px; } }
+  .sidebar .sidebar-container {
+    position: absolute;
+    top: 0;
+    bottom: 51px;
+    width: 100%;
+    left: 0;
+    overflow-y: auto;
+    overflow-x: hidden; }
+
+.sidebar .sidebar-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 331px;
+}
+
+input.input-like-h1 {
+    border: none;
+    padding: 10px;
+    margin: 0 -10px 20px -10px;
+}
+
+button.btn-more2 {
+    color: #000;
+    background: #fff;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 1px solid #6c757d;
+    border-radius: 30px;
+    padding: 5px 10px;
+}
+
+button.btn-more {
+    color: #000;
+    background: transparent;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 0;
+    padding: 5px 10px;
+    font-weight: bold;
+}
+
+</style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js" crossorigin="anonymous"></script>
+
+    <title>PearlBee</title>
+  </head>
+  <body>
+    <div class="main-wrapper">
+        <div id="app" class="app"></div>
+    </div>
+    <script src="/dashboard-ng/elm.js"></script>
+    <script>
+        var app = Elm.Main.embed(document.querySelector("#app"));
+
+        var simplemde, observer;
+
+        app.ports.rmEditor.subscribe(function() {
+            if (!simplemde)
+                return;
+
+            simplemde.toTextArea();
+            simplemde = null;
+        });
+
+        app.ports.mkEditor.subscribe(function(node) {
+            // first, try to install the editor
+            if (installEditor())
+                return;
+
+            // if not possible, keep watching dom tree and try to install on every change
+            observer = new MutationObserver(installEditor);
+            observer.observe(document.querySelector('#app'), { childList: true, subtree: true });
+        });
+
+        function installEditor() {
+            var el = document.getElementById('mdEditor');
+
+            if (!el)
+                return false;
+
+            if (observer)
+                observer.disconnect();
+
+            if (!simplemde) {
+                simplemde = new SimpleMDE({
+                    element: el,
+                    spellChecker: false,
+                    hideIcons: ['fullscreen','side-by-side']
+                });
+            }
+
+            return true;
+        }
+
+        function isElementInViewport (el) {
+            //special bonus for those using jQuery
+            if (typeof jQuery === "function" && el instanceof jQuery) {
+                el = el[0];
+            }
+
+            var rect = el.getBoundingClientRect();
+
+            return (
+                rect.top >= 0 &&
+                rect.left >= 0 &&
+                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+                rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+            );
+        }
+
+        document.getElementsByClassName("main-wrapper")[0].onscroll = function() {
+            var wrapper = document.getElementsByClassName("list-posts")[0];
+            var lastItem = wrapper.childNodes[ wrapper.childNodes.length -1 ];
+
+            if ( isElementInViewport(lastItem) ) {
+                app.ports.lastItemVisible.send(null);
+            }
+        };
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>

@@ -21,3 +21,4 @@ public/captcha/*
 config.yml
 local/
 *.sqlite
+node_modules/
