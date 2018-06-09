@@ -56,6 +56,28 @@ sub login {
     like($mech->uri->path, qr{^/dashboard}, 'user was redirected to dashboard');
 }
 
+sub cant_login {
+    my ($mech, $user, $password) = @_;
+
+    $mech->get_ok( '/login', 'Login returns a page' );
+    $mech->submit_form_ok(
+        {
+            with_fields => {
+                username => $user,
+                password => $password,
+            },
+        },
+        'Was able to submit form'
+    );
+
+    $mech->content_unlike(
+        qr{Welcome.*$user},
+        'User is not logged in'
+    );
+
+    unlike($mech->uri->path, qr{^/dashboard}, 'user was not redirected to dashboard');
+}
+
 subtest 'patch name' => sub {
     insert_data();
     my $mech = mech;
@@ -196,7 +218,7 @@ subtest 'patch email' => sub {
     mails->clear_deliveries;
 };
 
-subtest 'patch password' => sub {
+subtest 'cant change password via PATCH /api/user' => sub {
     insert_data();
     my $mech = mech;
     login($mech, 'johndoe-update-user', $Cred{'johndoe-update-user'});
@@ -205,7 +227,34 @@ subtest 'patch password' => sub {
 
     my $req = HTTP::Request->new( PATCH => '/api/user' );
     $req->content_type( 'application/merge-patch+json' );
-    $req->content( encode_json({ password => $new_pass }) );
+    $req->content(
+        encode_json({ password => $new_pass })
+    );
+
+    my $res = $mech->request($req);
+    ok(!$res->is_success, 'not ok to change password this way');
+    is($res->code, 400, 'response code is 400 Bad Request');
+
+    my $mech2 = mech;
+    cant_login($mech2, 'johndoe-update-user', $new_pass);
+};
+
+subtest 'change password' => sub {
+    insert_data();
+    my $mech = mech;
+    login($mech, 'johndoe-update-user', $Cred{'johndoe-update-user'});
+
+    my $new_pass = reverse $Cred{'johndoe-update-user'};
+
+    my $req = HTTP::Request->new( POST => '/api/user/change-password' );
+    $req->content_type( 'application/json' );
+    $req->content(
+        encode_json({
+            current_password => $Cred{'johndoe-update-user'},
+            new_password     => $new_pass,
+            confirm_password => $new_pass
+        })
+    );
 
     my $res = $mech->request($req);
     ok($res->is_success, 'ok to change password');

@@ -73,18 +73,53 @@ patch '/api/user' => needs 'login' => sub {
         status 'no_content';
         return '';
     }
-    if (my $password = $json->{password}) {
-        $user->update({ password => $password });
-
-        status 'no_content';
-        return '';
-    }
 
     status 'bad_request';
     send_as JSON => {
         error => 'Bad Request',
     };
 };
+
+# XXX:
+# This is not RESTful; it's hard to represent change password in a RESTful and
+# secure way. If we treat it like any other field, we can use the patch method
+# according to RFC 7396. But then, we can't use current_password and
+# confirm_password. We could check confirm_password only client side, but
+# that's fragile. Even worse, we'd have no way to check current_password, we'd
+# have to rely on the session. The simplest solution for now is to have this
+# be this unique snowflake.
+post '/api/user/change-password' => needs 'login' => sub {
+    if (request->header('Content-Type') ne 'application/json') {
+        status 'not_acceptable';
+        send_as JSON => {
+            error => 'Not acceptable. Use application/json.'
+        };
+    }
+
+    my $user_id = session 'user_id';
+    my $user    = resultset('User')->find($user_id);
+    my $json    = decode_json( request->body );
+
+    $user->check_password($json->{current_password})
+        or return send_as_bad_request({ error => q/"current_password" is not correct/});
+
+    my $new = $json->{'new_password'}
+        or return send_as_bad_request({ error => q/"new_password" missing/});
+
+    $new eq $json->{'confirm_password'}
+        or return send_as_bad_request({ error => q/"new_password" doesn't match "confirm_password"/});
+
+    $user->update({ password => $new });
+
+    status 'no_content';
+    return '';
+
+    sub send_as_bad_request {
+        status 'bad_request';
+        send_as JSON => $_[0];
+    }
+};
+
 
 get '/api/user' => sub {
     my $user_id = session 'user_id';
