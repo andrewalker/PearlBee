@@ -218,16 +218,20 @@ subtest 'user data' => sub {
     my $registered_at = delete $res->{user}{registered_at};
     my $last_login    = delete $res->{user}{last_login};
 
+    my $verified_by_peers = delete $res->{user}{verified_by_peers};
+    my $verified_email    = delete $res->{user}{verified_email};
+
+    ok($verified_by_peers, 'verified_by_peers is true');
+    ok($verified_email,    'verified_email is true');
+
     is_deeply(
         $res->{user},
         {
-            name              => 'John Doe Author 1',
-            username          => 'johndoe-author1',
-            email             => 'johndoe-author1@gmail.com',
-            role              => 'author',
-            verified_email    => '1',
-            verified_by_peers => '1',
-            post_count        => 4,
+            name       => 'John Doe Author 1',
+            username   => 'johndoe-author1',
+            email      => 'johndoe-author1@gmail.com',
+            role       => 'author',
+            post_count => 4,
         },
         'user data is expected'
     );
