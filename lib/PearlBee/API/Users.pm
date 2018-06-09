@@ -39,11 +39,11 @@ patch '/api/user' => needs 'login' => sub {
     my $user_id = session 'user_id';
     my $user = resultset('User')->find($user_id);
     my $json = decode_json( request->body );
+    my $updated = 0;
 
     if (my $name = $json->{name}) {
         $user->update({ name => $name });
-        status 'no_content';
-        return '';
+        $updated++;
     }
     if (my $email = $json->{email}) {
         if (resultset('User')->count( { email => $email } )) {
@@ -70,14 +70,17 @@ patch '/api/user' => needs 'login' => sub {
             return '';
         };
 
+        $updated++;
+    }
+
+    if ($updated) {
         status 'no_content';
         return '';
     }
-
-    status 'bad_request';
-    send_as JSON => {
-        error => 'Bad Request',
-    };
+    else {
+        status 'bad_request';
+        send_as JSON => { error => 'Bad Request' };
+    }
 };
 
 # XXX:

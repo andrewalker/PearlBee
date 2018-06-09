@@ -218,6 +218,64 @@ subtest 'patch email' => sub {
     mails->clear_deliveries;
 };
 
+subtest 'patch name and email' => sub {
+    insert_data();
+    my $mech = mech;
+    login($mech, 'johndoe-update-user', $Cred{'johndoe-update-user'});
+
+    my $req = HTTP::Request->new( PATCH => '/api/user' );
+    $req->content_type( 'application/merge-patch+json' );
+    $req->content( encode_json({ name => 'John Doe Update User 200', email => 'johndoe-update-user-other-email@gmail.com' }) );
+
+    my $res = $mech->request($req);
+    ok($res->is_success, 'request is successful');
+    is($res->code, 204, 'response code is 204 No Content');
+    $mech->get_ok('/api/user', 'retrieve data back' );
+    my $data = decode_json($mech->content);
+    is($data->{user}{verified_email}, 0, 'verified_email was changed');
+    is($data->{user}{verified_by_peers}, 1, 'verified_by_peers is still true');
+    is($data->{user}{email}, 'johndoe-update-user-other-email@gmail.com', 'email was updated');
+    is($data->{user}{name}, 'John Doe Update User 200', 'name was updated');
+
+    my @inbox = mails->deliveries;
+    is(@inbox, 1, 'got 1 email');
+    my $email = $inbox[0]{email}->object;
+    like($email->body, qr{Hello.*johndoe-update-user}, 'user is greeted by username');
+    like($email->body, qr{http://localhost/sign-up/confirm}, 'there is a confirmation link');
+    $email->body =~ m{(http://localhost/sign-up/confirm\?[^'"]+)};
+    my $confirmation_link = URI->new(decode_entities $1);
+
+    my $token = $confirmation_link->query_param('token');
+    my $token_result = schema->resultset('RegistrationToken')->find({ token => $token });
+    is($token_result->user->username, 'johndoe-update-user', 'token in the email refers to the correct user');
+    is($token_result->user->verified_email, 0, 'user is pending in database');
+    is($token_result->voided_at, undef, "the token hasn't been voided");
+    isnt($token_result->created_at, undef, "but it has a created_at timestamp");
+
+    # start a new session
+    my $mech2 = mech;
+    $mech2->get_ok($confirmation_link, 'can click on the confirmation link');
+    $mech2->content_like(
+        qr/Your account has been verified/,
+        'The user has a verified account now'
+    );
+
+    $token_result = schema->resultset('RegistrationToken')->find({ token => $token });
+
+    isnt($token_result->voided_at, undef, "the token is now voided");
+    is($token_result->user->verified_email, 1, 'user is activated in database');
+
+    # back to original session in $mech
+    $mech->get_ok('/api/user', 'retrieve data back again' );
+    my $data2 = decode_json($mech->content);
+    is($data2->{user}{verified_email}, 1, 'verified_email was changed again');
+    is($data2->{user}{verified_by_peers}, 1, 'verified_by_peers is still true');
+    is($data2->{user}{email}, 'johndoe-update-user-other-email@gmail.com', 'email was updated');
+
+    mails->clear_deliveries;
+};
+
+
 subtest 'cant change password via PATCH /api/user' => sub {
     insert_data();
     my $mech = mech;
