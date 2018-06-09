@@ -26,6 +26,7 @@ requires 'String::Util';
 requires 'String::Truncate';
 requires 'Text::Unidecode';
 
+requires 'Authen::SASL';
 requires 'MIME::Base64';
 requires 'Email::Sender::Simple';
 requires 'Email::MIME';
