@@ -20,9 +20,9 @@ get '/api/user' => needs 'login' => sub {
             verified_email    => $user->verified_email,
             verified_by_peers => $user->verified_by_peers,
             post_count        => $user->posts->search({status => 'published'})->count,
-            registered_at     => $user->registered_at->iso8601(),
+            registered_at     => $user->registered_at->strftime("%F %T%z"),
             $user->last_login
-                ? ( last_login => $user->last_login->iso8601 )
+                ? ( last_login => $user->last_login->strftime("%F %T%z") )
                 : (),
         },
     };
@@ -143,9 +143,9 @@ get '/api/user' => sub {
             verified_email    => $user->verified_email,
             verified_by_peers => $user->verified_by_peers,
             post_count        => $user->posts->search({status => 'published'})->count,
-            registered_at     => $user->registered_at->iso8601(),
+            registered_at     => $user->registered_at->strftime("%F %T%z"),
             $user->last_login
-                ? ( last_login => $user->last_login->iso8601 )
+                ? ( last_login => $user->last_login->strftime("%F %T%z") )
                 : (),
         },
     };
