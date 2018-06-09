@@ -73,36 +73,70 @@ subtest 'insert new post via POST /api/user/posts' => sub {
     my $res = $mech->request($req);
     ok($res->is_success, 'request is successful');
     is($res->code, 201, 'response code is 201 Created');
-    my $json_res = decode_json($res->decoded_content);
+    test_post($res->decoded_content, "[reponse to initial post] ");
+    my $id = decode_json($res->decoded_content)->{post}{id};
 
-    is($json_res->{post}{url}, 'http://localhost/johndoe-create-post-api/blog-post-1', 'post url is correct');
-    is($json_res->{post}{slug}, 'blog-post-1', 'post slug is correct');
-    is($json_res->{post}{title}, 'Blog post 1', 'post title is correct');
-    is($json_res->{post}{status}, 'published', 'post status is correct');
-    is($json_res->{post}{content}, 'Content content content 1', 'post content is correct');
-    is($json_res->{post}{abstract}, 'Some abstract 1', 'post abstract is correct');
-    is($json_res->{post}{meta}{something_boolean}, 1, 'something_boolean looks like 1');
-    like(
-        blessed $json_res->{post}{meta}{something_boolean},
-        qr/JSON::PP::Boolean|JSON::XS::Boolean/,
-        "it's an actual boolean"
-    );
-    delete $json_res->{post}{meta}{something_boolean};
-    is_deeply($json_res->{post}{meta}, {
-        some_string => 'hello',
-        some_number => 100,
-    }, 'post meta is correct');
-    is_deeply($json_res->{post}{tags}, [qw/bar foo whatever/], 'post tags are correct');
-    is_deeply(
-        $json_res->{post}{author},
-        {
-            name     => 'John Doe Create Post API',
-            username => 'johndoe-create-post-api',
-        },
-        'post author is correct'
-    );
-    like($json_res->{post}{created_at}, qr/\d{4}\-\d{2}\-\d{2} \d{1,2}\:\d{2}\:\d{2}(((\+|\-)\d{2})|Z)/, 'created_at is in the correct format');
-    like($json_res->{post}{updated_at}, qr/\d{4}\-\d{2}\-\d{2} \d{1,2}\:\d{2}\:\d{2}(((\+|\-)\d{2})|Z)/, 'updated_at is in the correct format');
+    $urs->single({ username => 'johndoe-create-post-api' })->update({ verified_by_peers => 0 });
+
+    {
+        my $res = $mech->request(HTTP::Request->new( GET => '/api/posts/' . $id ));
+        ok($res->is_success, '[user requested, verified_by_peers false] request is successful');
+        is($res->code, 200, '[user requested, verified_by_peers false] response code is 200 OK');
+        test_post($res->decoded_content, "[user requested, verified_by_peers false] ");
+    }
+
+    {
+        my $mech_anon = mech;
+
+        my $res = $mech_anon->request(HTTP::Request->new( GET => '/api/posts/' . $id ));
+        is($res->code, 404, '[anon, verified_by_peers false] response code is 200 OK');
+        is_deeply(decode_json($res->decoded_content), { error => 'not found' }, "[anon, verified_by_peers false] post not found");
+    }
+
+    $urs->single({ username => 'johndoe-create-post-api' })->update({ verified_by_peers => 1 });
+
+    {
+        my $mech_anon = mech;
+
+        my $res = $mech_anon->request(HTTP::Request->new( GET => '/api/posts/' . $id ));
+        ok($res->is_success, '[anon, verified_by_peers true] request is successful');
+        is($res->code, 200, '[anon, verified_by_peers true] response code is 200 OK');
+        test_post($res->decoded_content, '[anon, verified_by_peers true] ');
+    }
+
+    sub test_post {
+        my ($content, $prefix) = @_;
+        my $json_res = decode_json($content);
+
+        is($json_res->{post}{url}, 'http://localhost/johndoe-create-post-api/blog-post-1', $prefix . 'post url is correct');
+        is($json_res->{post}{slug}, 'blog-post-1', $prefix . 'post slug is correct');
+        is($json_res->{post}{title}, 'Blog post 1', $prefix . 'post title is correct');
+        is($json_res->{post}{status}, 'published', $prefix . 'post status is correct');
+        is($json_res->{post}{content}, 'Content content content 1', $prefix . 'post content is correct');
+        is($json_res->{post}{abstract}, 'Some abstract 1', $prefix . 'post abstract is correct');
+        is($json_res->{post}{meta}{something_boolean}, 1, $prefix . 'something_boolean looks like 1');
+        like(
+            blessed $json_res->{post}{meta}{something_boolean},
+            qr/JSON::PP::Boolean|JSON::XS::Boolean/,
+            $prefix . "it's an actual boolean"
+        );
+        delete $json_res->{post}{meta}{something_boolean};
+        is_deeply($json_res->{post}{meta}, {
+            some_string => 'hello',
+            some_number => 100,
+        }, $prefix . 'post meta is correct');
+        is_deeply($json_res->{post}{tags}, [qw/bar foo whatever/], $prefix . 'post tags are correct');
+        is_deeply(
+            $json_res->{post}{author},
+            {
+                name     => 'John Doe Create Post API',
+                username => 'johndoe-create-post-api',
+            },
+            $prefix . 'post author is correct'
+        );
+        like($json_res->{post}{created_at}, qr/\d{4}\-\d{2}\-\d{2} \d{1,2}\:\d{2}\:\d{2}(((\+|\-)\d{2})|Z)/, $prefix . 'created_at is in the correct format');
+        like($json_res->{post}{updated_at}, qr/\d{4}\-\d{2}\-\d{2} \d{1,2}\:\d{2}\:\d{2}(((\+|\-)\d{2})|Z)/, $prefix . 'updated_at is in the correct format');
+    }
 };
 
 subtest 'insert new post UTF-8' => sub {

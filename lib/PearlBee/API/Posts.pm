@@ -37,6 +37,31 @@ get '/api/user/posts' => sub {
     return api_posts_endpoint(session 'user_id');
 };
 
+get '/api/posts/:id' => sub {
+    my $post_id = route_parameters->{'id'};
+
+    my ($public_post) = search_posts({
+        id => $post_id
+    });
+
+    $public_post and
+        return send_as JSON => { post => $public_post };
+
+    if (my $user = session 'user_id') {
+        my ($private_post) = search_posts({
+            id             => $post_id,
+            author         => $user,
+            only_published => 0,
+        });
+
+        $private_post and
+            return send_as JSON => { post => $private_post };
+    }
+
+    status 'not_found';
+    send_as JSON => { error => "not found" };
+};
+
 #POST /api/user/posts
 #{
 #    "title": "...",
