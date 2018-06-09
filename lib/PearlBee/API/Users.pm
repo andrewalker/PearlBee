@@ -6,28 +6,6 @@ use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Auth::Tiny;
 use Dancer2::Plugin::Mailer::PearlBee;
 
-get '/api/user' => needs 'login' => sub {
-    my $user_id = session 'user_id';
-
-    my $user = resultset('User')->find($user_id);
-
-    send_as JSON => {
-        user => {
-            name              => $user->name,
-            username          => $user->username,
-            email             => $user->email,
-            role              => $user->role,
-            verified_email    => $user->verified_email,
-            verified_by_peers => $user->verified_by_peers,
-            post_count        => $user->posts->search({status => 'published'})->count,
-            registered_at     => $user->registered_at->strftime("%F %T%z"),
-            $user->last_login
-                ? ( last_login => $user->last_login->strftime("%F %T%z") )
-                : (),
-        },
-    };
-};
-
 patch '/api/user' => needs 'login' => sub {
     if (request->header('Content-Type') ne 'application/merge-patch+json') {
         status 'not_acceptable';
@@ -124,15 +102,10 @@ post '/api/user/change-password' => needs 'login' => sub {
 };
 
 
-get '/api/user' => sub {
+get '/api/user' => needs 'login' => sub {
     my $user_id = session 'user_id';
 
     my $user = resultset('User')->find($user_id);
-
-    if (!$user) {
-        status 'not_found';
-        send_as JSON => { error => "not found" };
-    }
 
     send_as JSON => {
         user => {
@@ -174,6 +147,5 @@ get '/api/user/:user' => sub {
         },
     };
 };
-
 
 1;
