@@ -113,8 +113,8 @@ get '/api/user' => needs 'login' => sub {
             username          => $user->username,
             email             => $user->email,
             role              => $user->role,
-            verified_email    => $user->verified_email,
-            verified_by_peers => $user->verified_by_peers,
+            verified_email    => _b($user->verified_email),
+            verified_by_peers => _b($user->verified_by_peers),
             post_count        => $user->posts->search({status => 'published'})->count,
             registered_at     => $user->registered_at->strftime("%F %T%z"),
             $user->last_login
@@ -147,5 +147,7 @@ get '/api/user/:user' => sub {
         },
     };
 };
+
+sub _b { \( int !!$_[0] ) }
 
 1;
