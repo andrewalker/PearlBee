@@ -3,6 +3,15 @@ package PearlBee::API::Posts;
 # ABSTRCT: Posts-related paths
 use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
+use Dancer2::Plugin::Auth::Tiny;
+use Ref::Util qw(is_hashref is_ref is_blessed_scalarref is_arrayref);
+use Text::Unidecode ();
+use String::Truncate ();
+
+# TODO: move this to a more appropriate place
+use constant MAX_KEYS_POST_META  => 1000;
+use constant MAX_POST_TAGS       => 1000;
+use constant MAX_ABSTRACT_LENGTH => 1000;
 
 get '/api/posts' => sub {
     return api_posts_endpoint();
@@ -27,6 +36,119 @@ get '/api/user/:user/posts' => sub {
 get '/api/user/posts' => sub {
     return api_posts_endpoint(session 'user_id');
 };
+
+#POST /api/user/posts
+#{
+#    "title": "...",
+#    "slug": "optional",
+#    "abstract": "optional",
+#    "content": "...",
+#    "meta": {
+#        "key1": "value1",
+#        "key2": "value2",
+#        "key3": "value3"
+#    },
+#    "tags": [ "tag1", "tag2", "tag3" ]
+#}
+
+post '/api/user/posts' => needs login => sub {
+    if (request->header('Content-Type') ne 'application/json') {
+        status 'not_acceptable';
+        send_as JSON => {
+            error => 'Not acceptable. Use application/json.'
+        };
+    }
+
+    my $user_id = session 'user_id';
+    my $user    = resultset('User')->find($user_id);
+    my $json    = decode_json( request->body );
+
+    if ($json->{meta}) {
+        is_hashref($json->{meta})
+            or return send_as_bad_request({ error => q/meta has to be a JSON object/ });
+
+        check_meta_deep($json->{meta})
+            or return send_as_bad_request({ error => q/meta can't have deep data structures/ });
+
+        check_meta_size($json->{meta})
+            or return send_as_bad_request({ error => q/meta is too big/ });
+    }
+
+    if ($json->{tags}) {
+        check_tags_format($json->{tags})
+            or return send_as_bad_request({ error => q/tags are supposed to be an array of strings/ });
+
+        check_tags_size($json->{tags})
+            or return send_as_bad_request({ error => q/tags are too big/ });
+    }
+
+    my $post = $user->add_to_posts({
+        title    => $json->{title},
+        slug     => sluggify($json->{slug} || $json->{title}),
+        abstract => abstractify($json->{abstract} || $json->{content}),
+        content  => $json->{content},
+        meta     => $json->{meta} ? encode_json($json->{meta}) : undef,
+        status   => $json->{status},
+    });
+
+    $post->add_to_post_tags({ tag => $_ }) for @{ $json->{tags} || [] };
+
+    status 'created';
+    send_as JSON => {
+        post => search_posts({ id => $post->id, published_only => 0 }),
+    };
+};
+
+
+
+#################################################################
+###                                                           ###
+### Helper methods                                            ###
+###                                                           ###
+#################################################################
+
+# TODO:
+# move these to a separate module
+sub check_meta_deep {
+    for (values %{ $_[0] }) {
+        # if it's a boolean, it will be a scalarref
+        return 0 if is_ref($_) && !is_blessed_scalarref($_);
+    }
+    return 1;
+}
+sub check_meta_size {
+    return keys %{ $_[0] } < MAX_KEYS_POST_META;
+}
+sub check_tags_format {
+    return 0 if !is_arrayref( $_[0] );
+    for (@{ $_[0] }) {
+        return 0 if is_ref($_);
+    }
+    return 1;
+}
+sub check_tags_size {
+    return @{ $_[0] } < MAX_POST_TAGS;
+}
+
+sub sluggify {
+    my ( $str )  = @_;
+    my $ldec_str = lc Text::Unidecode::unidecode($str);
+
+    return $ldec_str =~ s/[^0-9a-z]+/-/gr
+                     =~ s/^\-//gr
+                     =~ s/\-$//gr;
+}
+
+sub abstractify {
+    String::Truncate::elide($_[0], MAX_ABSTRACT_LENGTH, { at_space => 1 });
+}
+
+sub send_as_bad_request {
+    status 'bad_request';
+    send_as JSON => $_[0];
+}
+
+# Search
 
 my %sort = map +($_, $_), qw( id created_at updated_at );
 my %dir  = map +($_, "-$_"), qw( asc desc );

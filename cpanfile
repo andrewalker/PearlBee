@@ -23,6 +23,8 @@ requires 'Crypt::Eksblowfish::Bcrypt';
 requires 'String::Dirify';
 requires 'String::Random';
 requires 'String::Util';
+requires 'String::Truncate';
+requires 'Text::Unidecode';
 
 requires 'MIME::Base64';
 requires 'Email::Sender::Simple';
