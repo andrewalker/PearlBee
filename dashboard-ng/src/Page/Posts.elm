@@ -190,7 +190,7 @@ viewStatus status =
 
 viewPost : Post -> Html Msg
 viewPost post =
-    a [ Route.href (Route.EditPost post.slug), class "list-group-item list-group-item-action" ]
+    a [ Route.href (Route.EditPost post.id), class "list-group-item list-group-item-action" ]
         [ div [ class "d-flex justify-content-between" ]
             [ h5 [] [ text post.title ]
             , small [] [ em [ class "text-muted" ] [ text post.date ] ]

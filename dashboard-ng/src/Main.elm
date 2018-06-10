@@ -26,7 +26,7 @@ type Page
     | NotFound
     | Errored PageLoadError
     | Posts Posts.Model
-    | Editor (Maybe Slug) Editor.Model
+    | Editor (Maybe Int) Editor.Model
 
 
 type PageState
@@ -112,15 +112,15 @@ viewPage session isLoading page =
                     |> frame Page.Posts
                     |> Html.map PostsMsg
 
-            Editor maybeSlug subModel ->
+            Editor maybeId subModel ->
                 let
                     framePage =
-                        case maybeSlug of
+                        case maybeId of
                             Nothing ->
                                 Page.NewPost
 
-                            Just slug ->
-                                Page.EditPost slug
+                            Just id ->
+                                Page.EditPost id
                 in
                     Editor.view session subModel
                         |> frame framePage
@@ -154,7 +154,7 @@ type Msg
     = SetRoute (Maybe Route)
     | UserSessionLoaded (Result Http.Error User)
     | PostsLoaded (Result PageLoadError Posts.Model)
-    | EditPostLoaded Slug (Result PageLoadError Editor.Model)
+    | EditPostLoaded Int (Result PageLoadError Editor.Model)
     | PostsMsg Posts.Msg
     | EditorMsg Editor.Msg
 
@@ -180,9 +180,9 @@ setRoute maybeRoute model =
             Just Route.NewPost ->
                 ( { model | pageState = Loaded (Editor Nothing Editor.initNew) }, mkEditor (Just "mdEditor") )
 
-            Just (Route.EditPost slug) ->
+            Just (Route.EditPost id) ->
                 ( { model | pageState = TransitioningFrom (getPage model.pageState) }
-                , Cmd.batch [ mkEditor (Just "mdEditor"), Task.attempt (EditPostLoaded slug) (Editor.initEdit slug) ]
+                , Cmd.batch [ mkEditor (Just "mdEditor"), Task.attempt (EditPostLoaded id) (Editor.initEdit id) ]
                 )
 
             _ ->
@@ -220,8 +220,8 @@ updatePage page msg model =
             ( PostsLoaded (Err error), _ ) ->
                 ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
-            ( EditPostLoaded slug (Ok subModel), _ ) ->
-                ( { model | pageState = Loaded (Editor (Just slug) subModel) }, Cmd.none )
+            ( EditPostLoaded id (Ok subModel), _ ) ->
+                ( { model | pageState = Loaded (Editor (Just id) subModel) }, Cmd.none )
 
             ( EditPostLoaded _ (Err error), _ ) ->
                 ( { model | pageState = Loaded (Errored error) }, Cmd.none )
@@ -229,8 +229,8 @@ updatePage page msg model =
             ( PostsMsg subMsg, Posts subModel ) ->
                 toPage Posts PostsMsg Posts.update subMsg subModel
 
-            ( EditorMsg subMsg, Editor slug subModel ) ->
-                toPage (Editor slug) EditorMsg Editor.update subMsg subModel
+            ( EditorMsg subMsg, Editor id subModel ) ->
+                toPage (Editor id) EditorMsg Editor.update subMsg subModel
 
             ( _, NotFound ) ->
                 -- Disregard incoming messages that arrived from NotFound page

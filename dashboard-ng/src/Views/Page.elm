@@ -23,7 +23,7 @@ type ActivePage
     = Other
     | Settings
     | NewPost
-    | EditPost Slug
+    | EditPost Int
     | Posts
 
 

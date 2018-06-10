@@ -37,17 +37,17 @@ initNew =
     }
 
 
-initEdit : Slug -> Task PageLoadError Model
-initEdit slug =
-    getPost slug
+initEdit : Int -> Task PageLoadError Model
+initEdit id =
+    getPost id
         |> Http.toTask
         |> Task.mapError (\_ -> pageLoadError Page.Other "Article is currently unavailable.")
         |> Task.map (\post -> post)
 
 
-getPost : Slug -> Http.Request Post
-getPost slug =
-    Http.get ("/api/post/" ++ slugToString slug) (Decode.field "post" Data.Post.decoder)
+getPost : Int -> Http.Request Post
+getPost id =
+    Http.get ("/api/post/" ++ toString id) (Decode.field "post" Data.Post.decoder)
 
 
 
