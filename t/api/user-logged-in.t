@@ -105,7 +105,7 @@ sub login {
     );
 
     $mech->content_like(
-        qr{Welcome.*$author},
+        qr{<h5 class="mt-0">$author</h5>},
         'User is logged in'
     );
 }

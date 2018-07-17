@@ -26,7 +26,7 @@ subtest 'successful login (email / password)' => sub {
     );
 
     $mech->content_like(
-        qr{Welcome.*johndoe-login},
+        qr{<h5 class="mt-0">johndoe-login</h5>},
         'User is logged in'
     );
 
@@ -48,7 +48,7 @@ subtest 'successful login (username / password)' => sub {
     );
 
     $mech->content_like(
-        qr{Welcome.*johndoe-login},
+        qr{<h5 class="mt-0">johndoe-login</h5>},
         'User is logged in'
     );
 
@@ -70,7 +70,7 @@ subtest 'invalid login: username doesn\'t exist' => sub {
     );
 
     $mech->content_unlike(
-        qr{Welcome.*johndoe-login},
+        qr{<h5 class="mt-0">johndoe-login</h5>},
         'User is not logged in'
     );
 
@@ -98,7 +98,7 @@ subtest 'invalid login: email doesn\'t exist' => sub {
     );
 
     $mech->content_unlike(
-        qr{Welcome.*johndoe-login},
+        qr{<h5 class="mt-0">johndoe-login</h5>},
         'User is not logged in'
     );
 
@@ -126,7 +126,7 @@ subtest 'invalid login: invalid password' => sub {
     );
 
     $mech->content_unlike(
-        qr{Welcome.*johndoe-login},
+        qr{<h5 class="mt-0">johndoe-login</h5>},
         'User is not logged in'
     );
 
@@ -156,7 +156,7 @@ subtest 'invalid login: banned user' => sub {
     );
 
     $mech->content_unlike(
-        qr{Welcome.*johndoe-login},
+        qr{<h5 class="mt-0">johndoe-login</h5>},
         'User is not logged in'
     );
 
@@ -186,7 +186,7 @@ subtest 'invalid login: pending user' => sub {
     );
 
     $mech->content_unlike(
-        qr{Welcome.*johndoe-login},
+        qr{<h5 class="mt-0">johndoe-login</h5>},
         'User is not logged in'
     );
 

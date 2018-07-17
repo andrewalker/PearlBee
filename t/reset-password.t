@@ -47,7 +47,7 @@ subtest 'old password works' => sub {
     );
 
     $mech->content_like(
-        qr{Welcome.*johndoe-reset-password},
+        qr{<h5 class="mt-0">johndoe-reset-password</h5>},
         'User is logged in'
     );
 
@@ -184,7 +184,7 @@ sub test_reset_password_with {
     );
 
     $mech_login->content_like(
-        qr{Welcome.*johndoe-reset-password},
+        qr{<h5 class="mt-0">johndoe-reset-password</h5>},
         'User is logged in'
     );
 
@@ -204,7 +204,7 @@ sub test_reset_password_with {
     );
 
     $mech_old_login->content_unlike(
-        qr{Welcome.*johndoe-reset-password},
+        qr{<h5 class="mt-0">johndoe-reset-password</h5>},
         'User is not logged in'
     );
 

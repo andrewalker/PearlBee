@@ -49,7 +49,7 @@ sub login {
     );
 
     $mech->content_like(
-        qr{Welcome.*$user},
+        qr{<h5 class="mt-0">$user</h5>},
         'User is logged in'
     );
 
@@ -71,7 +71,7 @@ sub cant_login {
     );
 
     $mech->content_unlike(
-        qr{Welcome.*$user},
+        qr{<h5 class="mt-0">$user</h5>},
         'User is not logged in'
     );
 

@@ -1,0 +1,46 @@
+<div class="sidebar bg-light">
+    <div class="sidebar-container">
+        <div class="media my-5 px-4">
+            <img class="align-self-center m-2" style="width: 75px; height: 75px;" src="[% settings.site.logo %]">
+            <div class="media-body">
+                <h2>[% settings.site.name %]</h2>
+                <p class="mb-0">[% settings.site.tagline %]</p>
+            </div>
+        </div>
+        <ul class="nav flex-column mt-5">
+            <li class="nav-item[% IF current_page == "new" %] active[% END %]">
+                <a class="nav-link text-dark" href="[% uri_for('/dashboard/compose') %]">
+                    [% IF current_page == "new" %]
+                    <svg height="12" viewBox="0 0 24 24" width="12"><polyline fill="none" points="13 17 18 12 13 7" stroke="#343a40" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline><polyline fill="none" points="6 17 11 12 6 7" stroke="#343a40" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline></svg>
+                    [% END %]
+                    Compose
+                </a>
+            </li>
+            <li class="nav-item[% IF current_page == "posts" %] active[% END %]">
+                <a class="nav-link text-dark" href="[% uri_for('/dashboard/posts') %]">
+                    [% IF current_page == "posts" %]
+                    <svg height="12" viewBox="0 0 24 24" width="12"><polyline fill="none" points="13 17 18 12 13 7" stroke="#343a40" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline><polyline fill="none" points="6 17 11 12 6 7" stroke="#343a40" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline></svg>
+                    [% END %]
+                    Posts
+                </a>
+            </li>
+            <li class="nav-item[% IF current_page == "confirm-new-authors" %] active[% END %]">
+                <a class="nav-link text-dark" href="#confirm-authors">
+                    [% IF current_page == "confirm-new-authors" %]
+                    <svg height="12" viewBox="0 0 24 24" width="12"><polyline fill="none" points="13 17 18 12 13 7" stroke="#343a40" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline><polyline fill="none" points="6 17 11 12 6 7" stroke="#343a40" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline></svg>
+                    [% END %]
+                    Confirm new authors
+                </a>
+            </li>
+        </ul>
+    </div>
+    <footer class="sidebar-footer">
+        <div class="media p-3">
+            <img class="m-3 rounded-circle" alt="75x75" style="width: 75px; height: 75px;" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2275%22%20height%3D%2275%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2075%2075%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_1618081da66%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_1618081da66%22%3E%3Crect%20width%3D%2275%22%20height%3D%2275%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2220%22%20y%3D%2241.7%22%3E75x75%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+            <div class="align-self-center media-body">
+                <h5 class="mt-0">[% vars.user.username %]</h5>
+                <p class="mb-0">Author<br><a href="#">Settings</a> | <a href="[% uri_for('/logout') %]">Logout</a></p>
+            </div>
+        </div>
+    </footer>
+</div>

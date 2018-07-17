@@ -100,3 +100,8 @@ theme_folder:     'views/themes/'
 # Specifics
 posts_on_page:         5
 captcha_enabled:       0 # use 1 to enable captchas
+
+site:
+  name:    "blogs.perl.org"
+  tagline: "There's more than one way to blog it"
+  logo:    "/dashboard-ng/images/camel-silhouette.png"

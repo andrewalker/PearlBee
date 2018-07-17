@@ -1,0 +1,32 @@
+[% INCLUDE dashboard/sidebar.tt %]
+<div class="col mt-5 px-2">
+    <div class="dropdown float-right mr-3">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">Sort by</button>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="javascript:void(0)" onclick="sortBy('created_at', 'asc')">Oldest first</a>
+            <a class="dropdown-item" href="javascript:void(0)" onclick="sortBy('created_at', 'desc')">Newest first</a>
+            <a class="dropdown-item" href="javascript:void(0)" onclick="sortBy('updated_at', 'asc')">Recently updated</a>
+            <a class="dropdown-item" href="javascript:void(0)" onclick="sortBy('updated_at', 'desc')">Stale</a>
+        </div>
+    </div>
+    <h1 class="ml-4">Posts</h1>
+    <div class="list-group list-group-flush ml-1 list-posts">
+        [% FOREACH p IN posts %]
+        <a href="[% uri_for('/dashboard/edit/' _ p.id) %]" class="list-group-item list-group-item-action">
+            <div class="d-flex justify-content-between">
+                <h5>[% p.title %]</h5>
+                <small>
+                    <em class="text-muted">[% p.created_at %]</em>
+                </small>
+            </div>
+            <p>[% p.abstract %]</p>
+        </a>
+        [% END %]
+    </div>
+</div>
+
+<script>
+    function sortBy(column, direction) {
+        location.search = '?sort=' + column + '&direction=' + direction;
+    }
+</script>

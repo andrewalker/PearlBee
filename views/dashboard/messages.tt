@@ -1,0 +1,29 @@
+[% IF error %]
+    <p class="lead"><strong>
+    [% SWITCH error %]
+    [% CASE 'user-not-found' %]
+            invalid user_id in session
+    [% CASE 'meta-not-json-object' %]
+            meta has to be a JSON object
+    [% CASE 'meta-deep' %]
+            meta can't have deep data structures
+    [% CASE 'meta-too-big' %]
+            meta is too big
+    [% CASE 'tags-not-string-array' %]
+            tags are supposed to be an array of strings
+    [% CASE 'tags-too-big' %]
+            tags are too big
+    [% CASE 'abstract-too-big' %]
+            abstract is too big
+    [% CASE 'post-not-created' %]
+            unknown error creating post
+    [% CASE %]
+            unknown error: [% error %]
+    [% END %]
+    </strong></p>
+[% END %]
+[% IF success %]
+    <p class="lead"><strong>
+        Great success!
+    </strong> [% success %]</p>
+[% END %]
