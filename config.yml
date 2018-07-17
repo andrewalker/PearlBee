@@ -104,4 +104,4 @@ captcha_enabled:       0 # use 1 to enable captchas
 site:
   name:    "blogs.perl.org"
   tagline: "There's more than one way to blog it"
-  logo:    "/dashboard-ng/images/camel-silhouette.png"
+  logo:    "/images/camel-silhouette.png"
