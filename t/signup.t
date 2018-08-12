@@ -1,6 +1,6 @@
 use PearlBee::Test;
 use PearlBee::Helpers::Captcha;
-use HTML::Entities qw(decode_entities);
+use HTML::Entities qw(encode_entities decode_entities);
 use URI;
 use URI::QueryParam;
 
@@ -147,7 +147,9 @@ subtest 'passwords mismatch' => sub {
     ok( !defined $urs->single( { email => 'johndoe@gmail.com' } ),
         'row was not found in the database' );
 
-    $mech->content_like( qr/Passwords don't match/,
+    my $message = "Passwords don't match";
+    my $encoded_message = encode_entities($message);
+    $mech->content_like( qr/($message)|($encoded_message)/,
         'the user is presented with the expected message' );
 
     my $logs = logs;

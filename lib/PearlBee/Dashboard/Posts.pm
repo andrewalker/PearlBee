@@ -19,9 +19,14 @@ get '/dashboard/edit/:id' => needs_permission update_post => sub {
         only_published => 0,
     });
 
+    my $status = $post->{status} // '';
+    $post->{is_published} = int($status eq 'published');
+    $post->{is_draft}     = int($status eq 'draft');
+    $post->{is_trash}     = int($status eq 'trash');
+
     my $tmpl_data = {
-        post         => $post,
-        current_page => 'edit-post',
+        post    => $post,
+        context => 'dashboard/edit-post',
     };
 
     if (query_parameters->{'error'}) {
@@ -63,7 +68,7 @@ post '/dashboard/edit/:id' => needs_permission update_post => sub {
 };
 
 get '/dashboard/compose' => needs_permission create_post => sub {
-    my $tmpl_data = { current_page => 'new', };
+    my $tmpl_data = { context => 'dashboard/new-post', };
     if (query_parameters->{'error'}) {
         $tmpl_data->{post} = session 'form_data';
         session( form_data => undef );
@@ -117,8 +122,8 @@ get '/dashboard/posts' => needs_permission view_post => sub {
     });
 
     template 'dashboard/posts' => {
-        posts        => \@posts,
-        current_page => 'posts',
+        posts   => \@posts,
+        context => 'dashboard/posts',
     } => { layout => 'dashboard' };
 };
 

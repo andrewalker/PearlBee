@@ -4,6 +4,8 @@ requires 'Dancer2' => 0.205002;
 requires 'Dancer2::Plugin::DBIC';
 requires 'Dancer2::Plugin::REST';
 requires 'Dancer2::Plugin::Auth::Tiny';
+requires 'Dancer2::Template::Xslate';
+requires 'Text::Handlebars';
 requires 'RBAC::Tiny' => 0.003;
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Config';
@@ -33,6 +35,7 @@ requires 'Email::MIME';
 requires 'XML::Simple';
 requires 'Gravatar::URL';
 requires 'URI::db';
+requires 'URI::Encode';
 
 # speed up Dancer2
 requires 'Scope::Guard';

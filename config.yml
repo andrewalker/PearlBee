@@ -24,7 +24,7 @@ session: "YAML"
 #Logging
 #logger: "file"
 #log: "error"
-template: "template_toolkit"
+template: "Handlebars"
 engines:
   template:
     template_toolkit:
@@ -32,6 +32,12 @@ engines:
       encoding: 'utf8'
       start_tag: '[%'
       end_tag:   '%]'
+    Handlebars:
+      path:
+        - themes/casper
+        - themes/casper/partials
+        - views
+      verbose: 1
   session:
     YAML:
       session_dir: "/tmp/pearlbee"
@@ -104,4 +110,4 @@ captcha_enabled:       0 # use 1 to enable captchas
 site:
   name:    "blogs.perl.org"
   tagline: "There's more than one way to blog it"
-  logo:    "/images/camel-silhouette.png"
+  logo:    "/images/camel-silhouette-white.png"

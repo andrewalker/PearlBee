@@ -1,0 +1,39 @@
+{{#if error}}
+    <div class="block-content collapse in">
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>Error</h4>
+            {{error}}
+        </div>
+    </div>
+{{/if}}
+
+{{#if warning}}
+    <div class="block-content collapse in">
+        <div class="alert alert-warning">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>Warning</h4>
+            {{warning}}
+        </div>
+    </div>
+{{/if}}
+
+{{#if info}}
+    <div class="block-content collapse in">
+        <div class="alert alert-info">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>Info</h4>
+            {{info}}
+        </div>
+    </div>
+{{/if}}
+
+{{#if success}}
+    <div class="block-content collapse in">
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>Success</h4>
+            {{success}}
+        </div>
+    </div>
+{{/if}}

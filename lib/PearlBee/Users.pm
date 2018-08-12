@@ -124,12 +124,12 @@ get '/login' => sub {
 
     $failure and return template
         login => { warning => $failure },
-        { layout => 'admin' };
+        { layout => 'dashboard' };
 
     session('user_id') and redirect '/dashboard';
     template
         login => {},
-        { layout => 'admin' };
+        { layout => 'dashboard' };
 };
 
 post '/login' => sub {

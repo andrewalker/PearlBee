@@ -1,89 +1,90 @@
 package PearlBee::Posts;
+# ABSTRACT: Posts-related paths
 
-# ABSTRCT: Posts-related paths
 use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
 
-use PearlBee::Helpers::Pagination qw<get_total_pages get_previous_next_link>;
-use PearlBee::Helpers::Captcha;
+my $model = PearlBee::Model::Posts->new(
+    user_rs     => resultset('User'),
+    post_rs     => resultset('Post'),
+    post_tag_rs => resultset('PostTag'),
+    uri_for     => \&uri_for,
+);
 
-prefix '/posts' => sub {
-    get '' => sub {
-        my $nr_of_rows
-            = config->{'posts_on_page'} || 5; # Number of posts per page
-        my $page = query_parameters->{'page'} || 1; # for paging
-        my @posts = resultset('Post')->search(
-            { status => 'published' },
-            {
-                order_by => { -desc => "created_at" },
-                rows     => $nr_of_rows,
-                page     => $page
-            }
-        );
-        my $nr_of_posts
-            = resultset('Post')->search( { status => 'published' } )->count;
-        my @recent = resultset('Post')->search( { status => 'published' },
-            { order_by => { -desc => "created_at" }, rows => 3 } );
+my %sort = map +($_, $_), qw( id created_at updated_at );
+my %dir  = map +($_, "-$_"), qw( asc desc );
 
-        # Calculate the next and previous page link
-        my $total_pages = get_total_pages( $nr_of_posts, $nr_of_rows );
-        my ( $previous_link, $next_link )
-            = get_previous_next_link( $page, $total_pages );
+get '/posts' => sub {
+    my $per_page  = int(query_parameters->{'per_page'} // 0) || 10;
+    my $page      = int(query_parameters->{'page'}     // 0) || 1;
+    my $sort      = $sort{ query_parameters->{'sort'}      || 'created_at' } || 'created_at';
+    my $direction = $dir{  query_parameters->{'direction'} || 'desc' }       || '-desc';
 
-        template 'index' => {
-            posts         => \@posts,
-            recent        => \@recent,
-            popular       => [],
-            tags          => [],
-            page          => $page,
-            total_pages   => $total_pages,
-            previous_link => $previous_link,
-            next_link     => $next_link
-        };
-    };
+    if ($per_page > 50) {
+        $per_page = 50;
+    }
 
-    get '/:slug' => sub {
-        my $slug   = route_parameters->{'slug'};
-        my $post   = resultset('Post')->find( { slug => $slug } );
-        my @recent = resultset('Post')->search( { status => 'published' },
-            { order_by => { -desc => "created_at" }, rows => 3 } );
-        my @popular
-            = resultset('View::PopularPosts')->search( {}, { rows => 3 } );
+    my @posts = $model->search_posts({
+        per_page  => $per_page,
+        page      => $page,
+        sort      => $sort,
+        direction => $direction,
+        tags      => query_parameters->{'tags'},
+        filter    => query_parameters->{'filter'},
+    });
 
-        PearlBee::Helpers::Captcha::new_captcha_code();
+    # TODO: feature_image, cover_image from meta
+    $_->{authors} = [ $_->{author} ] for @posts;
 
-        template post => {
-            post    => $post,
-            recent  => \@recent,
-            popular => \@popular,
-            tags    => [],
-        };
-    };
+    template 'index' => { posts => \@posts, context => 'home' };
+};
+
+get '/users/:author' => sub {
+    my $author    = route_parameters->{'author'};
+    my $per_page  = int(query_parameters->{'per_page'} // 0) || 10;
+    my $page      = int(query_parameters->{'page'}     // 0) || 1;
+    my $sort      = $sort{ query_parameters->{'sort'}      || 'created_at' } || 'created_at';
+    my $direction = $dir{  query_parameters->{'direction'} || 'desc' }       || '-desc';
+
+    if ($per_page > 50) {
+        $per_page = 50;
+    }
+
+    my @posts = $model->search_posts({
+        author_username => $author,
+        per_page        => $per_page,
+        page            => $page,
+        sort            => $sort,
+        direction       => $direction,
+        tags            => query_parameters->{'tags'},
+        filter          => query_parameters->{'filter'},
+    });
+
+    # TODO: feature_image, cover_image from meta
+    $_->{authors} = [ $_->{author} ] for @posts;
+
+    template 'index' => { posts => \@posts, context => 'home' };
 };
 
 get '/:author/:slug' => sub {
     my $author = route_parameters->{'author'};
     my $slug   = route_parameters->{'slug'};
 
-    my $post = resultset('Post')->search(
-        {
-            'author.username' => $author,
-            'me.slug'         => $slug,
-            'me.status'       => 'published'
-        },
-        { join => 'author' },
-    )->first;
+    my ($post) = $model->search_posts({
+        author_username => $author,
+        slug            => $slug,
+    });
 
     if (!$post) {
         status 'not_found';
         return 'Post not found';
     }
 
+    # TODO: feature_image, cover_image from meta
+    # $post->{feature_image} = 'https://casper.ghost.org/v1.0.0/images/welcome.jpg';
+    $post->{authors} = [ $post->{author} ];
 
-    template post => {
-        post    => $post,
-        tags    => $post->tags,
-    };
+    template post => { post => $post, context => 'post' };
 };
 
 1;

@@ -1,0 +1,33 @@
+{{#if error}}
+    <p class="lead"><strong>
+    {{#if error == 'user-not-found' }}
+        invalid user_id in session
+    {{/if}}
+    {{#if error == 'meta-not-json-object' }}
+        meta has to be a JSON object
+    {{/if}}
+    {{#if error == 'meta-deep' }}
+        meta can't have deep data structures
+    {{/if}}
+    {{#if error == 'meta-too-big' }}
+        meta is too big
+    {{/if}}
+    {{#if error == 'tags-not-string-array' }}
+        tags are supposed to be an array of strings
+    {{/if}}
+    {{#if error == 'tags-too-big' }}
+        tags are too big
+    {{/if}}
+    {{#if error == 'abstract-too-big' }}
+        abstract is too big
+    {{/if}}
+    {{#if error == 'post-not-created' }}
+        unknown error creating post
+    {{/if}}
+    </strong></p>
+{{/if}}
+{{#if success}}
+    <p class="lead"><strong>
+        Great success!
+    </strong>{{ success }}</p>
+{{/if}}

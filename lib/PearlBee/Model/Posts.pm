@@ -150,10 +150,13 @@ sub update_post {
 
 sub search_posts {
     my ($self, $params) = @_;
-    my (@ids, @filter_query);
+    my (@ids, @slug_query, @filter_query);
 
     if ($params->{id}) {
         @ids = $params->{id};
+    }
+    elsif ($params->{slug}) {
+        @slug_query = (slug => $params->{slug});
     }
     # XXX: This is complicated... if we're too permissive, we can open
     # ourselves for DoS. We'll have to be careful when combining filters and
@@ -184,7 +187,7 @@ sub search_posts {
         ? ( 'me.status' => 'published', 'author.verified_by_peers' => 1 )
         : ();
 
-    my @paging_and_sorting = !$params->{id} ? (
+    my @paging_and_sorting = !$params->{slug} && !$params->{id} ? (
         order_by     => { $params->{direction} => $params->{sort} },
         rows         => $params->{per_page},
         page         => $params->{page},
@@ -194,7 +197,11 @@ sub search_posts {
         = @ids == 1 ? ( 'me.id' => $ids[0] )
         : @ids ? ( 'me.id' => { -in => \@ids } )
         :        ();
-    my @author_query = $params->{author} ? ( 'me.author' => $params->{author} ) : ();
+    my @author_query
+        = $params->{author} ? ( 'me.author' => $params->{author} )
+        : $params->{author_username}
+        ? ( 'author.username', $params->{author_username} )
+        : ();
 
     my @posts = map {
         $_->{url} = $self->uri_for->('/' . $_->{author}{username} . '/' . $_->{slug});
@@ -208,7 +215,7 @@ sub search_posts {
 
         $_;
     } $self->post_rs->search(
-        { @status_query, @id_query, @filter_query, @author_query },
+        { @status_query, @id_query, @slug_query, @filter_query, @author_query },
         {
             @paging_and_sorting,
             join         => 'author',
