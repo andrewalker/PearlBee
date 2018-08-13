@@ -36,6 +36,7 @@ requires 'XML::Simple';
 requires 'Gravatar::URL';
 requires 'URI::db';
 requires 'URI::Encode';
+requires 'Text::Markdown::Hoedown';
 
 # speed up Dancer2
 requires 'Scope::Guard';

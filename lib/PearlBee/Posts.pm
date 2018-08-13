@@ -3,6 +3,7 @@ package PearlBee::Posts;
 
 use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
+use PearlBee::Helpers::Markdown 'markdown';
 
 my $model = PearlBee::Model::Posts->new(
     user_rs     => resultset('User'),
@@ -83,6 +84,7 @@ get '/:author/:slug' => sub {
     # TODO: feature_image, cover_image from meta
     # $post->{feature_image} = 'https://casper.ghost.org/v1.0.0/images/welcome.jpg';
     $post->{authors} = [ $post->{author} ];
+    $post->{content} = markdown( $post->{content} );
 
     template post => { post => $post, context => 'post' };
 };
