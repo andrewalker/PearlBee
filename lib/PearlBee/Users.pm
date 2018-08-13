@@ -9,7 +9,7 @@ use DateTime;
 
 get '/sign-up' => sub {
     PearlBee::Helpers::Captcha::new_captcha_code();
-    template signup => {};
+    template signup => {  } => { layout => 'clear' };
 };
 
 get '/sign-up/confirm' => sub {
@@ -31,7 +31,7 @@ get '/sign-up/confirm' => sub {
     $token_result->user->update({ verified_email => 1 });
     $token_result->update({ voided_at => \'current_timestamp' });
 
-    template 'signup_confirm_email' => { success => 1 };
+    template 'signup_confirm_email' => { success => 1 } => { layout => 'clear' };
 };
 
 post '/sign-up' => sub {
@@ -108,8 +108,9 @@ post '/sign-up' => sub {
         return $failed_login->('Could not send the email: ' . $@);
     };
 
-    template notify => { success =>
-            'Please check your inbox and confirm your email address' };
+    template notify => {
+        success => 'Please check your inbox and confirm your email address'
+    } => { layout => 'clear' };
 };
 
 get '/login' => sub {
@@ -124,12 +125,12 @@ get '/login' => sub {
 
     $failure and return template
         login => { warning => $failure },
-        { layout => 'dashboard' };
+        { layout => 'clear' };
 
     session('user_id') and redirect '/dashboard';
     template
         login => {},
-        { layout => 'dashboard' };
+        { layout => 'clear' };
 };
 
 post '/login' => sub {
@@ -166,7 +167,7 @@ get '/forgot-password' => sub {
         failed_email  => query_parameters->{'failed_email'},
         wrong_captcha => query_parameters->{'wrong_captcha'},
         sent          => query_parameters->{'sent'}
-    };
+    } => { layout => 'clear' };
 };
 
 post '/forgot-password' => sub {
@@ -225,7 +226,7 @@ get '/reset-password' => sub {
         no_match       => query_parameters->{'no_match'},
         empty_password => query_parameters->{'empty_password'},
         done           => query_parameters->{'done'},
-    };
+    } => { layout => 'clear' };
 };
 
 post '/reset-password' => sub {
