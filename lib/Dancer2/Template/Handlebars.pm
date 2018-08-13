@@ -112,7 +112,7 @@ sub _build_engine {
                     $root = $root->{'..'};
                 }
                 my $handle = $root->{'@blog'}{'facebook'} || $username;
-                my $uri = URI->new("www.facebook.com", "https");
+                my $uri = URI->new("https://www.facebook.com");
                 $uri->path($handle);
                 return "$uri";
             },
@@ -123,7 +123,7 @@ sub _build_engine {
                     $root = $root->{'..'};
                 }
                 my $handle = $root->{'@blog'}{'twitter'} || $username;
-                my $uri = URI->new("www.twitter.com", "https");
+                my $uri = URI->new("https://www.twitter.com");
                 $uri->path($handle);
                 return "$uri";
             },
