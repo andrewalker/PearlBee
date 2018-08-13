@@ -10,6 +10,12 @@
         {{#if @blog.navigation}}
             {{navigation}}
         {{/if}}
+        {{!-- TODO: use navigation helper!! --}}
+        <ul class="nav" role="menu">
+            <li class="nav-home" role="menuitem"><a href="{{ uri_for '/' }}">Home</a></li>
+            <li class="nav-sign-up" role="menuitem"><a href="{{ uri_for '/sign-up' }}">Sign-up</a></li>
+            <li class="nav-login" role="menuitem"><a href="{{ uri_for '/login' }}">Login</a></li>
+        </ul>
     </div>
     <div class="site-nav-right">
         <div class="social-links">
