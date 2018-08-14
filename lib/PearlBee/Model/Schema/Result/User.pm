@@ -338,7 +338,7 @@ sub uri {
 use Gravatar::URL;
 sub avatar {
     my ($self, @args) = @_;
-    gravatar_url(email => $self->email, @args);
+    gravatar_url(email => $self->email, https => 1, @args);
 }
 
 1;
