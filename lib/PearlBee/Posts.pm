@@ -64,7 +64,16 @@ get '/users/:author' => sub {
     # TODO: feature_image, cover_image from meta
     $_->{authors} = [ $_->{author} ] for @posts;
 
-    template 'index' => { posts => \@posts, context => 'home' };
+    my $author_obj = resultset('User')->find( { username => $author } );
+    my %author = $author_obj->get_columns;
+    $author{profile_image} = $author_obj->avatar;
+    $author{url}           = '/users/' . $author_obj->username;
+
+    template 'author' => {
+        author  => \%author,
+        posts   => \@posts,
+        context => 'author'
+    };
 };
 
 get '/:author/:slug' => sub {

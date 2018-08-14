@@ -6,6 +6,7 @@ use Ref::Util qw(is_hashref is_ref is_blessed_scalarref is_arrayref);
 use Text::Unidecode ();
 use String::Truncate ();
 use JSON::MaybeXS;
+use Gravatar::URL;
 
 has uri_for => ( is => 'ro', required => 1 );
 
@@ -213,6 +214,10 @@ sub search_posts {
         $_->{'created_at'} =~ s/(\.[0-9]+)(\+)/$2/;
         $_->{'updated_at'} =~ s/(\.[0-9]+)(\+)/$2/;
 
+        # FIXME: Ghost stuff.. where to put this?
+        $_->{'author'}{'profile_image'} = gravatar_url( email => $_->{author}{email} );
+        $_->{'author'}{'url'} = '/users/' . $_->{author}{username};
+
         $_;
     } $self->post_rs->search(
         { @status_query, @id_query, @slug_query, @filter_query, @author_query },
@@ -220,7 +225,7 @@ sub search_posts {
             @paging_and_sorting,
             join         => 'author',
             prefetch     => 'post_tags',
-            '+select'    => ['author.username', 'author.name'],
+            '+select'    => ['author.username', 'author.name', 'author.email'],
             result_class => 'DBIx::Class::ResultClass::HashRefInflator',
         }
     )->all;
