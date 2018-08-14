@@ -24,22 +24,31 @@
                     Posts
                 </a>
             </li>
-            <li class="nav-item{{#is "dashboard/confirm-new-authors"}} active{{/is}}">
-                <a class="nav-link text-light" href="#confirm-authors">
-                    {{#is "confirm-new-authors" }}
+
+            {{#if vars.user.verified_by_peers}}
+            {{#if new_authors_count}}
+            <li class="nav-item{{#is "dashboard/verify-new-authors"}} active{{/is}}">
+                <a class="nav-link text-light" href="{{ uri_for '/dashboard/verify-new-authors' }}">
+                    {{#is "verify-new-authors" }}
                     <svg height="12" viewBox="0 0 24 24" width="12"><polyline fill="none" points="13 17 18 12 13 7" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline><polyline fill="none" points="6 17 11 12 6 7" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline></svg>
                     {{/is}}
-                    Confirm new authors
+                    New authors <span class="badge badge-pill badge-light">{{ new_authors_count }}</span>
                 </a>
             </li>
+            {{/if}}
+            {{/if}}
         </ul>
     </div>
     <footer class="sidebar-footer">
         <div class="media p-3">
-            <img class="m-3 rounded-circle" style="width: 75px; height: 75px;" src="{{ avatar size=75 }}">
+            <img class="m-3 rounded-circle" style="width: 75px; height: 75px;" src="{{ self_avatar size=75 }}">
             <div class="align-self-center media-body">
                 <h5 class="mt-0">{{ vars.user.username }}</h5>
-                <p class="mb-0">Author<br><a href="{{ uri_for '/dashboard/profile' }}">Profile</a> | <a href="{{ uri_for '/logout' }}">Logout</a></p>
+                <p class="mb-0">
+                    Author {{#unless vars.user.verified_by_peers}}<em class="text-muted">(unconfirmed)</em>{{/unless}}
+                    <br>
+                    <a href="{{ uri_for '/dashboard/profile' }}">Profile</a> | <a href="{{ uri_for '/logout' }}">Logout</a>
+                </p>
             </div>
         </div>
     </footer>

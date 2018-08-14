@@ -25,8 +25,9 @@ get '/dashboard/edit/:id' => needs_permission update_post => sub {
     $post->{is_trash}     = int($status eq 'trash');
 
     my $tmpl_data = {
-        post    => $post,
-        context => 'dashboard/edit-post',
+        post              => $post,
+        context           => 'dashboard/edit-post',
+        new_authors_count => new_authors_count(),
     };
 
     if (query_parameters->{'error'}) {
@@ -68,7 +69,7 @@ post '/dashboard/edit/:id' => needs_permission update_post => sub {
 };
 
 get '/dashboard/compose' => needs_permission create_post => sub {
-    my $tmpl_data = { context => 'dashboard/new-post', };
+    my $tmpl_data = { context => 'dashboard/new-post', new_authors_count => new_authors_count() };
     if (query_parameters->{'error'}) {
         $tmpl_data->{post} = session 'form_data';
         session( form_data => undef );
@@ -122,9 +123,15 @@ get '/dashboard/posts' => needs_permission view_post => sub {
     });
 
     template 'dashboard/posts' => {
-        posts   => \@posts,
-        context => 'dashboard/posts',
+        posts             => \@posts,
+        context           => 'dashboard/posts',
+        new_authors_count => new_authors_count(),
     } => { layout => 'dashboard' };
 };
+
+sub new_authors_count {
+    resultset('User')
+        ->count({ verified_by_peers => 0, banned => 0, verified_email => 1 });
+}
 
 1;

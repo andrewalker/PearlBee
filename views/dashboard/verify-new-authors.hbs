@@ -1,0 +1,36 @@
+{{> 'dashboard/sidebar' }}
+<div class="col mt-5 px-2">
+    <h1 class="ml-4">New authors in {{ settings.site.name }}</h1>
+    {{#if users}}
+    <table class="table table-striped">
+        <tr>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>Avatar</th>
+            <th>Username</th>
+            <th>E-mail</th>
+            <th>Registered at</th>
+        </tr>
+        {{#each users}}
+        <tr>
+            <td width="10">
+                <a href="{{ uri_for '/dashboard/verify-new-authors/-/approve/%d' id }}" title="Approve {{ username }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-check"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+                </a>
+            </td>
+            <td width="10">
+                <a href="{{ uri_for '/dashboard/verify-new-authors/-/reject/%d' id }}" title="Reject {{ username }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
+                </a>
+            </td>
+            <td><img src="{{ avatar }}" width="25"></td>
+            <td>{{ username }}</td>
+            <td>{{ email }}</td>
+            <td>{{ registered_at }}</td>
+        </tr>
+        {{/each}}
+    </table>
+    {{else}}
+    <p class="lead">No new authors to verify.</p>
+    {{/if}}
+</div>
