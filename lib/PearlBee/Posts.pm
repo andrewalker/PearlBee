@@ -35,7 +35,17 @@ get '/posts' => sub {
     });
 
     # TODO: feature_image, cover_image from meta
-    $_->{authors} = [ $_->{author} ] for @posts;
+    # FIXME: this is wasteful and slow
+    my $rs = resultset('User');
+    for (@posts) {
+        my $author = $rs->find({username => $_->{author}{username}});
+
+        $_->{author}{email}         = $author->email;
+        $_->{author}{profile_image} = $author->avatar;
+        $_->{author}{url}           = '/users/' . $_->{author}{username};
+
+        $_->{authors} = [ $_->{author} ];
+    }
 
     template 'index' => { posts => \@posts, context => 'home' };
 };
@@ -62,12 +72,22 @@ get '/users/:author' => sub {
     });
 
     # TODO: feature_image, cover_image from meta
-    $_->{authors} = [ $_->{author} ] for @posts;
+    # FIXME: this is wasteful and slow
+    my $rs = resultset('User');
+    for (@posts) {
+        my $author = $rs->find({username => $_->{author}{username}});
+
+        $_->{author}{email}         = $author->email;
+        $_->{author}{profile_image} = $author->avatar;
+        $_->{author}{url}           = '/users/' . $_->{author}{username};
+
+        $_->{authors} = [ $_->{author} ];
+    }
 
     my $author_obj = resultset('User')->find( { username => $author } );
     my %author = $author_obj->get_columns;
     $author{profile_image} = $author_obj->avatar;
-    $author{url}           = '/users/' . $author_obj->username;
+    $author{url}           = '/users/' . $author;
 
     template 'author' => {
         author  => \%author,
@@ -92,6 +112,12 @@ get '/:author/:slug' => sub {
 
     # TODO: feature_image, cover_image from meta
     # $post->{feature_image} = 'https://casper.ghost.org/v1.0.0/images/welcome.jpg';
+    my $author_obj = resultset('User')->find({username => $author});
+
+    $post->{author}{email}         = $author_obj->email;
+    $post->{author}{profile_image} = $author_obj->avatar;
+    $post->{author}{url}           = '/users/' . $author;
+
     $post->{authors} = [ $post->{author} ];
     $post->{content} = markdown( $post->{content} );
 
