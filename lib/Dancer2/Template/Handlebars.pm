@@ -105,6 +105,7 @@ sub _build_engine {
                 return URI::Encode::uri_encode($text);
             },
             excerpt        => sub { shift->{abstract} },
+            avatar         => sub { pop; shift->{vars}{user}->avatar(@_) },
             facebook_url   => sub {
                 my ( $context, $username, $options ) = @_;
                 my $root = $context;

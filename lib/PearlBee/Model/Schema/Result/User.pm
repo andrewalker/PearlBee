@@ -335,4 +335,10 @@ sub uri {
     '/posts/user/' . $_[0]->username . ( $PearlBee::is_static && '.html ' );
 }
 
+use Gravatar::URL;
+sub avatar {
+    my ($self, @args) = @_;
+    gravatar_url(email => $self->email, @args);
+}
+
 1;

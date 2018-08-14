@@ -1,0 +1,37 @@
+{{> 'dashboard/sidebar' }}
+<div class="col mt-5 px-2">
+    <div class="mx-3">
+        {{> 'dashboard/messages' }}
+        <form action="" method="post">
+        <div class="form-group">
+            <label>Name:</label>
+            <input class="form-control" type="text" name="name" value="{{ user.name }}">
+        </div>
+        <div class="form-group">
+            <label>E-mail:</label>
+            <input class="form-control" type="text" name="email" value="{{ user.email }}">
+        </div>
+        <br>
+        <h3>Password</h3>
+        <div class="form-group">
+            <label>Current:</label>
+            <input class="form-control" type="password" name="current_password" value="">
+        </div>
+        <div class="form-group">
+            <label>New:</label>
+            <input class="form-control" type="password" name="new_password" value="">
+        </div>
+        <div class="form-group">
+            <label>Confirm:</label>
+            <input class="form-control" type="password" name="confirm_password" value="">
+        </div>
+        <div class="float-left">
+            <button class="btn btn-primary" type="submit">
+                <svg fill="none" height="13" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="13"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                Update
+            </button>
+        </div>
+        <br><br>
+        </form>
+    </div>
+</div>

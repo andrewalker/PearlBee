@@ -24,10 +24,34 @@
     {{#if error == 'post-not-created' }}
         unknown error creating post
     {{/if}}
+    {{#if error = 'email_conflict'}}
+        e-mail already in use
+    {{/if}}
+    {{#if error = 'verify_new_email_failed'}}
+        unknown error sending verification e-mail
+    {{/if}}
+    {{#if error = 'wrong_current_password'}}
+        current password is not correct
+    {{/if}}
+    {{#if error = 'new_password_missing'}}
+        new password is required
+    {{/if}}
+    {{#if error = 'passwords_dont_match'}}
+        the passwords don't match
+    {{/if}}
+
     </strong></p>
 {{/if}}
-{{#if success}}
+{{#if success}} {{!-- FIXME: lol --}}
     <p class="lead"><strong>
         Great success!
     </strong>{{ success }}</p>
+{{/if}}
+{{#if updated_profile}}
+    <p class="lead">
+        <strong>Your information was updated.</strong>
+        {{#if updated_email}}
+            Check your inbox to verify your new e-mail.
+        {{/if}}
+    </p>
 {{/if}}

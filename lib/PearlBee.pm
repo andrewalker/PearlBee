@@ -22,7 +22,7 @@ use PearlBee::Posts;
 
 hook before => sub {
     if ( my $id = session->read('user_id') ) {
-        var user => resultset('User')->from_session($id);
+        var user => resultset('User')->find($id);
     }
 
     if ( request->path =~ /^(.*)\.html$/ ) { forward $1; }
