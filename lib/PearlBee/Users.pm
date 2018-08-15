@@ -47,7 +47,7 @@ post '/sign-up' => sub {
         error "Error in sign-up attempt: $warning";
         PearlBee::Helpers::Captcha::new_captcha_code();
         return template signup =>
-            { %{$template_params}, warning => $warning, };
+            { %{$template_params}, warning => $warning, } => { layout => 'clear' };
     };
 
     my $username = $params->{'username'}
