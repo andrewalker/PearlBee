@@ -10,11 +10,11 @@ services:
     - postgresql
 language: perl
 perl:
+    - "5.26"
     - "5.24"
     - "5.22"
     - "5.20"
-before_install:
-    - cpanm --quiet --notest Dancer2@0.206000_02
+    - "5.18"
 before_script:
     - psql -c 'CREATE DATABASE pearlbee' -U postgres
     - psql -c 'CREATE SCHEMA pearlbee' -U postgres pearlbee
