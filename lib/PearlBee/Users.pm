@@ -81,7 +81,7 @@ post '/sign-up' => sub {
 #       status => 'activated',
 #   });
 #   sendmail({
-#       template_file => 'new_user.tt',
+#       template_file => 'new_user.hbs',
 #       name          => $first_admin->name,
 #       email_address => $first_admin->email,
 #       subject       => 'A new user applied as an author to the blog',
@@ -94,7 +94,7 @@ post '/sign-up' => sub {
 
     eval {
         sendmail({
-            template_file => 'activation_email.tt',
+            template_file => 'activation_email.hbs',
             name          => $params->{'username'},
             email_address => $params->{'email'},
             subject       => 'Please confirm your email address',
@@ -188,7 +188,7 @@ post '/forgot-password' => sub {
 
     eval {
         sendmail({
-            template_file => 'reset_password.tt',
+            template_file => 'reset_password.hbs',
             name          => ($user->name || $user->username),
             email_address => $user->email,
             subject       => 'Reset password',

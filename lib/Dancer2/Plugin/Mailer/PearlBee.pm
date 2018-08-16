@@ -5,13 +5,30 @@ use feature 'state';
 use Dancer2::Plugin;
 use Email::Sender::Simple;
 use Email::MIME;
-use Template;
+use Text::Handlebars;
 use HTML::Entities 'encode_entities';
 
 has 'renderer_args' => (
+    'lazy'    => 1,
+    'is'      => 'ro',
+    'default' => sub {
+        my $self = shift;
+        return {
+            path    => $self->path,
+            helpers => {
+                uri_for => sub {
+                    my ($context, $uri, $args) = @_;
+                    encode_entities $self->dsl->uri_for($uri, $args // {});
+                },
+            },
+        };
+    },
+);
+
+has 'path' => (
     'is'          => 'ro',
     'from_config' => 1,
-    'default'     => sub { +{ INCLUDE_PATH => 'views/emails' } },
+    'default'     => sub { 'views/emails' },
 );
 
 has 'from' => (
@@ -25,7 +42,7 @@ has 'renderer' => (
     'lazy'    => 1,
     'default' => sub {
         my ($self) = @_;
-        Template->new( $self->renderer_args );
+        Text::Handlebars->new( %{ $self->renderer_args } );
     },
 );
 
@@ -37,12 +54,8 @@ sub sendmail :PluginKeyword {
         : $email_data->{email_address}
         ;
 
-    $email_data->{variables}{uri_for}  = sub { encode_entities $self->dsl->uri_for(@_) };
     $email_data->{variables}{settings} = $self->dsl->config;
-
-    my $body = '';
-    $self->renderer->process($email_data->{template_file}, $email_data->{variables}, \$body)
-        or print STDERR $self->renderer->error;
+    my $body = $self->renderer->render($email_data->{template_file}, $email_data->{variables});
 
     my $email = Email::MIME->create(
         header_str => [

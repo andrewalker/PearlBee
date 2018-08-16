@@ -32,7 +32,7 @@ patch '/api/user' => needs 'login' => sub {
         $user->update({ email => $email, verified_email => 0 });
         eval {
             sendmail({
-                template_file => 'verify_new_email.tt',
+                template_file => 'verify_new_email.hbs',
                 name          => $user->username,
                 email_address => $email,
                 subject       => 'Please confirm your email address',

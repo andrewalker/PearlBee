@@ -44,8 +44,6 @@ engines:
 
 plugins:
     Mailer::PearlBee:
-        renderer_args:
-            INCLUDE_PATH: 'views/emails/'
         from:  'The PearlBee Team <no-reply@pearlbee.com>'
     DBIC:
         default:

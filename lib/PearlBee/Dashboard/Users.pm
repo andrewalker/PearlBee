@@ -57,7 +57,7 @@ post '/dashboard/profile' => needs login => sub {
         $user->update({ email => $email, verified_email => 0 });
         eval {
             sendmail({
-                template_file => 'verify_new_email.tt',
+                template_file => 'verify_new_email.hbs',
                 name          => $user->username,
                 email_address => $email,
                 subject       => 'Please confirm your email address',
@@ -69,7 +69,6 @@ post '/dashboard/profile' => needs login => sub {
             1;
         } or do {
             error 'Could not send the email: ' . $@;
-            return redirect uri_for('/dashboard/profile', { error => 'verify_new_email_failed' });
         };
 
         $updated_email++;
