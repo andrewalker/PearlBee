@@ -98,8 +98,6 @@ import_folder:    'public/uploads/import/'
 images_folder:    'public/uploads/images/'
 images_path:      '/uploads/images'
 timezone:         'Europe/Amsterdam'
-blog_name:        'PearlBee'
-theme_folder:     'views/themes/'
 
 # Specifics
 posts_on_page:         5
