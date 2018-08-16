@@ -122,6 +122,71 @@ get '/dashboard/verify-new-authors' => needs 'login' => sub {
     } => { layout => 'dashboard' };
 };
 
+get '/dashboard/verify-new-authors/-/approve/:id' => needs 'login' => sub {
+    my $this = var('user');
+    if (!$this->verified_by_peers || $this->banned || !$this->verified_email) {
+        return redirect uri_for('/dashboard');
+    }
+
+    my $user = resultset('User')->find(route_parameters->{id});
+    return redirect uri_for('/dashboard/verify-new-authors')
+        if $user->banned || $user->verified_by_peers || !$user->verified_email;
+
+    # don't touch banned, so an admin can override this
+    $user->update({ verified_by_peers => 1 });
+
+    eval {
+        sendmail({
+            template_file => 'approved.hbs',
+            name          => $user->username,
+            email_address => $user->email,
+            subject       => 'You have been approved',
+            variables     => {
+                name     => $user->username,
+                approver => $this->username,
+            },
+        });
+        1;
+    } or do {
+        error 'Could not send the email: ' . $@;
+    };
+
+    return redirect uri_for('/dashboard/verify-new-authors', { done => 1 });
+};
+
+get '/dashboard/verify-new-authors/-/reject/:id' => needs 'login' => sub {
+    my $this = var('user');
+    if (!$this->verified_by_peers || $this->banned || !$this->verified_email) {
+        return redirect uri_for('/dashboard');
+    }
+
+    my $user = resultset('User')->find(route_parameters->{id});
+    return redirect uri_for('/dashboard/verify-new-authors')
+        if $user->banned || $user->verified_by_peers || !$user->verified_email;
+
+    # if a peer is saying this is spam, ban the user; this way, if it's a real
+    # user, it will be clear that it was rejected.
+    $user->update({ verified_by_peers => 0, banned => 1 });
+
+    eval {
+        sendmail({
+            template_file => 'rejected.hbs',
+            name          => $user->username,
+            email_address => $user->email,
+            subject       => 'Your registration has been rejected',
+            variables     => {
+                name     => $user->username,
+                rejecter => $this->username,
+            },
+        });
+        1;
+    } or do {
+        error 'Could not send the email: ' . $@;
+    };
+
+    return redirect uri_for('/dashboard/verify-new-authors', { done => 1 });
+};
+
 sub new_authors_count {
     resultset('User')
         ->count({ verified_by_peers => 0, banned => 0, verified_email => 1 });
