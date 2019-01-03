@@ -23,6 +23,9 @@
         </ul>
     </div>
     <div class="site-nav-right">
+        <form action="/search" method="get">
+            <input name="q" type="search" placeholder="Search..." value="" style="border-radius: 9999px; background: #f4f8fb; outline: none; border-color: transparent; color: #343f44; transition: border-color .15s linear; padding: .8rem .8rem .8rem 3.2rem;">
+        </form>
         <div class="social-links">
             {{#if @blog.facebook}}
                 <a class="social-link social-link-fb" href="{{facebook_url @blog.facebook}}" target="_blank" rel="noopener">{{> "icons/facebook"}}</a>
