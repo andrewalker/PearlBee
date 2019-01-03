@@ -22,10 +22,12 @@
     <input type="password" class="form-control" name="confirm_password" placeholder="Confirm password">
   </div>
 
+  {{#if settings.captcha_enabled}}
   <div class="form-group">
      <label><img src="/captcha/image/{{ session.secret }}.png" /></label>
      <input type="text" name="secret" class="form-control small" placeholder="CODE" required maxlength="5 "/>
   </div>
+  {{/if}}
 
   <hr />
   <div class="form-group">

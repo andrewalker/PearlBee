@@ -11,8 +11,6 @@ requires 'RBAC::Tiny' => 0.003;
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Config';
 requires 'DBD::Pg';
-requires 'HTML::Strip';
-requires 'Template::Plugin::HTML::Strip';
 requires 'Module::Runtime';
 
 requires 'DateTime';
