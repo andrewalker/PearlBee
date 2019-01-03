@@ -12,6 +12,7 @@ BEGIN {
 use Dancer2::Plugin::Auth::PearlBee;
 
 # load all components
+use PearlBee::Feeds;
 use PearlBee::Users;
 use PearlBee::Authors;
 use if !$PearlBee::is_static, 'PearlBee::Dashboard';
