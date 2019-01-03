@@ -1,28 +1,79 @@
 package PearlBee::Comments;
 use Dancer2 appname => 'PearlBee';
-use Dancer2::Core;
-use Module::Runtime qw(use_module compose_module_name);
-use Carp qw(croak);
+use Dancer2::Plugin::DBIC;
+use Dancer2::Plugin::Auth::Tiny;
 
-my $name            = config->{comments} || 'builtin';
-my $camelized       = Dancer2::Core::camelize($name);
-my $component_class = compose_module_name( 'PearlBee::Comments', $camelized );
+post '/comments' => needs 'login' => sub {
+    my $user_id = session 'user_id';
+    my $post_id = body_parameters->{'post_id'};
+    my $content = body_parameters->{'content'};
 
-use_module($component_class);
+    my ($comment, $error) = create_comment($user_id, $post_id, { content => $content });
 
-my $config = config->{'comments_engines'}{$name} || {};
-$config->{'_app_config'} = config;
-$config->{'template'}    = app->template_engine;
+    # TODO: deal with errors
 
-my $Engine = $component_class->new($config);
+    redirect request->referer;
+};
 
-if ( !$Engine->does('PearlBee::Role::CommentsEngine') ) {
-    croak "Engine $name does not use role CommentsEngine";
+get '/delete_comment/:id' => needs 'login' => sub {
+    my $user_id = session 'user_id';
+    my $comment_id = route_parameters->{'id'};
+
+    my $comment = resultset('Comment')->find($comment_id)
+        or return send_as_not_found({ error => 'comment not found' });
+
+    if ($comment->get_column('author') != $user_id) {
+        return send_as_forbidden({ error => "you don't have permission to delete this comment" });
+    }
+
+    $comment->update({ status => 'trash' });
+
+    status 'no_content';
+};
+
+sub get_post {
+    my ($post_id) = @_;
+
+    my $post = resultset('Post')->search(
+        {
+            'me.id'                    => $post_id,
+            'me.status'                => 'published',
+            'author.verified_by_peers' => 1
+        },
+        { join => 'author' }
+    )->single;
+
+    return $post if $post;
+
+    if (my $user_id = session 'user_id') {
+        my $private_post = resultset('Post')->search({
+            'id'     => $post_id,
+            'author' => $user_id,
+            'status' => { '!=', 'trash' },
+        })->single;
+
+        return $private_post if $private_post;
+    }
 }
 
-hook before_template_render => sub {
-    my ($tokens) = @_;
-    $tokens->{'comments_engine'} = $Engine;
-};
+sub create_comment {
+    my ($user_id, $post_id, $data) = @_;
+
+    my $user = resultset('User')->find($user_id)
+        or return (undef, 'user-not-found');
+
+    my $post = get_post($post_id)
+        or return (undef, 'post-not-found');
+
+    my $comment = $post->add_to_comments({
+        author   => $user,
+        content  => $data->{content},
+    });
+
+    $comment
+        or return (undef, 'comment-not-created');
+
+    return ($comment, undef);
+}
 
 1;

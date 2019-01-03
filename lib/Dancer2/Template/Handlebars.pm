@@ -5,11 +5,39 @@ use Moo;
 use Text::Handlebars;
 use Dancer2::FileUtils 'path';
 use URI::Encode ();
+use DateTime;
+use DateTime::Format::Strptime;
+use Time::Ago;
 
 extends 'Dancer2::Template::Xslate';
 
 has '+default_tmpl_ext' => ( default => 'hbs' );
 has '+views'            => ( default => '' );
+
+{
+    my %conversion = (
+        'YYYY' => 'yyyy',
+        'DDDD' => 'DDD',
+        'dddd' => 'eeee',
+        'DDD'  => 'D',
+        'ddd'  => 'eee',
+        'YY'   => 'yy',
+        'DD'   => 'dd',
+        'D'    => 'd',
+        'd'    => 'e',
+        'A'    => 'a',
+    );
+    my $re = join '|', sort { length($b) <=> length($a) } keys %conversion;
+
+    sub momentjs2cldr {
+        my $format = shift;
+        my $result = $format;
+
+        $result =~ s/\G($re)/$conversion{$1}/gm;
+
+        return $result;
+    }
+}
 
 sub _build_engine {
     my ($self) = @_;
@@ -106,6 +134,32 @@ sub _build_engine {
             },
             excerpt        => sub { shift->{abstract} },
             self_avatar    => sub { pop; shift->{vars}{user}->avatar(@_) },
+            user_is        => sub {
+                my ( $context, $user, $options ) = @_;
+                my $root = $context;
+                while (exists $root->{'..'}) {
+                    $root = $root->{'..'};
+                }
+                if ($root->{vars}{user}->id == $user) {
+                    $options->{fn}->($context);
+                }
+                else {
+                    $options->{inverse}->($context);
+                }
+            },
+            time_ago => sub {
+                my ( $context, $time, $options ) = @_;
+                # FIXME: we force English here because otherwise Time::Ago will use the
+                # system locale. That would be fine, except the rest of the content is not
+                # localized, so this could mean only the time is translated, while the rest
+                # is English. Better to keep it in English only until we implement i18n in
+                # the whole application.
+                local $ENV{LANGUAGE} = 'en';
+                my $dt = DateTime::Format::Strptime->new( pattern => '%F %T%z' )->parse_datetime($time);
+                my $diff = DateTime->now->set_time_zone('UTC')->epoch - $dt->set_time_zone('UTC')->epoch;
+
+                return Time::Ago->in_words($diff) . ' ago';
+            },
             facebook_url   => sub {
                 my ( $context, $username, $options ) = @_;
                 my $root = $context;
@@ -143,7 +197,16 @@ sub _build_engine {
             },
             date           => sub {
                 my ( $context, $ref, $options ) = @_;
-                return $context->{created_at};
+                my $format = momentjs2cldr($ref->{format});
+                my $dt;
+                if ($context->{created_at}) {
+                    $dt = DateTime::Format::Strptime->new( pattern => '%F %T%z' )->parse_datetime($context->{created_at});
+                }
+                else {
+                    $dt = DateTime->now;
+                }
+
+                return $dt->format_cldr($format);
             },
             asset          => sub {
                 my ( $context, $ref, $options ) = @_;

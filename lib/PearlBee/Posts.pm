@@ -121,6 +121,27 @@ get '/:author/:slug' => sub {
     $post->{authors} = [ $post->{author} ];
     $post->{content} = markdown( $post->{content} );
 
+    $post->{comments} = [
+        map {
+            my %row = $_->get_columns;
+            $row{author}                = { $_->author->get_columns };
+            $row{author}{profile_image} = $_->author->avatar;
+            $row{author}{url}           = uri_for('/users/' . $_->author->username);
+            $row{created_at_time_ago}   = $_->created_at_time_ago;
+            \%row;
+        }
+        resultset('Comment')->search(
+            {
+                'me.post'                  => $post->{id},
+                'me.status'                => 'published',
+                'author.verified_by_peers' => 1
+            },
+            {
+                prefetch => 'author',
+            }
+        )->all
+    ];
+
     template post => { post => $post, context => 'post' };
 };
 

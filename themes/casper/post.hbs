@@ -62,11 +62,53 @@ into the {body} of the default.hbs template --}}
 
             </footer>
 
-            {{!--
-            <section class="post-full-comments">
-                If you want to embed comments, this is a good place to do it!
+            <style>
+.comment-button{
+    margin: 5px 0 0 0;
+    padding: 0 20px;
+    height: 41px;
+    outline: none;
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 37px;
+    font-weight: 400;
+    text-align: center;
+    text-shadow: 0 -1px 0 rgba(0,0,0,.1);
+    background: linear-gradient(#4fb7f0,#29a0e0 60%,#29a0e0 90%,#36a6e2);
+    border-radius: 5px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.14);
+    -webkit-font-smoothing:subpixel-antialiased;
+    opacity: .8;
+    float: right;
+}
+.comment-button:hover{ text-decoration:none; opacity: 1 }
+.comment-button:active,
+.comment-button:focus{background:#209cdf}
+</style>
+            <section class="post-full-comments" style="flex-direction: column; align-items: flex-start; justify-content: flex-start; display:flex; width:100%">
+                {{#if vars.user.username}}
+                <div class="post-comment" style="justify-self: flex-start; display: flex; align-items: flex-end; width:100%; background: white; padding: 20px">
+                    <form action="/comments" method="post" style="width: 100%">
+                        <input type="hidden" name="post_id" value="{{id}}">
+                        <textarea name="content" style="width: 100%" rows="4"></textarea>
+                        <button type="submit" class="comment-button">Post comment</button>
+                    </form>
+                </div>
+                {{/if}}
+
+                {{#foreach comments}}
+                <div class="post-comment" style="justify-self: flex-start; display: flex; align-items: center; width:100%; background: white; padding: 0 20px; margin: 0.5em 0;">
+                    <a href="{{author.url}}"><img src="{{author.profile_image}}" style="display: block; position: relative; margin-right: 15px; height: 60px; width: 60px; object-fit: cover; border-radius: 100%; vertical-align: middle;"></a>
+                    <section class="comment-card" style="width: 100%; margin: 0 0 10px 0">
+                        {{#user_is author.id}}
+                        <a href="{{uri_for "/delete_comment/"}}{{id}}" style="display: block; float: right">[delete]</a>
+                        {{/user_is}}
+                        <h4 style="width: 100%; margin: 0.5em 0"><a href="{{author.url}}" style="color: #15171a; text-decoration: none">{{author.name}}</a> <small style="color: #738a94; margin-left: 5px">{{created_at_time_ago}}</small></h4>
+                        {{content}}
+                    </section>
+                </div>
+                {{/foreach}}
             </section>
-            --}}
 
         </article>
 

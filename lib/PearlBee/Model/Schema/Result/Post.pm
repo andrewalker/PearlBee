@@ -72,13 +72,13 @@ __PACKAGE__->table("post");
 =head2 created_at
 
   data_type: 'timestamp with time zone'
-  default_value: CURRENT_TIMESTAMP
+  default_value: current_timestamp
   is_nullable: 0
 
 =head2 updated_at
 
   data_type: 'timestamp with time zone'
-  default_value: CURRENT_TIMESTAMP
+  default_value: current_timestamp
   is_nullable: 0
 
 =head2 status
@@ -117,13 +117,13 @@ __PACKAGE__->add_columns(
   "created_at",
   {
     data_type     => "timestamp with time zone",
-    default_value => \"CURRENT_TIMESTAMP",
+    default_value => \"current_timestamp",
     is_nullable   => 0,
   },
   "updated_at",
   {
     data_type     => "timestamp with time zone",
-    default_value => \"CURRENT_TIMESTAMP",
+    default_value => \"current_timestamp",
     is_nullable   => 0,
   },
   "status",
@@ -185,6 +185,21 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 comments
+
+Type: has_many
+
+Related object: L<PearlBee::Model::Schema::Result::Comment>
+
+=cut
+
+__PACKAGE__->has_many(
+  "comments",
+  "PearlBee::Model::Schema::Result::Comment",
+  { "foreign.post" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 post_tags
 
 Type: has_many
@@ -201,8 +216,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-04-14 15:06:37
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iiNoaG8V6XyM1ybKdTkOSg
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-02 16:16:41
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1J1+dJ1RZYMqQmoBOW+hPw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -304,5 +319,6 @@ sub can_be_edited_by {
     my $schema = $self->result_source->schema;
     return $schema->resultset('User')->find($user_id)->role eq 'admin';
 }
+
 
 1;

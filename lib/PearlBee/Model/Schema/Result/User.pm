@@ -93,7 +93,7 @@ __PACKAGE__->table("user");
 =head2 registered_at
 
   data_type: 'timestamp with time zone'
-  default_value: CURRENT_TIMESTAMP
+  default_value: current_timestamp
   is_nullable: 0
 
 =head2 last_login
@@ -135,7 +135,7 @@ __PACKAGE__->add_columns(
   "registered_at",
   {
     data_type     => "timestamp with time zone",
-    default_value => \"CURRENT_TIMESTAMP",
+    default_value => \"current_timestamp",
     is_nullable   => 0,
   },
   "last_login",
@@ -182,6 +182,21 @@ __PACKAGE__->add_unique_constraint("user_username_key", ["username"]);
 
 =head1 RELATIONS
 
+=head2 comments
+
+Type: has_many
+
+Related object: L<PearlBee::Model::Schema::Result::Comment>
+
+=cut
+
+__PACKAGE__->has_many(
+  "comments",
+  "PearlBee::Model::Schema::Result::Comment",
+  { "foreign.author" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 posts
 
 Type: has_many
@@ -213,8 +228,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2018-04-16 17:09:01
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:kKVYH2l5RwwsjbQ+x/kRSw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-02 14:28:02
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ahvKjdZ1BK8LXd/DtWWgLg
 
 __PACKAGE__->add_columns(
     password => {

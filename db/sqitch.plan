@@ -7,3 +7,4 @@ table_post [schema_pearlbee table_user] 2017-11-20T11:41:50Z Andre Walker <andre
 table_tag [schema_pearlbee table_post] 2017-11-20T11:56:12Z Andre Walker <andre@andrewalker.net> # Tag table
 table_registration_token [schema_pearlbee table_user] 2017-11-20T12:27:45Z Andre Walker <andre@andrewalker.net> # Registration token table
 registration_token_reason [table_registration_token] 2017-11-28T12:23:58Z Andre Walker <andre@andrewalker.net> # Use registration_token table also for reset-password
+table_comment [table_user table_post] 2019-01-02T13:16:21Z Andre Walker <andre@andrewalker.net> # Table comment

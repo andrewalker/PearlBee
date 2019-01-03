@@ -16,6 +16,7 @@ requires 'Module::Runtime';
 
 requires 'DateTime';
 requires 'DateTime::Format::Pg';
+requires 'Time::Ago';
 
 requires 'Data::GUID';
 requires 'Data::Pageset';

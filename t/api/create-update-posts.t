@@ -6,8 +6,10 @@ use utf8;
 my $urs = schema->resultset('User');
 my $prs = schema->resultset('Post');
 my $trs = schema->resultset('PostTag');
+my $crs = schema->resultset('Comment');
 
 sub insert_fixtures {
+    $crs->delete;
     $trs->delete;
     $prs->delete;
     $urs->search( { email => 'johndoe-create-post-api@gmail.com' } )->delete;

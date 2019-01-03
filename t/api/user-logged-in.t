@@ -4,8 +4,10 @@ use JSON::MaybeXS;
 my $urs = schema->resultset('User');
 my $prs = schema->resultset('Post');
 my $trs = schema->resultset('PostTag');
+my $crs = schema->resultset('Comment');
 
 sub insert_posts {
+    $crs->delete;
     $trs->delete;
     $prs->delete;
     $urs->search( { email => 'johndoe-author1@gmail.com' } )->delete;

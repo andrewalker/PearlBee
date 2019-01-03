@@ -1,10 +1,11 @@
 package PearlBee::API::Posts;
 
-# ABSTRCT: Posts-related paths
+# ABSTRACT: Posts-related paths
 use Dancer2 appname => 'PearlBee';
 use Dancer2::Plugin::DBIC;
 use Dancer2::Plugin::Auth::Tiny;
 
+use PearlBee::Helpers::SendAs;
 use PearlBee::Model::Posts;
 
 my $model = PearlBee::Model::Posts->new(
@@ -159,11 +160,6 @@ patch '/api/posts/:id' => needs 'login' => sub {
     status 'no_content';
     return '';
 };
-
-sub send_as_bad_request {
-    status 'bad_request';
-    send_as JSON => $_[0];
-}
 
 # Search
 

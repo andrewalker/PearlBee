@@ -51,7 +51,7 @@ __PACKAGE__->table("registration_token");
 =head2 created_at
 
   data_type: 'timestamp with time zone'
-  default_value: CURRENT_TIMESTAMP
+  default_value: current_timestamp
   is_nullable: 0
 
 =head2 voided_at
@@ -76,7 +76,7 @@ __PACKAGE__->add_columns(
   "created_at",
   {
     data_type     => "timestamp with time zone",
-    default_value => \"CURRENT_TIMESTAMP",
+    default_value => \"current_timestamp",
     is_nullable   => 0,
   },
   "voided_at",
@@ -123,8 +123,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07047 @ 2017-11-28 13:29:58
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dGci0/eubbsxx+eeu6/Q1Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2019-01-02 14:28:02
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hM2xEgFgssZ03TIGBz4p/w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
