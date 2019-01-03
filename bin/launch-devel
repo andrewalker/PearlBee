@@ -10,4 +10,5 @@ fi
 
 eval $(perl -Ilocal/lib/perl5 -Mlocal::lib="local")
 export DANCER_ENVIRONMENT=development
-plackup -R lib,views,bin bin/app.pl
+export EMAIL_SENDER_TRANSPORT=Print
+plackup -r

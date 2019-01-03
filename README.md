@@ -1,40 +1,32 @@
 # PearlBee [![Build Status](https://travis-ci.org/andrewalker/PearlBee.svg?branch=master)](https://travis-ci.org/andrewalker/PearlBee)
 
-An open source blogging platform written in Perl. [pearlbee.org](http://pearlbee.org)
+An open source blogging platform written in Perl.
 
 Don't run tests against a production database! Make sure dbic.yaml has
 different values for `TESTING_DATABASE` and `DEFAULT_DATABASE`.
 
 ## Setup
 
-You can try it for yourself!
+Requires PostgreSQL server.
 
-On Linux will need libxml2 installed, while Mac OSX already provides it.
-
-### On Ubuntu or Debian based Linux
+Example configuration:
 
 ```shell
-$ sudo apt-get install libxml2-dev
-$ git clone git@github.com:Perl-Evozon/PearlBee.git
-$ cd PearlBee
-$ ./bin/bootstrap
+sudo su - postgres -c "createuser $USER"
+sudo su - postgres -c "createdb -O$USER pearlbee"
+sudo su - postgres -c "createdb -O$USER pearlbee_testing" # for running the tests
 ```
 
-### On Fedora or RedHat based Linux
+The values above are the default in the configuration (dbic.yaml and
+sqitch.conf), but you can always tweak for your own needs.
+
+When running on Linux, you might need to install libxml2-dev or libxml2-devel,
+depending on your distro.
+
+To install all the required Perl modules:
 
 ```shell
-$ sudo yum install libxml2-devel
-$ git clone git@github.com:Perl-Evozon/PearlBee.git
-$ cd PearlBee
-$ ./bin/bootstrap
-```
-
-### On Mac OSX
-
-```shell
-$ git clone git@github.com:Perl-Evozon/PearlBee.git
-$ cd PearlBee
-$ ./bin/bootstrap
+./bin/bootstrap
 ```
 
 ## Running
@@ -43,10 +35,5 @@ $ ./bin/bootstrap
 ./bin/launch-devel
 ```
 
-The initial user is `admin` and the password is `password`.
-
-## PearlBee in news
-
-[Is PearlBee Perl's next great blogging platform?](http://perltricks.com/article/69/2014/2/17/Is-PearlBee-Perl-s-next-great-blogging-platform-) - Perl Tricks
-
-Thank you for using PearlBee!
+The initial user created by the bootstrap script is `admin` and the password is
+`password`.
