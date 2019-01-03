@@ -118,7 +118,21 @@ sub _build_engine {
                     : $options->{inverse}->($context);
             },
             get            => sub { warn 'TODO! get'; return '' },
-            plural         => sub { warn 'TODO! plural'; return '' },
+            plural         => sub {
+                my ( $context, $name, $options ) = @_;
+                $options->{plural} = delete $options->{'(call)'};
+                my $number = $context->{pagination}{total};
+
+                if (!$number) {
+                    return $options->{empty};
+                }
+                elsif ($number == 1) {
+                    return $options->{singular} =~ s/%/1/r;
+                }
+                else {
+                    return $options->{plural} =~ s/%/$number/r;
+                }
+            },
             contentFor     => sub {
                 my ( $context, $name, $options ) = @_;
                 push @{ $context->{_blocks}{$name} }, $options->{fn}->($context);

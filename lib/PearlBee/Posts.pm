@@ -25,13 +25,14 @@ get '/posts' => sub {
         $per_page = 50;
     }
 
-    my @posts = $model->search_posts({
-        per_page  => $per_page,
-        page      => $page,
-        sort      => $sort,
-        direction => $direction,
-        tags      => query_parameters->{'tags'},
-        filter    => query_parameters->{'filter'},
+    my ($pagination, @posts) = $model->search_posts({
+        per_page        => $per_page,
+        page            => $page,
+        sort            => $sort,
+        direction       => $direction,
+        tags            => query_parameters->{'tags'},
+        filter          => query_parameters->{'filter'},
+        with_pagination => 1,
     });
 
     # TODO: feature_image, cover_image from meta
@@ -47,7 +48,18 @@ get '/posts' => sub {
         $_->{authors} = [ $_->{author} ];
     }
 
-    template 'index' => { posts => \@posts, context => 'home' };
+    template 'index' => {
+        posts      => \@posts,
+        context    => 'home',
+        pagination => {
+            page  => $pagination->current_page,
+            pages => $pagination->last_page,
+            total => $pagination->total_entries,
+            next  => $pagination->next_page,
+            prev  => $pagination->previous_page,
+            limit => $pagination->entries_per_page,
+        },
+    };
 };
 
 get '/users/:author' => sub {
@@ -61,7 +73,7 @@ get '/users/:author' => sub {
         $per_page = 50;
     }
 
-    my @posts = $model->search_posts({
+    my ($pagination, @posts) = $model->search_posts({
         author_username => $author,
         per_page        => $per_page,
         page            => $page,
@@ -69,6 +81,7 @@ get '/users/:author' => sub {
         direction       => $direction,
         tags            => query_parameters->{'tags'},
         filter          => query_parameters->{'filter'},
+        with_pagination => 1,
     });
 
     # TODO: feature_image, cover_image from meta
@@ -87,11 +100,19 @@ get '/users/:author' => sub {
     my $author_obj = resultset('User')->find( { username => $author } );
     my %author = $author_obj->get_columns;
     $author{profile_image} = $author_obj->avatar;
-    $author{url}           = '/users/' . $author;
+    $author{url}           = uri_for('/users/' . $author);
 
     template 'author' => {
         author  => \%author,
         posts   => \@posts,
+        pagination => {
+            page  => $pagination->current_page,
+            pages => $pagination->last_page,
+            total => $pagination->total_entries,
+            next  => $pagination->next_page,
+            prev  => $pagination->previous_page,
+            limit => $pagination->entries_per_page,
+        },
         context => 'author'
     };
 };
@@ -116,7 +137,7 @@ get '/:author/:slug' => sub {
 
     $post->{author}{email}         = $author_obj->email;
     $post->{author}{profile_image} = $author_obj->avatar;
-    $post->{author}{url}           = '/users/' . $author;
+    $post->{author}{url}           = uri_for('/users/' . $author);
 
     $post->{authors} = [ $post->{author} ];
     $post->{content} = markdown( $post->{content} );

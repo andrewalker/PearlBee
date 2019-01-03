@@ -1,5 +1,6 @@
 <div class="sidebar bg-dark text-light">
     <div class="sidebar-container">
+        <a href="{{uri_for '/'}}" style="color: inherit">
         <div class="media my-5 px-4">
             <img class="align-self-center m-2" style="width: 75px; height: 75px;" src="{{ settings.site.logo }}">
             <div class="media-body">
@@ -7,6 +8,7 @@
                 <p class="mb-0">{{ settings.site.tagline }}</p>
             </div>
         </div>
+        </a>
         <ul class="nav flex-column mt-5">
             <li class="nav-item{{#is "dashboard/new-post"}} active{{/is}}">
                 <a class="nav-link text-light" href="{{ uri_for '/dashboard/compose' }}">

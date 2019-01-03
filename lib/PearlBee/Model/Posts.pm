@@ -226,7 +226,18 @@ sub search_posts {
         }
     )->all;
 
-    return @posts;
+    my @pager;
+    if ($params->{with_pagination}) {
+        push @pager, $self->post_rs->search({
+            @status_query, @id_query, @slug_query, @filter_query, @author_query
+        },
+        {
+            @paging_and_sorting,
+            join => ['author','post_tags'],
+        })->pager;
+    }
+
+    return (@pager, @posts);
 }
 
 sub search_tags {
