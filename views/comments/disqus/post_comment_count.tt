@@ -1,3 +1,0 @@
-<div class="block_elements">
-  <i class="icon-comment"></i> <a href="/posts/[% post.slug %]#disqus_thread">Comments</a>
-</div>

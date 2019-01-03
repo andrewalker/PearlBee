@@ -1,6 +1,0 @@
-Hello <strong>[% name %]</strong>,
-
-Someone (hopefully you) changed the email address on your account at [% uri_for('/') %].
-
-<a href="[% uri_for('/sign-up/confirm', { token => token }) %]">Confirm your
-email address</a> for this change to go through.

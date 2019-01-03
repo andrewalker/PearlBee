@@ -1,9 +1,0 @@
-<h2>A new user applied as an 'author'</h2>
-
-<b> '[% name %]' </b> applied as an author for <b> <a href="[% uri_for('/') %]"> [% settings.blog_name %]</a></b>
-<br />
-Username: '[% username %]'
-<br />
-Email: '[% email %]' 
-<br />
-<i>You can approve this request from the <a href="[% uri_for('/dashboard') %]">admin panel</a>.</i>
