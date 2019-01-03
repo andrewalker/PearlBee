@@ -101,7 +101,7 @@ timezone:         'Europe/Amsterdam'
 
 # Specifics
 posts_on_page:         5
-captcha_enabled:       0 # use 1 to enable captchas
+captcha_enabled:       1 # use 1 to enable captchas
 
 site:
   name:    "blogs.perl.org"
