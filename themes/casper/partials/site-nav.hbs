@@ -13,8 +13,13 @@
         {{!-- TODO: use navigation helper!! --}}
         <ul class="nav" role="menu">
             <li class="nav-home" role="menuitem"><a href="{{ uri_for '/' }}">Home</a></li>
+            {{#unless vars.user.username}}
             <li class="nav-sign-up" role="menuitem"><a href="{{ uri_for '/sign-up' }}">Sign-up</a></li>
             <li class="nav-login" role="menuitem"><a href="{{ uri_for '/login' }}">Login</a></li>
+            {{else}}
+            <li class="nav-login" role="menuitem"><a href="{{ uri_for '/dashboard' }}">Dashboard</a></li>
+            <li class="nav-login" role="menuitem"><a href="{{ uri_for '/logout' }}">Logoff</a></li>
+            {{/if}}
         </ul>
     </div>
     <div class="site-nav-right">

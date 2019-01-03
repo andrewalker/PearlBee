@@ -356,4 +356,13 @@ sub avatar {
     gravatar_url(email => $self->email, https => 1, @args);
 }
 
+sub legacy_check_password {
+    my ($self, $password) = @_;
+
+    my $encrypted = $self->get_column('password');
+    my $result = crypt($password, $encrypted);
+
+    return defined $result && $result eq $encrypted;
+}
+
 1;

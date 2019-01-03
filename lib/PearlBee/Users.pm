@@ -144,8 +144,15 @@ post '/login' => sub {
         ],
     }) or redirect '/login?invalid=1';
 
-    $user->check_password($password)
-        or redirect '/login?invalid=1';
+    if (!$user->check_password($password)) {
+        # migrated from blogs.perl.org
+        if ($user->legacy_check_password($password)) {
+            $user->update({ password => $password });
+        }
+        else {
+            return redirect '/login?invalid=1';
+        }
+    }
 
     $user->verified_email
         or redirect '/login?pending=1';
